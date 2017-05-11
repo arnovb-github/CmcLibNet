@@ -78,15 +78,16 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         string XSDFile { get; set; }
         /// <summary>
-        /// Return connected values as nested items, preserving the integrity of connected items. Only XML or JSON export formats are supported. Any formatting options are ignored.
+        /// Adds an id value to every exported item and all it's connection data. Formatting options are ignored.
         /// </summary>
         /// <remarks>
-        /// When set to <c>false</c>, values from connections are listed, but the relationship between listed items is lost.
-        /// That is, when you export multiple fields from the same connection, connected values are simply listed as a node for each field.
-        /// That means that the first value in the first field does not have to correspond with the first value in the second field, and so on.
-        /// They could well come from different connected items. Setting this option to <c>true</c> preserves the relationship between connected fields
-        /// by exporting the connected items as a set of values belonging to the same connected item.
-        /// <para>Internally, all data are first put in an ADO.NET DataSet, with the DataColumns set to the Commence fieldtype (using regional settings).</para>
+        /// When set to <c>false</c>, values from connections are exported as individual nodes.
+        /// If a field has no value, an empty node is returned.
+        /// <para>The relationship between fields belonging to a connected item is preserved by the position of the node.
+        /// For example, every 2-nd node for field A in connection X and every 2-nd node for field B belong to the same connected item in category X.</para>
+        /// <para>That is fine for XPath style querying, but if you want more SQL-style querying, 
+        /// setting this property to <c>true</c> will include an (arbitrary) id value for every item and for every connected item.</para>
+        /// <para>Internally, this uses a completely different way of exporting, which is why formatting asettings are ignored.</para>
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>

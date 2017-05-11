@@ -4,14 +4,14 @@ namespace Vovin.CmcLibNet.Export
 {
     #region Enumerations
     /// <summary>
-    /// Enum specifying the desired export format.
+    /// Enum specifying the export format.
     /// </summary>
     [ComVisible(true)]
     [GuidAttribute("57BB00BE-5BD8-4F9C-A9CE-34D22BEC4528")]
     public enum ExportFormat
     {
         /// <summary>
-        /// Export to XML format (default). Fastest and safest.
+        /// Export to XML format (default). Fastest and most reliable.
         /// </summary>
         Xml = 0,
         /// <summary>
@@ -33,24 +33,20 @@ namespace Vovin.CmcLibNet.Export
         Text = 3,
         /// <summary>
         /// Export to Microsoft Excel. No checks are performed to see if the Excel sheet can actually hold all data. Especially when there are connected items involved, you may quickly hit Excel worksheet limits.
-        /// <remarks>Pass <c>null</c> or an empty string to the export method to create and open a new Workbook instead of writing values to a file.</remarks>
-        /// <para>In its current implementation, integrity of connected items is preserved. That means that every connected item gets its own row, with the parents item values repeated. CmcLibNet is the only export tool that does not treat connected values as a single string, which would likely not fit an Excel cell anyway.</para>
+        /// <remarks>Pass <c>null</c> or an empty string as filename to the export method to create and open a new Workbook instead of writing values to a file.</remarks>
+        /// <para>In its current implementation, integrity of connected items is preserved. That means that every connection and every connected item gets its own row, with the parent item values repeated. CmcLibNet is the only export tool I know that does not treat connected values as a single string, which would likely not fit an Excel cell anyway.</para>
         /// <para>This makes the Excel sheet very suitable for importing into other systems.</para>
-        /// <para>It makes the Excel sheet useless for meaningful calculations.</para>
-        /// <para>If you want to do calculations, and most of you will want to, you have two options:
-        /// <list type="number">
+        /// <para>However, including connections makes the Excel sheet useless for meaningful calculations.</para>
+        /// <para>If you want to do calculations, and most of you will want to, you have the following option(s):
+        /// <list type="table">
         ///     <item>  
-        ///         <term>No connections</term>  
+        ///         <term>Skip connections</term>  
         ///         <description>Simply tell the export to ignore connected items <see cref=" IExportSettings.SkipConnectedItems"/>. Or simply create and export a view that does not contain any.</description>  
         ///     </item>
-        ///     <item>  
-        ///         <term>Just single connections</term>  
-        ///         <description>Make sure you only export connections with just 1 connected item at most.</description>  
-        ///     </item>
         /// </list></para>
-        /// <para>That may seem overly complex, but in reality there is rarely the need to export 1-N or N-N connections to an Excel sheet yet still perform calculations on them. Most often calculations will be performed on items pertaining to invoices or timesheets, that almost invariably are connected to a single value like a sender or recipient. There may be many notes attached, but these aren't very useful in an Excel sheet.</para>
-        /// <para>If you want to build some -say- invoicing system in Commence and have a bunch of notes attached, using the Report Viewer feature in Commence is probably a better choice.</para>
-        /// <para>Future implementations of the export engine may have additional parametets controlling Excel exports.</para>
+        /// <para>While the current implementation of Excel exports makes them very well suited for importing into other systems, it makes them rather limited for calculations, say for invoicing. Truth be told it is probably easier to use the Report Writer for that, but data in the Report Writer are fixed after generating the report.</para>
+        /// <para>Future implementations of the export engine will have additional parameters controlling Excel exports to include connected data as simple field values.</para>
+        /// <para>You can of course always export to another format first, then import into Excel.</para>
         /// </summary>
         Excel = 4,
         /// <summary>
@@ -61,7 +57,7 @@ namespace Vovin.CmcLibNet.Export
         /// Does not export to file, but instead reads the data and emits a <see cref="IExportEngineEvents.CommenceRowsRead"/> event that you can subscribe to.
         /// <para>The <see cref="CommenceRowsReadArgs.RowValues"/> property will contain the Commence data in a JSON representation.</para>
         /// <para>The number of items contained in the JSON depends on the number of rows you request.</para>
-        /// <para>The filename argument passed to the Export* methods is simply ignored when using this setting.</para>
+        /// <para>The filename argument passed to any Export* methods is simply ignored when using this setting.</para>
         /// </summary>
         Event = 6,
     }
@@ -305,23 +301,5 @@ namespace Vovin.CmcLibNet.Export
                 }
             }
         }
-        ///// <inheritdoc />
-        //public string EventContentType 
-        //    {
-        //     get
-        //    { return _eventcontenttype; }
-        //        set
-        //    {
-        //        switch (value.ToLower())
-        //        {
-        //            case "application/json":
-        //            case "application/xml":
-        //                _eventcontenttype = value;
-        //                break;
-        //            default:
-        //                throw new System.FormatException("Content-Type invalid or not supported.");
-        //        }
-        //    }
-        //}
     }
 }
