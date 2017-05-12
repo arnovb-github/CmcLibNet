@@ -87,7 +87,7 @@ namespace Vovin.CmcLibNet.Export
         /// For example, every 2-nd node for field A in connection X and every 2-nd node for field B belong to the same connected item in category X.</para>
         /// <para>That is fine for XPath style querying, but if you want more SQL-style querying, 
         /// setting this property to <c>true</c> will include an (arbitrary) id value for every item and for every connected item.</para>
-        /// <para>Internally, this uses a completely different way of exporting, which is why formatting asettings are ignored.</para>
+        /// <para>Internally, this uses a completely different way of exporting, which is why formatting settings are ignored.</para>
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
