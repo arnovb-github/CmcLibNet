@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Export
         StreamWriter _sw = null;
         int _rowcounter = 0;
 
-        #region Contructors
+        #region Constructors
         internal HTMLWriter(Database.ICommenceCursor cursor, IExportSettings settings)
             : base(cursor, settings){}
 
