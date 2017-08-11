@@ -122,74 +122,6 @@ namespace Vovin.CmcLibNet.Export
 
         #region Data fetching methods
 
-        internal void GetDataByAPI2D() // no longer used
-        {
-            int counter = 0;
-            for (int totalrows = 0; totalrows < this._cursor.RowCount; totalrows += _maxrows)
-            {
-                string[,] rawdata = this.GetRawData2D(_maxrows); // first dimension is rows, second dimension is columns
-                List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
-
-                // for thids we can assume the first row of rawdata contais the thid
-
-                // rest of rawdata represents the actual database row values
-                for (int i = 0; i < rawdata.GetLength(0); i++) // rows
-                {
-                    List<CommenceValue> rowdata = new List<CommenceValue>();
-                    CommenceValue cv = null;
-                    // process row
-                    for (int j = 0; j < rawdata.GetLength(1); j++) // columns
-                    {
-                        ColumnDefinition cd = this._columndefinitions[j];
-                        string[] buffer = null;
-
-                        if (cd.IsConnection)
-                        {
-                            if (String.IsNullOrEmpty(rawdata[i, j].Trim()))
-                            {
-                                cv = new CommenceValue(cd); // always create a CommenceValue for consistency
-                            }
-                            else
-                            {
-                                switch (cd.FieldType)
-                                {
-                                    case Database.CommenceFieldType.Text:
-                                        // we use a regex to split values at "\n" *but not* "\r\n"
-                                        // this is not 100% fail-safe as a fieldvalue *can* contain just \n
-                                        buffer = _regex.Split(rawdata[i, j]); // this may result in Commence values being split if they contain embedded delimiters
-                                        break;
-                                    default:
-                                        //buffer = rawdata[i, j].Split(Core.Utils.ConnectedItemValueDelimiter, StringSplitOptions.None);
-                                        buffer = rawdata[i, j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
-                                        break;
-                                } // switch
-                                // buffer now contains the connected values as array, do any formatting transformation
-                                buffer = FormatValues(buffer, this.Formatting, cd);
-                                cv = new CommenceValue(buffer, cd);
-                            } // if !String.IsNullOrEmpty
-                        } // if IsConnection
-                        else // single value
-                        {
-                            buffer = new string[] { rawdata[i, j] };
-                            buffer = FormatValues(buffer, this.Formatting, cd);
-                            cv = new CommenceValue(buffer[0], cd);
-                        } // else IsConnection
-                        if (cv != null) { rowdata.Add(cv);}
-                    } // for j
-                    counter++;
-                    ExportProgressChangedArgs rowread_args = new ExportProgressChangedArgs(counter, _totalrows);
-                    OnExportProgressChanged(rowread_args);
-                    retval.Add(rowdata);
-                } // for i
-                // per batch of rows
-                DataProgressChangedArgs args = new DataProgressChangedArgs(retval, counter);
-                OnDataProgressChanged(args); // raise event
-            } // totalrows
-            //return retval;
-            DataReadCompleteArgs e = new DataReadCompleteArgs(counter);
-            OnDataReadCompleted(e); // done with reading data
-        }
-
         // collect Commence rowvalues as jagged array,
         // then raises an event with that array
         internal void GetDataByAPI()
@@ -281,7 +213,6 @@ namespace Vovin.CmcLibNet.Export
                 DataProgressChangedArgs args = new DataProgressChangedArgs(retval, counter);
                 OnDataProgressChanged(args); // raise event after each batch of rows
             } // totalrows
-            //return retval;
             DataReadCompleteArgs e = new DataReadCompleteArgs(counter);
             OnDataReadCompleted(e); // done with reading data
         }
@@ -413,119 +344,6 @@ namespace Vovin.CmcLibNet.Export
             OnDataReadCompleted(a);
         }
 
-        private string[,] GetRawData2D(int nRows) // no longer used
-        {
-            /* Note that for connected items, Commence returns a linefeed-delimited string, OR a comma delimited string(!)
-             * If the connected field has no data, an empty string is returned, again linefeed-delimited.
-             * It is up to the consumer to deal with this.
-             * The Headers property can be used to determine what fieldtype is being returned.
-             * 
-             * Also note, that by getting a RowSet, Commence automatically advances the cursor's rowpointer for us
-             * This can lead to some confusion for those who are used to advance it manually, like in ADO.
-             * 
-             * TODO: There is no proper implementation for the usethids flag yet.
-             * It will return thids for related columns that were set directly, but not for the rows themselves yet.
-             * You have to use GetRowID to get to them. I haven't decided whether to include the thid as extra column or simply replace the name field value with the thid.
-             * 
-             */
-
-            // It is very important to dispose of our qrs object when we are done with it.
-            // Because it wraps a COM object, simply setting it to null will *not* cut it, the finalizer will *not* run.
-            // If we do not dispose of our object, our code is still valid, but commence.exe memory-use explodes,
-            // because Commence will keep a reference to each created rowset in memory
-            // until all items in a cursor are processed.
-            using (ICommenceQueryRowSet qrs = _cursor.GetQueryRowSet(nRows))
-            {
-                // number of rows requested may be larger than number of available rows in rowset,
-                // so make sure the return value is sized properly
-                string[,] rowvalues = new string[qrs.RowCount, _cursor.ColumnCount];
-                object[] buffer = null;
-
-                for (int i = 0; i < qrs.RowCount; i++)
-                {
-                    /* Note that we do not bother with the CmcOptionFlags.Canonical flag,
-                     * because for indirect fields it is ignored.
-                     * We implement our own formatting transformation.
-                     * 
-                     * TODO: how do we handle UseThids?
-                     */
-                    // process rowset
-                    buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
-
-                    for (int j = 0; j < qrs.ColumnCount; j++)
-                    {
-                        rowvalues[i, j] = buffer[j].ToString();
-                    } // j
-                } // i
-                return rowvalues;
-            } // using; qrs will be disposed now
-        }
-
-        // moved to CommenecCursor class
-        ///// <summary>
-        ///// Returns a jagged array of rows with their values.
-        ///// In case a THID was requested, the first element contains the thid, otherwise it is empty.
-        ///// </summary>
-        ///// <param name="nRows">Number of rows to retrieve.</param>
-        ///// <param name="useThids">Request thid.</param>
-        ///// <returns>
-        ///// 'Jagged' string array (=array containing arrays). 
-        ///// <list type="table">
-        ///// <listheader>Example</listheader>
-        ///// <listheader><term>Row</term><description>Contains</description></listheader>
-        ///// <item><term>row0</term><description>[(thid0)][fieldvalue0][fieldvalue1][fieldvalueN]</description></item>
-        ///// <item><term>row1</term><description>[(thid1)][fieldvalue0][fieldvalue1][fieldvalueN]</description></item>
-        ///// <item><term>rowN</term><description>[(thidN)][fieldvalue0][fieldvalue1][fieldvalueN]</description></item>
-        ///// </list>
-        ///// </returns>
-        //private string[][] GetRawDataJagged(int nRows, bool useThids)
-        //{
-        //    /* Note that for connected items, Commence returns a linefeed-delimited string, OR a comma delimited string(!)
-        //     * If the connected field has no data, an empty string is returned, again linefeed-delimited.
-        //     * It is up to the consumer to deal with this.
-        //     * The Headers property can be used to determine what fieldtype is being returned.
-        //     * 
-        //     * Also note, that by getting a RowSet, Commence automatically advances the cursor's rowpointer for us
-        //     * This can lead to some confusion for those who are used to advance it manually, like in ADO.
-        //     * 
-        //     */
-
-        //    // It is very important to dispose of our qrs object when we are done with it.
-        //    // Because it wraps a COM object, simply setting it to null will *not* cut it, the finalizer will *not* run.
-        //    // If we do not dispose of our object, our code is still valid, but commence.exe memory-use explodes,
-        //    // because Commence will keep a reference to each created rowset in memory
-        //    // until all items in a cursor are processed.
-        //    using (ICommenceQueryRowSet qrs = _cursor.GetQueryRowSet(nRows))
-        //    {
-        //        // number of rows requested may be larger than number of available rows in rowset,
-        //        // so make sure the return value is sized properly
-        //        string[][] rowvalues = new string[qrs.RowCount][];
-        //        object[] buffer = null;
-
-        //        for (int i = 0; i < qrs.RowCount; i++)
-        //        {
-        //            /* Note that we do not bother with the CmcOptionFlags.Canonical flag,
-        //             * because for indirect fields it is ignored.
-        //             * We implement our own formatting transformation.
-        //             */
-        //            rowvalues[i] = new string[qrs.ColumnCount+1]; // add extra element for thid
-        //            if (useThids) // do not make the extra API call unless requested
-        //            {
-        //                string thid = qrs.GetRowID(i,CmcOptionFlags.Default); // GetRowID does not advance the rowpointer. Note that the flag must be 0.
-        //                rowvalues[i][0] = thid; // put thid in first column of row
-        //            }
-
-        //            // process rowset
-        //            buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
-                    
-        //            for (int j = 0; j < qrs.ColumnCount; j++)
-        //            {
-        //                rowvalues[i][j+1] = buffer[j].ToString(); // put rowvalue in 2nd and up column of row
-        //            } // j
-        //        } // i
-        //        return rowvalues;
-        //    } // using; qrs will be disposed now
-        //}
         #endregion
 
         #region Supporting methods
