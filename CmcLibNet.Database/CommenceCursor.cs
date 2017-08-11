@@ -812,6 +812,7 @@ namespace Vovin.CmcLibNet.Database
 
         /// <summary>
         /// Reads the Commence data (using API, not DDE). This is the fastest way to retrieve Commence data.
+        /// Note that this function has no knowledge of the rowpointer.
         /// </summary>
         /// <param name="nRows">Number of rows to read at a time.</param>
         /// <returns>string[][] (a 'jagged array').</returns>
@@ -831,9 +832,8 @@ namespace Vovin.CmcLibNet.Database
             // Without releasing the CCW, all data would be held in memory until I don't know when exactly and memory usage would skyrocket.
             // By implementing it like this we make sure that the Garbage Collector keeps memory in check,
             // and we don't have to worry about releasing RCWs.
-            // Note that we still may run into issues if the garbage collector kicks in *after* Commence runs out of memory
-            // Commence is pretty finicky about that.
-            // TODO: analyse this
+            // However we still run into issues if the garbage collector kicks in *after* Commence runs out of memory
+            // Commence is pretty finicky about that. This is why an explicit close is included.
             using (ICommenceQueryRowSet qrs = this.GetQueryRowSet(nRows))
             {
                 // number of rows requested may be larger than number of available rows in rowset,
