@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Data;
-using Vovin.CmcLibNet;
 using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet.Export
