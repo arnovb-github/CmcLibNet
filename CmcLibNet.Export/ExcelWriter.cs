@@ -2,18 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Vovin.CmcLibNet.Export
 {
     // TODO this class works but needs some careful rethinking
     // It would make much more sense to populate Excel from an ADO.NET DataSet, BUT doing so we lose type information.
     // We *want* to preserve type information, it is what sets this assembly apart from other export engines.
+    // What I would like to avoid is to have to manually populate the worksheet
+    // it may be that that is the best option in the end though.
     internal class ExcelWriter : BaseWriter
     {
         bool disposed = false;
         XMLWriter _xw = null;
+        bool dataTypeSet = false;
+        int totalrows = 0;
 
         #region Constructors
         internal ExcelWriter(Database.ICommenceCursor cursor, IExportSettings settings)
@@ -30,6 +36,11 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
+            // TO-DO idea: if settings are to not split connected values,
+            // do not export to XML but write Excel cells manually
+            // using event handlers. Better for memory usage too, although probably slower.
+            // do not forget that in that case you have to call base.ReadData
+
             // create temporary filename for XSD Schema file
             string xsdFile = System.IO.Path.GetTempFileName() +".xsd";
             _xw._settings.XSDCompliant = true; // when importing XML in Excel, data has to be ISO 8601 compliant for it to get the type right
@@ -41,7 +52,6 @@ namespace Vovin.CmcLibNet.Export
 
             try
             {
-
                 _xw.WriteOut(dataFile);
 
                 // apparently using PIA's doesn't require that Office COM RCWs are released.
@@ -58,8 +68,19 @@ namespace Vovin.CmcLibNet.Export
                 xl.DisplayAlerts = false; // suppress Excel alerts. Notably the ones displaying that .tmp is untrusted as XML, as well as 'no mapping present in xml'.
 
                 Workbooks wbs = xl.Workbooks; // avoid 2-dot rule thingie just to be sure.
+                // DEBUG
                 // using XMLImport fails because it requires a mapping (xsd).
+                //Workbook wb = wbs.Add();
+                //string xsd;
+                //TextReader tr = File.OpenText(xsdFile);
+                //xsd = tr.ReadToEnd();
+                //XmlMap map = wb.XmlMaps.Add(xsd,XmlConvert.EncodeLocalName(base._dataSourceName));
+                //string data = File.OpenText(dataFile).ReadToEnd();
+                //wb.XmlImportXml(data, out map);
                 // using OpenXML works!
+                // END DEBUG
+                // TODO: figure this out.
+                // possible help: https://msdn.microsoft.com/en-us/library/microsoft.office.tools.excel.workbookbase.xmlimportxml.aspx
                 Workbook wb = wbs.OpenXML(dataFile, Type.Missing, XlXmlLoadOption.xlXmlLoadImportToList);
                 xl.DisplayAlerts = true;
                 if (String.IsNullOrEmpty(fileName))
@@ -91,17 +112,26 @@ namespace Vovin.CmcLibNet.Export
                 //System.IO.File.Delete(xsdFile); // fails because it is in use.
             }
         }
-
+        // why is this not called?
         protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
         {
-            //Console.WriteLine("ProcessDataRows in ExcelWriter called");
+            Console.WriteLine("ProcessDataRows in ExcelWriter called");
+            if (!dataTypeSet)
+            {
+                SetDataTypeForCells(e);
+            }
+            Console.WriteLine(base.TotalRows);
             return;
         }
 
         protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
         {
-            //Console.WriteLine("DataReadComplete in ExcelWriter called");
             return;
+        }
+
+        private void SetDataTypeForCells(DataProgressChangedArgs e)
+        {
+            // determine size of worksheet and set datatype for cells
         }
 
         // Protected implementation of Dispose pattern.

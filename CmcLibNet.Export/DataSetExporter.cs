@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Xml;
+using System.Xml.Schema;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -35,13 +36,15 @@ namespace Vovin.CmcLibNet.Export
                 case ExportFormat.Json:
                     ExportJson(_ds);
                     break;
+                //case ExportFormat.Excel:
+                //    ExportExcel(_ds);
+                //    break;
             }
         }
 
         private void ExportXML(DataSet ds)
         {
-            
-            // interesting fact: even with a schema, Excel can't deal with this!
+            // interesting fact: even with a schema included, Excel can't deal with the resulting XML!
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.Indent = true;
             using (XmlWriter xw = XmlWriter.Create(_filename, xws))
@@ -62,6 +65,19 @@ namespace Vovin.CmcLibNet.Export
                 sw.Write(jsonText);
             }
         }
+
+        //private void ExportExcel(DataSet ds)
+        //{
+        //    //Microsoft.Office.Interop.Excel.Application xl = new Microsoft.Office.Interop.Excel.Application();
+        //    //Microsoft.Office.Interop.Excel.XmlMap xmlMap1 = ds.GetXmlSchema();
+        //    string x = ds.GetXmlSchema();
+        //    using (StreamWriter writer = File.CreateText(@"e:\temp\schema.xsd"))
+        //    {
+        //        writer.Write(x);
+        //        writer.Close();
+        //    }
+            
+        //}
         #endregion
     }
 }

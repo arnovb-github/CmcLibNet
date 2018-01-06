@@ -16,7 +16,7 @@ namespace Vovin.CmcLibNet
     /// This is necessary when this assembly is run from a Commence Item Detail Form script.
     /// </summary>
     /// <remarks>Because of how VBScript support is implemented in Item Detail Form scripting,
-    /// Commence and this assembly keep each other in dead-lock;
+    /// Commence and this assembly keep each other in deadlock;
     /// after setting the reference to this assembly to Nothing from within a Form Script,
     /// the assembly won't run it's finalizers because it thinks the FormOA COM objects (RCWs) are still in use.
     /// This not just a Form Script issue, it also happens when used in Office VBA.
@@ -28,9 +28,6 @@ namespace Vovin.CmcLibNet
     /// </remarks>
     internal class RCWReleasePublisher : IRCWReleasePublisher
     {
-        // used to be static because we want several classes to subscribe.
-        // but that's not a good idea. COM clients can create several objects,
-        // and ideally any close method that raise this event should pertain to those objects only.
         public event EventHandler RCWRelease; 
 
         // convenience method to raise the event, without data.

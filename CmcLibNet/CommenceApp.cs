@@ -99,12 +99,14 @@ namespace Vovin.CmcLibNet
     {
         private IRCWReleasePublisher rw = null;
         private const string PROCESS_NAME = "commence";
-        // _cmc is marked static to ensure that only a single reference to Commence ever exists
-        // Most calls to this assembly will be from Vovin.CmcLibNet.Database.CommenceDatabase
-        // That class uses the DB property of this class that returns this static field to access the Commence database.
-        // No other classes in this assembly ever create a reference to CommenceDB directly.
-        // The only way multiple references can be created is by referencing this assembly multiple times,
-        // which never makes sense (unless Commence ever makes it possible to talk to multiple instances - in which case this whole assembly needs redesigning).
+        /* _cmc is marked static to ensure that only a single reference to Commence ever exists
+         Most calls to this assembly will be from Vovin.CmcLibNet.Database.CommenceDatabase
+         That class uses the DB property of this class that returns this static field to access the Commence database.
+         No other classes in this assembly ever create a reference to CommenceDB directly.
+         The only way multiple references can be created is by referencing this assembly multiple times,
+         which never makes sense unless Commence ever makes it possible to talk to multiple instances 
+         and in which case this whole assembly needs redesigning.
+         */
         private static FormOA.ICommenceDB _cmc = null;
         private Database.ICommenceDatabase _database = null;
         private Export.IExportEngine _exportengine = null;
@@ -181,7 +183,7 @@ namespace Vovin.CmcLibNet
         /// <inheritdoc />
         public string ExePath
         {
-            // We account for multiple processes even though this assembly won't work
+            // We account for multiple processes even though this assembly won't work then.
             // This just to be sure should we ever change our mind.
             get
             {
@@ -231,7 +233,7 @@ namespace Vovin.CmcLibNet
             get { return _cmc.RegisteredUser; }
         }
 
-        // the next properties expose the 'subdivisions' of CmcLibNet. Not sure how useful/dangerous they will be.
+        // the next properties expose the 'subdivisions' of CmcLibNet.
         /// <inheritdoc />
         public Database.ICommenceDatabase Database
         {
@@ -328,10 +330,9 @@ namespace Vovin.CmcLibNet
         {
             if (_cmc != null)
             {
-                Marshal.FinalReleaseComObject(_cmc); // kill all references, so if this class was invoked twice, havoc ensues :)
+                Marshal.FinalReleaseComObject(_cmc); // kill all COM references to Commence.DB. No calls to Commence can be made after this.
             }
         }
-
         #endregion
     }
 }

@@ -80,7 +80,7 @@ namespace Vovin.CmcLibNet.Export
 
         #region Methods
         /// <summary>
-        /// This method is called all exports methods, it takes care of all the actual exports.
+        /// This method is called by all exports methods, it takes care of all the actual exports.
         /// Other export methods are really just preparation routines for calling this method.
         /// </summary>
         /// <param name="cur">ICommenceCursor</param>
@@ -89,7 +89,7 @@ namespace Vovin.CmcLibNet.Export
         internal void ExportCursor(Database.ICommenceCursor cur, string fileName, IExportSettings settings)
         {
 
-            cur.MaxFieldSize = this.Settings.MaxFieldSize;
+            cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
 
             // exporting may take a long time, and the system may go into power saving mode
             // this is annoying, so we tell the system not to go into sleep/hibernation
@@ -152,7 +152,6 @@ namespace Vovin.CmcLibNet.Export
             }
             else
             {
-                //_db = new CommenceDatabase();
                 Database.IActiveViewInfo av = _db.GetActiveViewInfo();
                 if (av != null && String.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
                 {
@@ -226,6 +225,7 @@ namespace Vovin.CmcLibNet.Export
                     break;
                 case ExportFormat.Excel:
                     _writer = new ExcelWriter(cursor, settings);
+                    //_writer = new AdoNetWriter(cursor, settings);
                     break;
                 case ExportFormat.Event:
                     _writer = new EventWriter(cursor, settings);
