@@ -92,8 +92,8 @@ namespace Vovin.CmcLibNet.Export
             try
             {
                 DataReadCompleteHandler handler = DataReadCompleted;
-                if (DataReadCompleted != null)
-                    DataReadCompleted(this, e);
+                if (handler != null)
+                    handler(this, e);
             }
             catch { }
         }
