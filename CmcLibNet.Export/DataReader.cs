@@ -260,7 +260,7 @@ namespace Vovin.CmcLibNet.Export
 
                             // we have our results, we now have to create CommenceValue objects from it
                             // and we also have to match them up with their respective column
-                            // this is a little tricky...
+                            // this is a little tricky
                             for (int j = 0; j < DDEResult.Length; j++)
                             {
                                 ColumnDefinition cd = td.ColumnDefinitions.Find(o => o.FieldName.Equals(l[j]));
