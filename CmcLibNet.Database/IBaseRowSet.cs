@@ -1,11 +1,12 @@
-﻿using Vovin.CmcLibNet;
+﻿using System;
+using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// Exposes methods and properties shared by all rowset types.
     /// </summary>
-    public interface IBaseRowSet : System.IDisposable
+    public interface IBaseRowSet : IDisposable
     {
         /// <summary>
         /// Number of items in rowset.

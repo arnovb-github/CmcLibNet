@@ -110,7 +110,7 @@ namespace Vovin.CmcLibNet.Database
             IViewDef vd = null;
             if (pCursorType == CmcCursorType.View)
             {
-                List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" });
+                List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" }); // TODO: create a more manageable list
                 vd = GetViewDefinition(pName);
                 if (vd != null && unsupported.Contains(vd.TypeDescription))
                 {
@@ -144,7 +144,6 @@ namespace Vovin.CmcLibNet.Database
             if (_db != null)
             {
                 Marshal.FinalReleaseComObject(_db);
-                _db = null; // needed?
             }
         }
 
@@ -154,6 +153,7 @@ namespace Vovin.CmcLibNet.Database
             _rcwReleasePublisher.ReleaseRCWReferences(); // notify subscribers to release COM references.
             GC.Collect(); // force garbage collection
             GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
 
         #endregion

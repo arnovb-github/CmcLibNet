@@ -74,6 +74,9 @@ namespace Vovin.CmcLibNet
      * that way we can set [ClassInterface(ClassInterfaceType.None)]
      * and explicitly tell the compiler what interface to expose.
      * We explicitly define GUIDs for the same reason.
+     * Also note that the assembly is not marked to be COM-visible on the assembly level
+     * This ensures fine-grained control over the exposed interfaces
+     * and reduces issues with generated GUIDs which may cause versioning problems.
      * see http://blogs.msdn.com/b/mbend/archive/2007/04/17/classinterfacetype-none-is-my-recommended-option-over-autodispatch-autodual.aspx
      */
 
@@ -91,9 +94,9 @@ namespace Vovin.CmcLibNet
     /// <para>When used from Commence Item Detail Forms or Office VBA, be sure to read this: <see cref="Close"/>.</para>
     /// </remarks>
     [ComVisible(true)] // make COM visible (overrides AssemblyInfo setting)
-    [GuidAttribute("2F0DD17C-C020-4898-924A-82F4593DD569")] // explicitly set GUID so compiler doesn't assign a new one upon every build
-    [ProgId("CmcLibNet.CommenceApp")] // custom ProgID, this is the name used when creating the object thru COM
-    [ClassInterface(ClassInterfaceType.None)] // tells compiler to not create a class interface (we'll suply our own interfaces).
+    [GuidAttribute("2F0DD17C-C020-4898-924A-82F4593DD569")] // explicitly set GUID so compiler doesn't generate a new one upon every build
+    [ProgId("CmcLibNet.CommenceApp")] // custom ProgID, this is the name used when creating the object through COM
+    [ClassInterface(ClassInterfaceType.None)] // tells compiler to not create a class interface (we'll supply our own interfaces).
     [ComDefaultInterface(typeof(ICommenceApp))] // explicitly define interface to expose to COM
     public class CommenceApp : ICommenceApp
     {
@@ -155,7 +158,7 @@ namespace Vovin.CmcLibNet
                     // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
                     throw new CommenceNotRunningException("Commence is not running.");
                 case 1:
-                    _cmc = new CommenceDB(); // careful: if the assembly is called as Administrator, this will create a new instance.
+                    _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
                     break;
                 default:
                     //_cmc = new CommenceDB(); // get whatever Commence reference Windows gives us.

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
@@ -93,8 +94,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="disposing">disposing.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
-                return;
+            if (disposed) { return; }
 
             if (disposing)
             {
