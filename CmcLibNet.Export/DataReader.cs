@@ -119,15 +119,22 @@ namespace Vovin.CmcLibNet.Export
 
         #endregion
 
+        
         #region Data fetching methods
+        // Thes will likely be the longest running methods in the assembly
+        // Ideally, they should be run asynchronously.
+        // However, that is beyond my coding skills
 
         // collect Commence rowvalues as jagged array,
-        // then raises an event with that array
+        // then raises an event with that array.
+        // TODO this is a prime candidate to transform into an async/await construct
+        // we should also have a cancellation token
         internal void GetDataByAPI()
         {
             int counter = 0;
             for (int totalrows = 0; totalrows < this._cursor.RowCount; totalrows += _maxrows)
             {
+
                 string[][] rawdata = _cursor.GetRawData(_maxrows); // first dimension is rows, second dimension is columns
                 List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
                 CommenceValue cv = null;

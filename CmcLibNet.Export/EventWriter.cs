@@ -10,6 +10,7 @@ namespace Vovin.CmcLibNet.Export
      */
     internal class EventWriter : BaseWriter
     {
+
         #region Contructors
         internal EventWriter(Database.ICommenceCursor cursor, IExportSettings settings)
             : base(cursor, settings) { }
