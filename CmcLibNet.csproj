@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Vovin</RootNamespace>
     <AssemblyName>Vovin.CmcLibNet</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +26,7 @@
     <RegisterForComInterop>true</RegisterForComInterop>
     <DocumentationFile>bin\Debug\Vovin.CmcLibNet.xml</DocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +38,7 @@
     <RegisterForComInterop>true</RegisterForComInterop>
     <DocumentationFile>bin\Release\Vovin.CmcLibNet.xml</DocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -86,7 +89,7 @@
     <Compile Include="CmcLibNet.Export\BaseWriter.cs" />
     <Compile Include="CmcLibNet.Export\ColumnDefinition.cs" />
     <Compile Include="CmcLibNet.Export\ColumnParser.cs" />
-    <Compile Include="CmcLibNet.Export\CommenceRowsReadArgs.cs" />
+    <Compile Include="CmcLibNet.Export\DataRowsReadArgs.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValue.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValueConverter.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
@@ -103,7 +106,7 @@
     <Compile Include="CmcLibNet.Export\JSONCreator.cs" />
     <Compile Include="CmcLibNet.Export\JSONWriter.cs" />
     <Compile Include="CmcLibNet.Export\ListChopper.cs" />
-    <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
+    <Compile Include="CmcLibNet.Export\DataRowReadArgs.cs" />
     <Compile Include="CmcLibNet.Export\AdoNetRowWriter.cs" />
     <Compile Include="CmcLibNet.Export\TableDef.cs" />
     <Compile Include="CmcLibNet.Export\TextWriter.cs" />

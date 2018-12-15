@@ -22,10 +22,10 @@ namespace Vovin.CmcLibNet.Export
             _filename = fileName;
             base._settings.Canonical = true; // TODO fails on large numbers with . or ,
             base._settings.XSDCompliant = false; // TODO when set to true, ADO.NET doesn't get it
-            base.ReadData();
+            base.ReadCommenceData();
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             base.CurrentRow = e.Row;
             DataSetExporter dse = new DataSetExporter(this._ds, this._filename, base._settings);

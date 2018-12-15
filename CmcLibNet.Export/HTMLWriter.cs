@@ -42,10 +42,10 @@ namespace Vovin.CmcLibNet.Export
             }
             // start body
             _sw.WriteLine("<tbody>");
-            base.ReadData();
+            base.ReadCommenceData();
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             StringBuilder sb = new StringBuilder();
             
@@ -73,7 +73,7 @@ namespace Vovin.CmcLibNet.Export
             _sw.WriteLine(sb.ToString());
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             _sw.WriteLine("</tbody></table></body></html>");
             _sw.Flush();

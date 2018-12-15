@@ -47,10 +47,10 @@ namespace Vovin.CmcLibNet.Export
                 // node names have to be properly encoded or else Write*Element may complain.
                 _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category)); // <-- Important: root element
             }
-            base.ReadData(); // call data reading engine
+            base.ReadCommenceData(); // call data reading engine
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             // populate XMLWriter with data
             foreach (List<CommenceValue> row in e.Values) // assume that the minimum amount of data is a complete, single Commence item.
@@ -78,7 +78,7 @@ namespace Vovin.CmcLibNet.Export
             } // rows
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             try
             {

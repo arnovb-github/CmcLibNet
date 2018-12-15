@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Data;
 using Vovin.CmcLibNet.Database;
+using System.Threading.Tasks;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -30,13 +31,16 @@ namespace Vovin.CmcLibNet.Export
     // Performs the reading of the Commence database and returns the results as event arguments
     internal class DataReader
     {
-        internal delegate void DataProgressChangedHandler(object sender, DataProgressChangedArgs e);
+        // delegates
+        internal delegate void DataProgressChangedHandler(object sender, CommenceExportProgressChangedArgs e);
         internal delegate void DataReadCompleteHandler(object sender, DataReadCompleteArgs e);
-        //internal delegate void ExportProgressChangedHandler(object sender, ExportProgressChangedArgs e); // already defined in ExportEngine
+        
+        // events
         internal event DataProgressChangedHandler DataProgressChanged;
         internal event DataReadCompleteHandler DataReadCompleted;
-        internal event ExportProgressChangedHandler ExportProgressChanged;
+        internal event DataRowReadHandler DataRowRead;
         
+        // fields
         private readonly CommenceCursor _cursor = null;
         private readonly IExportSettings _settings = null;
         private readonly int _maxrows = 1000; // maximum number of rows to read per iteration
@@ -76,7 +80,7 @@ namespace Vovin.CmcLibNet.Export
 
         #region Event raising methods
 
-        protected virtual void OnDataProgressChanged(DataProgressChangedArgs e)
+        protected virtual void OnDataProgressChanged(CommenceExportProgressChangedArgs e)
         {
             try
             {
@@ -98,15 +102,16 @@ namespace Vovin.CmcLibNet.Export
             catch { }
         }
 
-        protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
+        protected virtual void OnDataRowRead(DataRowReadArgs e)
         {
             try
             {
-                ExportProgressChangedHandler handler = ExportProgressChanged;
+                DataRowReadHandler handler = DataRowRead;
                 Delegate[] eventHandlers = handler.GetInvocationList();
-                foreach (Delegate currentHandler in eventHandlers)
+                for (int i = 0; i < eventHandlers.Length; i++)
                 {
-                    ExportProgressChangedHandler currentSubscriber = (ExportProgressChangedHandler)currentHandler;
+                    Delegate currentHandler = eventHandlers[i];
+                    DataRowReadHandler currentSubscriber = (DataRowReadHandler)currentHandler;
                     try
                     {
                         currentSubscriber(this, e);
@@ -116,10 +121,8 @@ namespace Vovin.CmcLibNet.Export
             }
             catch { } //rethrow
         }
-
         #endregion
 
-        
         #region Data fetching methods
         // Thes will likely be the longest running methods in the assembly
         // Ideally, they should be run asynchronously.
@@ -211,12 +214,12 @@ namespace Vovin.CmcLibNet.Export
                         if (cv != null) { rowdata.Add(cv); }
                     } // for j
                     counter++;
-                    ExportProgressChangedArgs rowread_args = new ExportProgressChangedArgs(counter, _totalrows);
-                    OnExportProgressChanged(rowread_args); // raise event for each row read
+                    DataRowReadArgs rowread_args = new DataRowReadArgs(counter, _totalrows);
+                    OnDataRowRead(rowread_args); // raise event for each row read
                     retval.Add(rowdata);
                 } // for i
                 // per batch of rows
-                DataProgressChangedArgs args = new DataProgressChangedArgs(retval, counter);
+                CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(retval, counter);
                 OnDataProgressChanged(args); // raise event after each batch of rows
             } // totalrows
             DataReadCompleteArgs e = new DataReadCompleteArgs(counter);
@@ -340,16 +343,127 @@ namespace Vovin.CmcLibNet.Export
                     
                 } // foreach tabledef
                 rows.Add(rowvalues);
-                DataProgressChangedArgs args = new DataProgressChangedArgs(rows, i); // progress within the cursor
+                CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(rows, i); // progress within the cursor
                 OnDataProgressChanged(args);
-                ExportProgressChangedArgs rowread_args = new ExportProgressChangedArgs(i, _totalrows); // total progress
-                OnExportProgressChanged(rowread_args);
+                DataRowReadArgs rowread_args = new DataRowReadArgs(i, _totalrows); // total progress
+                OnDataRowRead(rowread_args);
             } // i
             db = null;
             DataReadCompleteArgs a = new DataReadCompleteArgs(itemCount);
             OnDataReadCompleted(a);
         }
 
+        #endregion
+
+        #region dabbling with async stuff. It is safe to say I don't get it :)
+        private IList<Task<string[][]>> CreateCursorReadTasks()
+        {
+            IList<Task<string[][]>> retval = new List<Task<string[][]>>();
+            for (int totalrows = 0; totalrows < this._cursor.RowCount; totalrows += _maxrows)
+            {
+                retval.Add(Task.Run(() => _cursor.GetRawData(_maxrows)));
+            }
+            return retval;
+        }
+
+        // DOES NOT WORK PROPERLY, DO NOT CALL
+        internal async Task GetDataByAPIAsync()
+        {
+            IList<Task<string[][]>> tasks = CreateCursorReadTasks();
+            var processingTasks = tasks.Select(AwaitAndProcessAsync).ToList();
+            await Task.WhenAll(processingTasks);
+            // apparently the above line isn't awaited
+            //Task.WaitAll(processingTasks.ToArray()); // doesn't wait for anything
+
+        }
+
+        internal async Task AwaitAndProcessAsync(Task<string[][]> task)
+        {
+            string[][] rawdata = await task;
+            int counter = 0;
+            List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
+            CommenceValue cv = null;
+            ColumnDefinition cd = null;
+
+            // rawdata represents the actual database row values
+            for (int i = 0; i < rawdata.GetLength(0); i++) // rows
+            {
+                List<CommenceValue> rowdata = new List<CommenceValue>();
+                // for thids we can assume the first row of rawdata contains the thid
+                if (this._useThids)
+                {
+                    cv = new CommenceValue(rawdata[i][0], this._columndefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
+                    rowdata.Add(cv);
+                }
+
+                // process row
+                for (int j = 1; j < rawdata[i].Length; j++) // columns
+                {
+                    // a column for the thid is only returned when a thid is requested
+                    // therefore getting the right column is a little tricky
+                    int colindex;
+                    if (this._useThids)
+                    {
+                        colindex = j;
+                    }
+                    else
+                    {
+                        colindex = j - 1;
+                    }
+                    cd = this._columndefinitions[colindex];
+
+                    string[] buffer = null;
+                    if (cd.IsConnection)
+                    {
+                        if (String.IsNullOrEmpty(rawdata[i][j].Trim()))
+                        {
+                            cv = new CommenceValue(cd); // always create a CommenceValue for consistency
+                        }
+                        else
+                        {
+                            if (!_settings.SplitConnectedItems)
+                            {
+                                buffer = new string[] { rawdata[i][j] };
+
+                            } // if
+                            else
+                            {
+                                switch (cd.FieldType)
+                                {
+                                    case Database.CommenceFieldType.Text:
+                                        // we use a regex to split values at "\n" *but not* "\r\n"
+                                        // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
+                                        // in that case, your only option is to suppress the splitting in ExportSettings
+                                        buffer = _regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
+                                        break;
+                                    default:
+                                        buffer = rawdata[i][j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
+                                        break;
+                                } // switch
+
+                                // buffer now contains the connected values as array, do any formatting transformation
+                                buffer = FormatValues(buffer, this.Formatting, cd);
+                            }
+                            cv = new CommenceValue(buffer, cd);
+                        } // if !String.IsNullOrEmpty
+                    } // if IsConnection
+                    else // single value
+                    {
+                        buffer = new string[] { rawdata[i][j] };
+                        buffer = FormatValues(buffer, this.Formatting, cd);
+                        cv = new CommenceValue(buffer[0], cd);
+                    } // else IsConnection
+                    if (cv != null) { rowdata.Add(cv); }
+                } // for j
+                counter++;
+                DataRowReadArgs rowread_args = new DataRowReadArgs(counter, _totalrows);
+                DataRowRead?.Invoke(this, rowread_args); // raise event for each row read
+                retval.Add(rowdata);
+            } // for i
+            // per batch of rows
+            CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(retval, counter);
+            DataProgressChanged?.Invoke(this, args); // raise event after each batch of rows
+        }
         #endregion
 
         #region Supporting methods
@@ -394,9 +508,9 @@ namespace Vovin.CmcLibNet.Export
     }
 
     #region Helper classes
-    internal class DataProgressChangedArgs : EventArgs
+    internal class CommenceExportProgressChangedArgs : EventArgs
     {
-        internal DataProgressChangedArgs(List<List<CommenceValue>> list, int row)
+        internal CommenceExportProgressChangedArgs(List<List<CommenceValue>> list, int row)
         {
             this.Values = list;
             this.Row = row;

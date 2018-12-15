@@ -24,19 +24,19 @@ namespace Vovin.CmcLibNet.Export
         #region Methods
         protected internal override void WriteOut(string fileName)
         {
-            base.ReadData();
+            base.ReadCommenceData();
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             // construct data, create eventargs, raise event
             JSONCreator ja = new JSONCreator(this);
             ja.AddRowValues(e.Values);
-            CommenceRowsReadArgs args = new CommenceRowsReadArgs(base.CurrentRow, base.TotalRows, ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented,null));
-            OnCommenceRowsRead(args);
+            DataRowsReadArgs args = new DataRowsReadArgs(base.CurrentRow, base.TotalRows, ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented,null));
+            OnDataRowsRead(args);
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             return;
         }

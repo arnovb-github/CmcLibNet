@@ -51,10 +51,10 @@ namespace Vovin.CmcLibNet.Export
                 List<string> formattedHeaderList = headers.Select(o => base._settings.TextQualifier + o + base._settings.TextQualifier).ToList();
                 _sw.WriteLine(String.Join(base._settings.TextDelimiter, formattedHeaderList));
             }
-            base.ReadData();
+            base.ReadCommenceData();
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             foreach (List<CommenceValue> row in e.Values)
             {
@@ -90,11 +90,12 @@ namespace Vovin.CmcLibNet.Export
             } //foreach
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             base.CurrentRow = e.Row;
             _sw.Flush();
             _sw.Close();
+
         }
 
         /// <summary>

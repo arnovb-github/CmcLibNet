@@ -21,8 +21,8 @@ namespace Vovin.CmcLibNet.Export
     /// 'Note that you have to be very specific with the signature, you explicitly need the ByVal keyword
     /// 'Don't leave ByVal out, and don't use ByRef.
     /// 'Also note that the sender argument has to be of type Variant, not Object.
-    /// Private Sub cmclibnet_ExportProgressChanged(ByVal sender As Variant, ByVal args As ExportProgressChangedArgs)
-    ///     Debug.Print args.RowsProcessed
+    /// Private Sub CommenceRowRead(ByVal sender As Variant, ByVal args As DataRowReadArgs)
+    ///     Debug.Print args.CurrentRow
     /// End Sub
     /// </code>
     /// <para>In a regular module, you would use this as:</para>
@@ -41,18 +41,18 @@ namespace Vovin.CmcLibNet.Export
     public interface IExportEngineCOMEvents // no interfaces should inherit this interface!
     {
         /// <summary>
-        /// ExportProgressChanged event.
+        /// Represents the current row that was read from Commence
         /// </summary>
         /// <param name="sender">sender</param>
         /// <param name="e">ExportProgressChangedArgs</param>
         [DispId(1)] // A DispId is important to avoid a COMException when COM client has no handler attached.
-        void ExportProgressChanged(object sender, ExportProgressChangedArgs e); // this will expose the event in COM.
+        void CommenceRowRead(object sender, DataRowReadArgs e); // this will expose the event in COM.
         /// <summary>
-        /// CommenceRowsRead event used in conjunction with the Event export format.
+        /// Represents a batch of rows read from Commence.
         /// </summary>
         /// <param name="sender">sender</param>
         /// <param name="e">CommenceRowsReadArgs</param>
         [DispId(2)]
-        void CommenceRowsRead(object sender, CommenceRowsReadArgs e);
+        void CommenceRowsRead(object sender, DataRowsReadArgs e);
     }
 }

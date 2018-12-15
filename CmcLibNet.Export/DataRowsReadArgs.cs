@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
-    /// Interface for CommenceRowsReadArgs for use with COM Interop.
+    /// Interface for DataRowsReadArgs for use with COM Interop.
     /// </summary>
     [ComVisible(true)]
     [GuidAttribute("D8A5F198-6D37-401F-AAD8-59B49E84ECA7")]
-    public interface ICommenceRowsReadArgs
+    public interface IDataRowsReadArgs
     {   /// <summary>
         /// Rows processed.
         /// </summary>
@@ -24,13 +24,13 @@ namespace Vovin.CmcLibNet.Export
     }
 
     /// <summary>
-    /// Custom CommenceRowsReadArgs class that reports export progress and data.
+    /// Custom DataRowsReadArgs class that reports export progress and data.
     /// </summary>
     [ComVisible(true)]
     [GuidAttribute("40919A47-E618-4C5F-AF94-EAFCEA5B3F0D")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(ICommenceRowsReadArgs))]
-    public class CommenceRowsReadArgs : EventArgs, ICommenceRowsReadArgs
+    [ComDefaultInterface(typeof(IDataRowsReadArgs))]
+    public class DataRowsReadArgs : EventArgs, IDataRowsReadArgs
     {
         /// <summary>
         /// Constructor.
@@ -38,7 +38,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="currentrow">Current row.</param>
         /// <param name="totalrows">Total number of rows to read.</param>
         /// <param name="data">Data.</param>
-        internal CommenceRowsReadArgs(int currentrow, int totalrows, string data)
+        internal DataRowsReadArgs(int currentrow, int totalrows, string data)
         {
             this.RowsProcessed = currentrow;
             this.RowsTotal = totalrows;

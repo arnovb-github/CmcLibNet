@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet.Export
@@ -14,8 +15,8 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal abstract class BaseWriter : IDisposable
     {
-        internal event ExportProgressChangedHandler ExportProgressChanged; // we want to bubble up this event
-        internal event CommenceRowsReadHandler CommenceRowsRead; // we want to bubble up this event
+        internal event DataRowReadHandler DataRowRead; // we want to bubble up this event
+        internal event DataRowsReadHandler DataRowsRead; // we want to bubble up this event
         #region Fields
         /// <summary>
         /// File to export to.
@@ -106,15 +107,15 @@ namespace Vovin.CmcLibNet.Export
         /// It must NOT be a partial Commence item!
         /// </summary>
         /// <param name="sender">sender.</param>
-        /// <param name="e">DataProgressChangedArgs.</param>
-        protected internal abstract void ProcessDataRows(object sender, DataProgressChangedArgs e);
+        /// <param name="e">CommenceExportProgressChangedArgs.</param>
+        protected internal abstract void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e);
         /// <summary>
         /// Method that deals with any finalization of the export,
         /// such as writing closing elements and closing streams.
         /// </summary>
         /// <param name="sender">sender.</param>
         /// <param name="e">DataReadCompleteArgs.</param>
-        protected internal abstract void DataReadComplete(object sender, DataReadCompleteArgs e);
+        protected internal abstract void HandleDataReadComplete(object sender, DataReadCompleteArgs e);
         #endregion
 
         #region Data fetching methods
@@ -122,13 +123,17 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Main data reading method.
         /// </summary>
-        protected internal void ReadData()
+        protected internal void ReadCommenceData()
         {
             dr = new DataReader(_cursor, _settings, this.ColumnDefinitions, _customColumnHeaders);
-            // hook up to the events the datareader throws
-            dr.DataProgressChanged += this.ProcessDataRows;
-            dr.DataReadCompleted += this.DataReadComplete;
-            dr.ExportProgressChanged += this.HandleExportProgressChanged;
+            // subscribe to the events the datareader throws
+            //dr.DataProgressChanged += this.HandleProcessedDataRows;
+            //dr.DataReadCompleted += this.HandleDataReadComplete;
+            //dr.DataRowRead += this.HandleDataRowRead;
+            // asynchronous. Should be okay for synchrnous stuff as well
+            dr.DataRowRead += (s, e) => HandleDataRowRead(s, e);
+            dr.DataProgressChanged += (s, e) => HandleProcessedDataRows(s, e);
+            dr.DataReadCompleted += (s, e) => HandleDataReadComplete(s, e);
 
             if (this._settings.PreserveAllConnections)
             {
@@ -137,6 +142,7 @@ namespace Vovin.CmcLibNet.Export
             else
             {
                 dr.GetDataByAPI();
+                //await dr.GetDataByAPIAsync();
             }
         }
         #endregion
@@ -360,24 +366,24 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        protected internal virtual void HandleCommenceRowsRead(object sender, CommenceRowsReadArgs e)
+        protected internal virtual void HandleDataRowsRead(object sender, DataRowsReadArgs e)
         {
-            OnCommenceRowsRead(e); // bubble up event
+            OnDataRowsRead(e); // bubble up event
         }
 
         /// <summary>
         /// Handler used to bubble up the CommenceRowsRead event
         /// </summary>
         /// <param name="e">CommenceRowsReadArgs.</param>
-        protected virtual void OnCommenceRowsRead(CommenceRowsReadArgs e)
+        protected virtual void OnDataRowsRead(DataRowsReadArgs e)
         {
             try
             {
-                CommenceRowsReadHandler handler = CommenceRowsRead;
+                DataRowsReadHandler handler = DataRowsRead;
                 Delegate[] eventHandlers = handler.GetInvocationList();
                 foreach (Delegate currentHandler in eventHandlers)
                 {
-                    CommenceRowsReadHandler currentSubscriber = (CommenceRowsReadHandler)currentHandler;
+                    DataRowsReadHandler currentSubscriber = (DataRowsReadHandler)currentHandler;
                     try
                     {
                         currentSubscriber(this, e);
@@ -388,26 +394,26 @@ namespace Vovin.CmcLibNet.Export
             catch { }
         }
         // keep track of the rownumber being processed
-        protected internal virtual void HandleExportProgressChanged(object sender, ExportProgressChangedArgs e)
+        protected internal virtual void HandleDataRowRead(object sender, DataRowReadArgs e)
         {
-            this.CurrentRow = e.RowsProcessed;
+            this.CurrentRow = e.CurrentRow;
             this.TotalRows = e.RowsTotal;
-            OnExportProgressChanged(e); // bubble up event
+            OnDataRowRead(e); // bubble up event
         }
 
         /// <summary>
         /// Handler used to bubble up the ExportProgressChanged event
         /// </summary>
         /// <param name="e">ExportProgressChangedArgs.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
+        protected virtual void OnDataRowRead(DataRowReadArgs e)
         {
             try
             {
-                ExportProgressChangedHandler handler = ExportProgressChanged;
+                DataRowReadHandler handler = DataRowRead;
                 Delegate[] eventHandlers = handler.GetInvocationList();
                 foreach (Delegate currentHandler in eventHandlers)
                 {
-                    ExportProgressChangedHandler currentSubscriber = (ExportProgressChangedHandler)currentHandler;
+                    DataRowReadHandler currentSubscriber = (DataRowReadHandler)currentHandler;
                     try
                     {
                         currentSubscriber(this, e);
@@ -442,13 +448,13 @@ namespace Vovin.CmcLibNet.Export
                 //
                 if (dr != null)
                 {
-                    dr.DataProgressChanged -= this.ProcessDataRows;
-                    dr.DataReadCompleted -= this.DataReadComplete;
-                    dr.ExportProgressChanged -= this.HandleExportProgressChanged;
+                    dr.DataProgressChanged -= this.HandleProcessedDataRows;
+                    dr.DataReadCompleted -= this.HandleDataReadComplete;
+                    dr.DataRowRead -= this.HandleDataRowRead;
                 }
                 //is this overkill?
-                this.ExportProgressChanged = null; // will this kill subscriptions?
-                this.CommenceRowsRead = null;
+                this.DataRowRead = null; // will this kill subscriptions?
+                this.DataRowsRead = null;
             }
 
             // Free any unmanaged objects here.

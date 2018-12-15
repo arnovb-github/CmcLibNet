@@ -13,12 +13,12 @@
         */
 
         /// <summary>
-        /// ExportProgressChanged event.
+        /// DataRowRead event raised for every row read.
         /// </summary>
-        event ExportProgressChangedHandler ExportProgressChanged; // event is invisible to COM, there is a separate interface for COM.
+        event DataRowReadHandler DataRowRead; // event is invisible to COM, there is a separate interface for COM.
         /// <summary>
-        /// CommenceRowsRead event used in conjunction with Event export format.
+        /// DataRowsRead event raised for every batch of rows read.
         /// </summary>
-        event CommenceRowsReadHandler CommenceRowsRead;
+        event DataRowsReadHandler DataRowsRead;
     }
 }

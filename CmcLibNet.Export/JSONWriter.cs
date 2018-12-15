@@ -31,10 +31,10 @@ namespace Vovin.CmcLibNet.Export
         {
             _jg = new JSONCreator(this);
             _sw = new StreamWriter(fileName);
-            base.ReadData();
+            base.ReadCommenceData();
         }
 
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             _jg.AddRowValues(e.Values);
             // we should write to filesteam here for better performance
@@ -45,7 +45,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="sender">sender.</param>
         /// <param name="e"><see cref="DataReadCompleteArgs"/>.</param>
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             try
             {

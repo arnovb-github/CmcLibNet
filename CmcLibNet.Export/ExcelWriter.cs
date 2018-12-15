@@ -113,7 +113,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
         // why is this not called?
-        protected internal override void ProcessDataRows(object sender, DataProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
         {
             Console.WriteLine("ProcessDataRows in ExcelWriter called");
             if (!dataTypeSet)
@@ -124,12 +124,12 @@ namespace Vovin.CmcLibNet.Export
             return;
         }
 
-        protected internal override void DataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
         {
             return;
         }
 
-        private void SetDataTypeForCells(DataProgressChangedArgs e)
+        private void SetDataTypeForCells(CommenceExportProgressChangedArgs e)
         {
             // determine size of worksheet and set datatype for cells
         }
