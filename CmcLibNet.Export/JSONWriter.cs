@@ -34,18 +34,19 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
-            _jg.AddRowValues(e.Values);
+            _jg.AddRowValues(e.RowValues);
             // we should write to filesteam here for better performance
+            BubbleUpProgressEvent(e);
         }
 
         /// <summary>
         /// Writes the object to file in JSON format.
         /// </summary>
         /// <param name="sender">sender.</param>
-        /// <param name="e"><see cref="DataReadCompleteArgs"/>.</param>
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        /// <param name="e"><see cref="ExportCompleteArgs"/>.</param>
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
             try
             {
@@ -57,7 +58,7 @@ namespace Vovin.CmcLibNet.Export
                 _sw.Flush();
                 _sw.Close();
             }
-
+            base.BubbleUpCompletedEvent(e);
         }
 
         /// <summary>

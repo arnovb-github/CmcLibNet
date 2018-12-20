@@ -45,11 +45,11 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
             StringBuilder sb = new StringBuilder();
             
-            foreach (List<CommenceValue> row in e.Values)
+            foreach (List<CommenceValue> row in e.RowValues)
             {
                 _rowcounter++;
                 int colcounter = 0;
@@ -71,13 +71,15 @@ namespace Vovin.CmcLibNet.Export
                 sb.Append("</tr>");
             } // foreach
             _sw.WriteLine(sb.ToString());
+            base.BubbleUpProgressEvent(e);
         }
 
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
             _sw.WriteLine("</tbody></table></body></html>");
             _sw.Flush();
             _sw.Close();
+            base.BubbleUpCompletedEvent(e);
         }
 
         private string GetTableHeaders()

@@ -862,7 +862,7 @@ namespace Vovin.CmcLibNet.Database
                         rowvalues[i][j + 1] = buffer[j].ToString(); // put rowvalue in 2nd and up column of row
                     } // j
                 } // i
-                qrs.Close(); // close any COM references explicitly. the 'using' directive will do this for us, but may not kick in in time.
+                qrs.Close(); // close COM reference explicitly. the 'using' directive will do this for us, but may not kick in in time.
                 return rowvalues;
             } // using; qrs will be disposed now
         }

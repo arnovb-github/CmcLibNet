@@ -5,20 +5,22 @@ using Vovin.CmcLibNet.Database;
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
-    /// Delegate for the ExportProgressChanged event to deal with single rows.
+    /// Delegate for the ExportProgressAsJsonChanged event to deal with batches of rows.
+    /// For use by external assemblies.
     /// </summary>
     /// <param name="sender">sender object.</param>
-    /// <param name="e">ExportProgressChangedArgs.</param>
-    [ComVisible(false)] // no need to expose to COM
-    public delegate void DataRowReadHandler(object sender, DataRowReadArgs e);
+    /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
+    [ComVisible(false)] // there is a separate interface for COM
+    public delegate void ExportProgressAsJsonChangedHandler(object sender, ExportProgressAsJsonChangedArgs e);
 
     /// <summary>
-    /// Delegate for the CommenceRowsRead event to deal with batches of rows.
+    /// Delegate for the ExportCompleted event to deal with batches of rows.
+    /// For use by external assemblies.
     /// </summary>
     /// <param name="sender">sender object.</param>
-    /// <param name="e">CommenceRowsReadArgs.</param>
-    [ComVisible(false)] // no need to expose to COM
-    public delegate void DataRowsReadHandler(object sender, DataRowsReadArgs e);
+    /// <param name="e">ExportCompleteArgs.</param>
+    [ComVisible(false)] // there is a separate interface for COM
+    public delegate void ExportCompletedHandler(object sender, ExportCompleteArgs e);
 
     /// <summary>
     /// Export engine for exporting data from Commence.
@@ -44,13 +46,13 @@ namespace Vovin.CmcLibNet.Export
     public class ExportEngine : IExportEngine //note that we do not inherit from IExportEngineEvents!
     {
         /// <summary>
-        /// ExportProgressChanged event.
+        /// ExportProgressChanged event for outside assemblies.
         /// </summary>
-        public event DataRowReadHandler DataRowRead;
+        public event ExportProgressAsJsonChangedHandler ExportProgressChanged;
         /// <summary>
-        /// CommenceRowsRead event.
+        /// ExportCompleted event for outside assemblies.
         /// </summary>
-        public event DataRowsReadHandler DataRowsRead;
+        public event ExportCompletedHandler ExportCompleted;
         private BaseWriter _writer = null;
         private IExportSettings _settings = null;
         private readonly ICommenceDatabase _db = null;
@@ -70,13 +72,12 @@ namespace Vovin.CmcLibNet.Export
         {
             // is unsubscribing needed or even useful?
             if (_writer != null) {
-                _writer.DataRowRead -= this.DataRowRead;
-                _writer.DataRowsRead -= this.DataRowsRead;
+                UnsubscribeToWriterEvents(_writer);
             }
         }
         #endregion
 
-        #region Methods
+        #region Export methods
         /// <summary>
         /// This method is called by all exports methods, it takes care of all the actual exports.
         /// Other export methods are really just preparation routines for calling this method.
@@ -84,9 +85,8 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cur">ICommenceCursor</param>
         /// <param name="fileName">file name</param>
         /// <param name="settings">IExportSettings</param>
-        internal void ExportCursor(Database.ICommenceCursor cur, string fileName, IExportSettings settings)
+        internal void ExportCursor(ICommenceCursor cur, string fileName, IExportSettings settings)
         {
-
             cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
 
             // exporting may take a long time, and the system may go into power saving mode
@@ -118,8 +118,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                     using (_writer = new AdoNetWriter(cur, settings))
                     {
-                        _writer.DataRowRead += this.HandleCommenceExportProgressChanged; // not entirely accurate because there is post-processing after this event has finished.
-                        _writer.DataRowsRead += this.DataRowsRead;
+                        SubscribeToWriterEvents(_writer);
                         _writer.WriteOut(fileName);
                     }
                 }
@@ -127,8 +126,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     using (_writer = this.GetExportWriter(cur, settings))
                     {
-                        _writer.DataRowRead += this.HandleCommenceExportProgressChanged; // note that we never unsubscribe, but the writer will be disposed of.
-                        _writer.DataRowsRead += this.DataRowsRead;
+                        SubscribeToWriterEvents(_writer);
                         _writer.WriteOut(fileName);
                     }
                 }
@@ -137,6 +135,18 @@ namespace Vovin.CmcLibNet.Export
             {
                 ps.EnableConstantDisplayAndPower(false);
             }
+        }
+
+        private void SubscribeToWriterEvents(BaseWriter w)
+        {
+            w.ExportProgressChanged += (s, e) => HandleExportProgressChanged(s, e);
+            w.ExportCompleted += (s, e) => HandleExportCompleted(s, e);
+        }
+
+        private void UnsubscribeToWriterEvents(BaseWriter w)
+        {
+            w.ExportProgressChanged -= (s, e) => HandleExportProgressChanged(s, e);
+            w.ExportCompleted -= (s, e) => HandleExportCompleted(s, e);
         }
 
         /// <inheritdoc />
@@ -204,7 +214,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cursor">Database.ICommenceCursor reference.</param>
         /// <param name="settings">Settings object.</param>
         /// <returns>Derived BaseDataWriter object.</returns>
-        internal BaseWriter GetExportWriter(Database.ICommenceCursor cursor, IExportSettings settings)
+        internal BaseWriter GetExportWriter(ICommenceCursor cursor, IExportSettings settings)
         {
             switch (settings.ExportFormat)
             {
@@ -224,7 +234,6 @@ namespace Vovin.CmcLibNet.Export
                     break;
                 case ExportFormat.Excel:
                     _writer = new ExcelWriter(cursor, settings);
-                    //_writer = new AdoNetWriter(cursor, settings);
                     break;
                 case ExportFormat.Event:
                     _writer = new EventWriter(cursor, settings);
@@ -235,75 +244,76 @@ namespace Vovin.CmcLibNet.Export
             }
             return _writer;
         }
+        #endregion
 
+        #region Event methods
         // we need some mechanism to tell consumers about the progress of our export
         // the writer classes are not exposed, so we need to capture the events of those classes,
         // and then raise an event that consumers can subscribe to.
         /// <summary>
-        /// Event handler for the CommenceRowsRead event.
-        /// </summary>
-        /// <param name="sender">sender object.</param>
-        /// <param name="e">CommenceRowsReadArgs object.</param>
-        public virtual void HandleCommenceRowsRead(object sender, DataRowsReadArgs e)
-        {
-            // just re-raise event
-            OnCommenceRowsRead(e);
-        }
-        /// <summary>
-        /// Raise the CommenceRowsRead event.
-        /// </summary>
-        /// <param name="e">CommenceRowsReadArgs.</param>
-        protected virtual void OnCommenceRowsRead(DataRowsReadArgs e)
-        {
-            try
-            {
-                DataRowsReadHandler handler = DataRowsRead;
-                Delegate[] eventHandlers = handler.GetInvocationList();
-                foreach (Delegate currentHandler in eventHandlers)
-                {
-                    DataRowsReadHandler currentSubscriber = (DataRowsReadHandler)currentHandler;
-                    try
-                    {
-                        currentSubscriber(this, e);
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-        }
-
-        /// <summary>
         /// Event handler for the ExportProgressChanged event.
         /// </summary>
         /// <param name="sender">sender object.</param>
-        /// <param name="e">ExportProgressChangedArgs object.</param>
-        public virtual void HandleCommenceExportProgressChanged(object sender, DataRowReadArgs e)
+        /// <param name="e">ExportProgressAsJsonChangedArgs object.</param>
+        public virtual void HandleExportProgressChanged(object sender, ExportProgressAsJsonChangedArgs e)
         {
             // just re-raise event
-            OnExportProgressChanged(e);
+            OnExportProgressChanged(e); // outside assemblies can subscribe to this
         }
 
         /// <summary>
-        /// Raise the ProgressChanged event.
+        /// Event handler for the ExportCompleted event
         /// </summary>
-        /// <param name="e">ExportProgressChangedArgs.</param>
-        protected virtual void OnExportProgressChanged(DataRowReadArgs e)
+        /// <param name="sender">sender object.</param>
+        /// <param name="e">ExportCompleteArgs</param>
+        public virtual void HandleExportCompleted(object sender, ExportCompleteArgs e)
         {
-            try
+            OnExportCompleted(e);
+        }
+        /// <summary>
+        /// Raise the ExportProgressChanged event.
+        /// </summary>
+        /// <param name="e">ExportProgressAsJsonChangedArgs object.</param>
+        protected virtual void OnExportProgressChanged(ExportProgressAsJsonChangedArgs e)
+        {
+            ExportProgressAsJsonChangedHandler handler = ExportProgressChanged;
+            if (handler == null) // no subscriptions
             {
-                DataRowReadHandler handler = DataRowRead;
-                Delegate[] eventHandlers = handler.GetInvocationList();
-                foreach (Delegate currentHandler in eventHandlers)
+                return;
+            } 
+            Delegate[] eventHandlers = handler.GetInvocationList();
+            foreach (Delegate currentHandler in eventHandlers)
+            {
+                ExportProgressAsJsonChangedHandler currentSubscriber = (ExportProgressAsJsonChangedHandler)currentHandler;
+                try
                 {
-                    DataRowReadHandler currentSubscriber = (DataRowReadHandler)currentHandler;
-                    try
-                    {
-                        currentSubscriber(this, e);
-                    }
-                    catch { }
+                    currentSubscriber(this, e);
                 }
+                catch { }
             }
-            catch { }
+        }
+
+        /// <summary>
+        /// Raises the ExportCompleted event
+        /// </summary>
+        /// <param name="e">ExportCompleteArgs</param>
+        protected virtual void OnExportCompleted(ExportCompleteArgs e)
+        {
+            ExportCompletedHandler handler = ExportCompleted;
+            if (handler == null) // no subscriptions
+            {
+                return;
+            }
+            Delegate[] eventHandlers = handler.GetInvocationList();
+            foreach (Delegate currentHandler in eventHandlers)
+            {
+                ExportCompletedHandler currentSubscriber = (ExportCompletedHandler)currentHandler;
+                try
+                {
+                    currentSubscriber(this, e);
+                }
+                catch { }
+            }
         }
 
         /// <inheritdoc />

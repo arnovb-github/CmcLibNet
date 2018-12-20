@@ -32,38 +32,37 @@ namespace Vovin.CmcLibNet.Export
     internal class DataReader
     {
         // delegates
-        internal delegate void DataProgressChangedHandler(object sender, CommenceExportProgressChangedArgs e);
-        internal delegate void DataReadCompleteHandler(object sender, DataReadCompleteArgs e);
+        internal delegate void DataProgressChangedHandler(object sender, ExportProgressChangedArgs e);
+        internal delegate void DataReadCompleteHandler(object sender, ExportCompleteArgs e);
         
         // events
         internal event DataProgressChangedHandler DataProgressChanged;
         internal event DataReadCompleteHandler DataReadCompleted;
-        internal event DataRowReadHandler DataRowRead;
         
         // fields
-        private readonly CommenceCursor _cursor = null;
-        private readonly IExportSettings _settings = null;
-        private readonly int _maxrows = 1000; // maximum number of rows to read per iteration
-        private readonly List<ColumnDefinition> _columndefinitions = null;
-        private readonly int _totalrows = 0;
-        private readonly string _pattern = "(?<!\r)\n";
-        private readonly Regex _regex = null;
-        private readonly bool _useThids;
+        private readonly CommenceCursor cursor = null;
+        private readonly IExportSettings settings = null;
+        private readonly int numRows = 1000; // maximum number of rows to read per iteration
+        private readonly List<ColumnDefinition> columnDefinitions = null;
+        private readonly int totalRows = 0;
+        private readonly string pattern = "(?<!\r)\n";
+        private readonly Regex regex = null;
+        private readonly bool useThids;
 
         #region Constructors
         internal DataReader(ICommenceCursor cursor, IExportSettings settings, List<ColumnDefinition> columndefinitions, string[] customColumnHeaders)
         {
-            this._cursor = (CommenceCursor)cursor;
-            _totalrows = cursor.RowCount;
-            this._settings = settings;
-            _maxrows = this._settings.NumRows;
-            this._columndefinitions = columndefinitions;
-            _regex = new Regex(_pattern);
-            if (this._settings.XSDCompliant)
+            this.cursor = (CommenceCursor)cursor;
+            totalRows = cursor.RowCount;
+            this.settings = settings;
+            numRows = this.settings.NumRows;
+            this.columnDefinitions = columndefinitions;
+            regex = new Regex(pattern);
+            if (this.settings.XSDCompliant)
             {
                 this.Formatting = ValueFormatting.XSD_ISO8601;
             }
-            else if (this._settings.Canonical)
+            else if (this.settings.Canonical)
             {
                 this.Formatting = ValueFormatting.Canonical;
             }
@@ -71,16 +70,16 @@ namespace Vovin.CmcLibNet.Export
             {
                 this.Formatting = ValueFormatting.None; // default
             }
-            if ((_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
+            if ((this.cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                _useThids = true;
+                useThids = true;
             }
         }
         #endregion
 
         #region Event raising methods
 
-        protected virtual void OnDataProgressChanged(CommenceExportProgressChangedArgs e)
+        protected virtual void OnDataProgressChanged(ExportProgressChangedArgs e)
         {
             try
             {
@@ -91,7 +90,7 @@ namespace Vovin.CmcLibNet.Export
             catch { }
         }
 
-        protected virtual void OnDataReadCompleted(DataReadCompleteArgs e)
+        protected virtual void OnDataReadCompleted(ExportCompleteArgs e)
         {
             try
             {
@@ -102,25 +101,6 @@ namespace Vovin.CmcLibNet.Export
             catch { }
         }
 
-        protected virtual void OnDataRowRead(DataRowReadArgs e)
-        {
-            try
-            {
-                DataRowReadHandler handler = DataRowRead;
-                Delegate[] eventHandlers = handler.GetInvocationList();
-                for (int i = 0; i < eventHandlers.Length; i++)
-                {
-                    Delegate currentHandler = eventHandlers[i];
-                    DataRowReadHandler currentSubscriber = (DataRowReadHandler)currentHandler;
-                    try
-                    {
-                        currentSubscriber(this, e);
-                    }
-                    catch { }
-                }
-            }
-            catch { } //rethrow
-        }
         #endregion
 
         #region Data fetching methods
@@ -135,10 +115,10 @@ namespace Vovin.CmcLibNet.Export
         internal void GetDataByAPI()
         {
             int counter = 0;
-            for (int totalrows = 0; totalrows < this._cursor.RowCount; totalrows += _maxrows)
+            for (int rows = 0; rows < totalRows; rows += numRows)
             {
 
-                string[][] rawdata = _cursor.GetRawData(_maxrows); // first dimension is rows, second dimension is columns
+                string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
                 List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
                 CommenceValue cv = null;
                 ColumnDefinition cd = null;
@@ -148,9 +128,9 @@ namespace Vovin.CmcLibNet.Export
                 {
                     List<CommenceValue> rowdata = new List<CommenceValue>();
                     // for thids we can assume the first row of rawdata contains the thid
-                    if (this._useThids)
+                    if (this.useThids)
                     {
-                        cv = new CommenceValue(rawdata[i][0], this._columndefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
+                        cv = new CommenceValue(rawdata[i][0], this.columnDefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
                         rowdata.Add(cv);
                     }
 
@@ -160,7 +140,7 @@ namespace Vovin.CmcLibNet.Export
                         // a column for the thid is only returned when a thid is requested
                         // therefore getting the right column is a little tricky
                         int colindex;
-                        if (this._useThids)
+                        if (this.useThids)
                         {
                             colindex = j;
                         }
@@ -168,7 +148,7 @@ namespace Vovin.CmcLibNet.Export
                         {
                             colindex = j - 1;
                         }
-                        cd = this._columndefinitions[colindex];
+                        cd = this.columnDefinitions[colindex];
 
                         string[] buffer = null;
                         if (cd.IsConnection)
@@ -179,7 +159,7 @@ namespace Vovin.CmcLibNet.Export
                             }
                             else
                             {
-                                if (!_settings.SplitConnectedItems)
+                                if (!settings.SplitConnectedItems)
                                 {
                                     buffer = new string[] { rawdata[i][j] };
 
@@ -192,7 +172,7 @@ namespace Vovin.CmcLibNet.Export
                                             // we use a regex to split values at "\n" *but not* "\r\n"
                                             // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
                                             // in that case, your only option is to suppress the splitting in ExportSettings
-                                            buffer = _regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
+                                            buffer = regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
                                             break;
                                         default:
                                             buffer = rawdata[i][j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
@@ -214,15 +194,13 @@ namespace Vovin.CmcLibNet.Export
                         if (cv != null) { rowdata.Add(cv); }
                     } // for j
                     counter++;
-                    DataRowReadArgs rowread_args = new DataRowReadArgs(counter, _totalrows);
-                    OnDataRowRead(rowread_args); // raise event for each row read
                     retval.Add(rowdata);
                 } // for i
                 // per batch of rows
-                CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(retval, counter);
+                ExportProgressChangedArgs args = new ExportProgressChangedArgs(retval, counter, totalRows);
                 OnDataProgressChanged(args); // raise event after each batch of rows
             } // totalrows
-            DataReadCompleteArgs e = new DataReadCompleteArgs(counter);
+            ExportCompleteArgs e = new ExportCompleteArgs(counter);
             OnDataReadCompleted(e); // done with reading data
         }
 
@@ -239,13 +217,13 @@ namespace Vovin.CmcLibNet.Export
             ICommenceDatabase db = new CommenceDatabase();
 
             // determine if we are dealing with a view or category
-            if (String.IsNullOrEmpty(_cursor.View))
+            if (String.IsNullOrEmpty(cursor.View))
             {
-                db.ViewCategory(this._cursor.Category);
+                db.ViewCategory(this.cursor.Category);
             }
             else
             {
-                db.ViewView(this._cursor.View);
+                db.ViewView(this.cursor.View);
             }
             int itemCount = db.ViewItemCount();
 
@@ -343,13 +321,11 @@ namespace Vovin.CmcLibNet.Export
                     
                 } // foreach tabledef
                 rows.Add(rowvalues);
-                CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(rows, i); // progress within the cursor
+                ExportProgressChangedArgs args = new ExportProgressChangedArgs(rows, i, totalRows); // progress within the cursor
                 OnDataProgressChanged(args);
-                DataRowReadArgs rowread_args = new DataRowReadArgs(i, _totalrows); // total progress
-                OnDataRowRead(rowread_args);
             } // i
             db = null;
-            DataReadCompleteArgs a = new DataReadCompleteArgs(itemCount);
+            ExportCompleteArgs a = new ExportCompleteArgs(itemCount);
             OnDataReadCompleted(a);
         }
 
@@ -359,9 +335,9 @@ namespace Vovin.CmcLibNet.Export
         private IList<Task<string[][]>> CreateCursorReadTasks()
         {
             IList<Task<string[][]>> retval = new List<Task<string[][]>>();
-            for (int totalrows = 0; totalrows < this._cursor.RowCount; totalrows += _maxrows)
+            for (int totalrows = 0; totalrows < this.cursor.RowCount; totalrows += numRows)
             {
-                retval.Add(Task.Run(() => _cursor.GetRawData(_maxrows)));
+                retval.Add(Task.Run(() => cursor.GetRawData(numRows)));
             }
             return retval;
         }
@@ -390,9 +366,9 @@ namespace Vovin.CmcLibNet.Export
             {
                 List<CommenceValue> rowdata = new List<CommenceValue>();
                 // for thids we can assume the first row of rawdata contains the thid
-                if (this._useThids)
+                if (this.useThids)
                 {
-                    cv = new CommenceValue(rawdata[i][0], this._columndefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
+                    cv = new CommenceValue(rawdata[i][0], this.columnDefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
                     rowdata.Add(cv);
                 }
 
@@ -402,7 +378,7 @@ namespace Vovin.CmcLibNet.Export
                     // a column for the thid is only returned when a thid is requested
                     // therefore getting the right column is a little tricky
                     int colindex;
-                    if (this._useThids)
+                    if (this.useThids)
                     {
                         colindex = j;
                     }
@@ -410,7 +386,7 @@ namespace Vovin.CmcLibNet.Export
                     {
                         colindex = j - 1;
                     }
-                    cd = this._columndefinitions[colindex];
+                    cd = this.columnDefinitions[colindex];
 
                     string[] buffer = null;
                     if (cd.IsConnection)
@@ -421,7 +397,7 @@ namespace Vovin.CmcLibNet.Export
                         }
                         else
                         {
-                            if (!_settings.SplitConnectedItems)
+                            if (!settings.SplitConnectedItems)
                             {
                                 buffer = new string[] { rawdata[i][j] };
 
@@ -434,7 +410,7 @@ namespace Vovin.CmcLibNet.Export
                                         // we use a regex to split values at "\n" *but not* "\r\n"
                                         // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
                                         // in that case, your only option is to suppress the splitting in ExportSettings
-                                        buffer = _regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
+                                        buffer = regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
                                         break;
                                     default:
                                         buffer = rawdata[i][j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
@@ -456,12 +432,10 @@ namespace Vovin.CmcLibNet.Export
                     if (cv != null) { rowdata.Add(cv); }
                 } // for j
                 counter++;
-                DataRowReadArgs rowread_args = new DataRowReadArgs(counter, _totalrows);
-                DataRowRead?.Invoke(this, rowread_args); // raise event for each row read
                 retval.Add(rowdata);
             } // for i
             // per batch of rows
-            CommenceExportProgressChangedArgs args = new CommenceExportProgressChangedArgs(retval, counter);
+            ExportProgressChangedArgs args = new ExportProgressChangedArgs(retval, counter, totalRows);
             DataProgressChanged?.Invoke(this, args); // raise event after each batch of rows
         }
         #endregion
@@ -506,33 +480,4 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
     }
-
-    #region Helper classes
-    internal class CommenceExportProgressChangedArgs : EventArgs
-    {
-        internal CommenceExportProgressChangedArgs(List<List<CommenceValue>> list, int row)
-        {
-            this.Values = list;
-            this.Row = row;
-        }
-        internal List<List<CommenceValue>> Values { get; private set; }
-        internal int Row { get; private set; }
-    }
-    internal class DataReadCompleteArgs : EventArgs
-    {
-        internal DataReadCompleteArgs(int row)
-        {
-            this.Row = row;
-        }
-        internal int Row { get; private set; }
-    }
-    internal class DataRowReadEventArgs : EventArgs
-    {
-        internal DataRowReadEventArgs(int row)
-        {
-            this.Row = row;
-        }
-        internal int Row { get; private set; }
-    }
-    #endregion
 }

@@ -87,12 +87,13 @@ namespace Vovin.CmcLibNet.Export
         // add metadata headers and return populated JSON object
         internal JObject ToJObject()
         {
-            JObject j = new JObject();
-            j.Add("CommenceDataSource", this.DataSource);
-            //j["CommenceDataSource"] = this.DataSource; // identical to line above
-            j.Add("CommenceDataSourceType", this.DataSourceType);
-            j.Add("CommenceCategory", this.Category);
-            j.Add("Items", this._rows);
+            JObject j = new JObject
+            {
+                { "CommenceDataSource", this.DataSource },
+                { "CommenceDataSourceType", this.DataSourceType },
+                { "CommenceCategory", this.Category },
+                { "Items", this._rows }
+            };
             return j;
         }
         #endregion

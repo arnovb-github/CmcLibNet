@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet.Export
@@ -15,8 +14,9 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal abstract class BaseWriter : IDisposable
     {
-        internal event DataRowReadHandler DataRowRead; // we want to bubble up this event
-        internal event DataRowsReadHandler DataRowsRead; // we want to bubble up this event
+        internal event ExportProgressAsJsonChangedHandler ExportProgressChanged; // we want to bubble up this event
+        internal event ExportCompletedHandler ExportCompleted; // we want to bubble up this event
+
         #region Fields
         /// <summary>
         /// File to export to.
@@ -29,7 +29,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Cursor object to retrieve data from.
         /// </summary>
-        protected internal Database.ICommenceCursor _cursor = null;
+        protected internal ICommenceCursor _cursor = null;
         /// <summary>
         /// Settings object.
         /// </summary>
@@ -50,15 +50,11 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Datareader object.
         /// </summary>
-        DataReader dr = null;
+        private DataReader dr = null;
         /// <summary>
         /// Disposed flag for use with IDisposable.
         /// </summary>
         bool disposed = false;
-        /// <summary>
-        /// Keeps track of individial row iterations
-        /// </summary>
-        int _rowcounter = 0;
         /// <summary>
         /// Used for creating unique labels for columnnames if they contain duplicates.
         /// </summary>
@@ -74,7 +70,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="settings">ExportSettings object.</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        protected internal BaseWriter(Database.ICommenceCursor cursor, 
+        protected internal BaseWriter(ICommenceCursor cursor, 
             IExportSettings settings)
         {
             _cursor = cursor;
@@ -107,15 +103,15 @@ namespace Vovin.CmcLibNet.Export
         /// It must NOT be a partial Commence item!
         /// </summary>
         /// <param name="sender">sender.</param>
-        /// <param name="e">CommenceExportProgressChangedArgs.</param>
-        protected internal abstract void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e);
+        /// <param name="e">ExportProgressChangedArgs.</param>
+        protected internal abstract void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e);
         /// <summary>
         /// Method that deals with any finalization of the export,
         /// such as writing closing elements and closing streams.
         /// </summary>
         /// <param name="sender">sender.</param>
-        /// <param name="e">DataReadCompleteArgs.</param>
-        protected internal abstract void HandleDataReadComplete(object sender, DataReadCompleteArgs e);
+        /// <param name="e">ExportCompleteArgs.</param>
+        protected internal abstract void HandleDataReadComplete(object sender, ExportCompleteArgs e);
         #endregion
 
         #region Data fetching methods
@@ -129,9 +125,8 @@ namespace Vovin.CmcLibNet.Export
             // subscribe to the events the datareader throws
             //dr.DataProgressChanged += this.HandleProcessedDataRows;
             //dr.DataReadCompleted += this.HandleDataReadComplete;
-            //dr.DataRowRead += this.HandleDataRowRead;
-            // asynchronous. Should be okay for synchrnous stuff as well
-            dr.DataRowRead += (s, e) => HandleDataRowRead(s, e);
+            // subscribe in a way we can use Invoke (asynchronous)(?).
+            // Should be okay for synchronous stuff as well
             dr.DataProgressChanged += (s, e) => HandleProcessedDataRows(s, e);
             dr.DataReadCompleted += (s, e) => HandleDataReadComplete(s, e);
 
@@ -366,64 +361,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        protected internal virtual void HandleDataRowsRead(object sender, DataRowsReadArgs e)
-        {
-            OnDataRowsRead(e); // bubble up event
-        }
-
-        /// <summary>
-        /// Handler used to bubble up the CommenceRowsRead event
-        /// </summary>
-        /// <param name="e">CommenceRowsReadArgs.</param>
-        protected virtual void OnDataRowsRead(DataRowsReadArgs e)
-        {
-            try
-            {
-                DataRowsReadHandler handler = DataRowsRead;
-                Delegate[] eventHandlers = handler.GetInvocationList();
-                foreach (Delegate currentHandler in eventHandlers)
-                {
-                    DataRowsReadHandler currentSubscriber = (DataRowsReadHandler)currentHandler;
-                    try
-                    {
-                        currentSubscriber(this, e);
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-        }
-        // keep track of the rownumber being processed
-        protected internal virtual void HandleDataRowRead(object sender, DataRowReadArgs e)
-        {
-            this.CurrentRow = e.CurrentRow;
-            this.TotalRows = e.RowsTotal;
-            OnDataRowRead(e); // bubble up event
-        }
-
-        /// <summary>
-        /// Handler used to bubble up the ExportProgressChanged event
-        /// </summary>
-        /// <param name="e">ExportProgressChangedArgs.</param>
-        protected virtual void OnDataRowRead(DataRowReadArgs e)
-        {
-            try
-            {
-                DataRowReadHandler handler = DataRowRead;
-                Delegate[] eventHandlers = handler.GetInvocationList();
-                foreach (Delegate currentHandler in eventHandlers)
-                {
-                    DataRowReadHandler currentSubscriber = (DataRowReadHandler)currentHandler;
-                    try
-                    {
-                        currentSubscriber(this, e);
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-        }
-
+        
         /// <summary>
         /// Dispose method
         /// </summary>
@@ -450,11 +388,9 @@ namespace Vovin.CmcLibNet.Export
                 {
                     dr.DataProgressChanged -= this.HandleProcessedDataRows;
                     dr.DataReadCompleted -= this.HandleDataReadComplete;
-                    dr.DataRowRead -= this.HandleDataRowRead;
                 }
                 //is this overkill?
-                this.DataRowRead = null; // will this kill subscriptions?
-                this.DataRowsRead = null;
+                this.ExportProgressChanged = null;
             }
 
             // Free any unmanaged objects here.
@@ -463,12 +399,68 @@ namespace Vovin.CmcLibNet.Export
         }
         #endregion
 
+        #region Event methods
+        /// <summary>
+        /// Handler used to bubble up the ExportProgressChanged event
+        /// </summary>
+        /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
+        protected virtual void OnExportProgressChanged(ExportProgressAsJsonChangedArgs e)
+        {
+            ExportProgressAsJsonChangedHandler handler = ExportProgressChanged;
+            if (handler == null) { return; } // no subscriptions
+            Delegate[] eventHandlers = handler.GetInvocationList();
+            foreach (Delegate currentHandler in eventHandlers)
+            {
+                ExportProgressAsJsonChangedHandler currentSubscriber = (ExportProgressAsJsonChangedHandler)currentHandler;
+                try
+                {
+                    currentSubscriber(this, e);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Used to bubble up the Export completed event
+        /// </summary>
+        /// <param name="e">ExportCompleteArgs</param>
+        protected virtual void OnExportCompleted(ExportCompleteArgs e)
+        {
+            ExportCompletedHandler handler = ExportCompleted;
+            if (handler == null) { return; } // no subscriptions
+            Delegate[] eventHandlers = handler.GetInvocationList();
+            foreach (Delegate currentHandler in eventHandlers)
+            {
+                ExportCompletedHandler currentSubscriber = (ExportCompletedHandler)currentHandler;
+                try
+                {
+                    currentSubscriber(this, e);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Derived classes can use this method to bubble up the ExportProgressChanged event
+        /// </summary>
+        /// <param name="e">ExportProgressChangedArgs</param>
+        protected void BubbleUpProgressEvent(ExportProgressChangedArgs e)
+        {
+            OnExportProgressChanged(new ExportProgressAsJsonChangedArgs(e.RowsProcessed, e.RowsTotal));
+        }
+
+        protected void BubbleUpCompletedEvent(ExportCompleteArgs e)
+        {
+            OnExportCompleted(e);
+        }
+        #endregion
+
         #region Properties
 
         /// <summary>
         /// Creates and returns an instance of the HeaderLists class that contains information on the columns and fields of the cursor to be exported.
         /// </summary>
-       protected internal List<ColumnDefinition> ColumnDefinitions
+        protected internal List<ColumnDefinition> ColumnDefinitions
         {
             // create _headerLists just once!
             get
@@ -522,22 +514,11 @@ namespace Vovin.CmcLibNet.Export
                 return _exportHeaders;
             }
         }
-        /// <summary>
-        /// Keeps track of what row was read in the cursor.
-        /// </summary>
-        protected internal int CurrentRow
-        {
-            get
-            {
-                return _rowcounter;
-            }
-            set
-            {
-                _rowcounter = value;
-            }
-        }
+        ///// <summary>
+        ///// Keeps track of what row was read in the cursor.
+        ///// </summary>
+        //protected internal int CurrentRow { get; internal set; }
 
-        protected internal int TotalRows { get; internal set; }
         #endregion
     }
 }

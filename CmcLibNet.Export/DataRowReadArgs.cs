@@ -3,6 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Export
 {
+    /// THIS CLASS IS SILLY
+    /// it's goal it to report progress of a Commence data read
+    /// but Commence always returns data in batches anyway
+    /// That means that this event will be fired after the batch has been retrieved,
+    /// defeating the purpose
+
     /// <summary>
     /// Interface for DataRowReadArgs for use with COM Interop.
     /// </summary>

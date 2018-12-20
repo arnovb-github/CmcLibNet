@@ -7,18 +7,20 @@
     {
         /* 
         * Put events in a separate interface so as to not pollute the COM interface.
-        * If we put the event in the COM-exposed interface,
+        * If we were to put the event in the COM-exposed interface,
         * COM clients will see a add_EventX and remove_EventX method.
         * For COM clients, there is a separate interface implementation for events.
         */
 
         /// <summary>
-        /// DataRowRead event raised for every row read.
+        /// ExportProgressChanged event raised for every batch of rows read.
         /// </summary>
-        event DataRowReadHandler DataRowRead; // event is invisible to COM, there is a separate interface for COM.
+        event ExportProgressAsJsonChangedHandler ExportProgressChanged;
+
         /// <summary>
-        /// DataRowsRead event raised for every batch of rows read.
+        /// ExportCompleted event
         /// </summary>
-        event DataRowsReadHandler DataRowsRead;
+        event ExportCompletedHandler ExportCompleted;
+        
     }
 }

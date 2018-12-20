@@ -1174,7 +1174,7 @@ namespace Vovin.CmcLibNet.Database
             catch (Exception e) //swallow all errors
             {
                 // DEBUG
-                //System.Windows.Forms.MessageBox.Show(e.Message + "\n" + e.InnerException);
+                string s = e.Message;
             }
 
             if (DDETimer == null)

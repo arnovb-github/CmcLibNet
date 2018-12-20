@@ -25,36 +25,31 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
             try
             {
-                foreach (List<CommenceValue> datarow in e.Values)
+                foreach (List<CommenceValue> datarow in e.RowValues)
                 {
                     // pass on rowdata for RowParser
                     AdoNetRowWriter rp = new AdoNetRowWriter(_rows_processed, datarow, _ds); // currentrow contains only last row for loop
                     rp.ProcessRow();
                     _rows_processed++;
                 }
+                BubbleUpProgressEvent(e);
             }
-            catch (System.Exception ex)
-            {
-                System.Console.WriteLine(ex.Message);
-            }
+            catch { }
         }
 
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
-            base.CurrentRow = e.Row;
             DataSetExporter dse = new DataSetExporter(this._ds, this._filename, base._settings);
             try
             {
                 dse.Export();
             }
-            catch (System.Exception ex)
-            {
-                System.Console.WriteLine(ex.Message);
-            }
+            catch { }
+            base.BubbleUpCompletedEvent(e);
         }
 
         // Protected implementation of Dispose pattern.

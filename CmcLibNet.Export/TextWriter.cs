@@ -54,9 +54,9 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
-            foreach (List<CommenceValue> row in e.Values)
+            foreach (List<CommenceValue> row in e.RowValues)
             {
                 List<string> rowvalues = new List<string>();
                 foreach (CommenceValue v in row)
@@ -85,17 +85,16 @@ namespace Vovin.CmcLibNet.Export
                         rowvalues.Add(base._settings.TextQualifier + v.DirectFieldValue + base._settings.TextQualifier);
                     } // else
                 } // foreach
-                base.CurrentRow = e.Row;
                 _sw.WriteLine(String.Join(base._settings.TextDelimiter, rowvalues));
             } //foreach
+            BubbleUpProgressEvent(e);
         }
 
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
-            base.CurrentRow = e.Row;
             _sw.Flush();
             _sw.Close();
-
+            base.BubbleUpCompletedEvent(e);
         }
 
         /// <summary>

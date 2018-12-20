@@ -11,7 +11,7 @@ namespace Vovin.CmcLibNet.Export
     internal class EventWriter : BaseWriter
     {
 
-        #region Contructors
+        #region Constructors
         internal EventWriter(Database.ICommenceCursor cursor, IExportSettings settings)
             : base(cursor, settings) { }
 
@@ -27,18 +27,22 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
             // construct data, create eventargs, raise event
             JSONCreator ja = new JSONCreator(this);
-            ja.AddRowValues(e.Values);
-            DataRowsReadArgs args = new DataRowsReadArgs(base.CurrentRow, base.TotalRows, ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented,null));
-            OnDataRowsRead(args);
+            ja.AddRowValues(e.RowValues);
+            // do custom bubbling up
+            ExportProgressAsJsonChangedArgs args = new ExportProgressAsJsonChangedArgs(
+                e.RowsProcessed,
+                e.RowsTotal,
+                ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented, null));
+            base.OnExportProgressChanged(args);
         }
 
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
-            return;
+            base.BubbleUpCompletedEvent(e);
         }
         #endregion
     }

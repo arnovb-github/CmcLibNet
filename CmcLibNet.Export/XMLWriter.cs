@@ -11,8 +11,8 @@ namespace Vovin.CmcLibNet.Export
     // That means that memory use for this class is considerably lower.
     internal class XMLWriter : BaseWriter
     {
-        private readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
-        private XmlWriter _xw = null; // the writer object.
+        protected internal XmlWriter _xw = null; // the writer object.
+        protected internal readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
         bool disposed = false;
 
         #region Constructors
@@ -28,7 +28,13 @@ namespace Vovin.CmcLibNet.Export
         #region Methods
         protected internal override void WriteOut(string fileName)
         {
-            // create a new XMLWriter and some starting elements
+            PrepareXmlFile(fileName);
+            base.ReadCommenceData(); // call data reading engine
+        }
+
+        protected internal void PrepareXmlFile(string fileName)
+        {
+            // create a new XMLWriterSettings and some starting elements
             // note that the state of the writer is left open.
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.Indent = true;
@@ -47,13 +53,18 @@ namespace Vovin.CmcLibNet.Export
                 // node names have to be properly encoded or else Write*Element may complain.
                 _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category)); // <-- Important: root element
             }
-            base.ReadCommenceData(); // call data reading engine
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, CommenceExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        {
+            AppendToXml(e.RowValues);
+            BubbleUpProgressEvent(e);
+        }
+
+        protected internal void AppendToXml(List<List<CommenceValue>> rows)
         {
             // populate XMLWriter with data
-            foreach (List<CommenceValue> row in e.Values) // assume that the minimum amount of data is a complete, single Commence item.
+            foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
                 _xw.WriteStartElement("Item");
                 foreach (CommenceValue v in row)
@@ -74,11 +85,16 @@ namespace Vovin.CmcLibNet.Export
                     } // if IsConnection
                 } // row
                 _xw.WriteEndElement();
-                base.CurrentRow = e.Row;
             } // rows
         }
 
-        protected internal override void HandleDataReadComplete(object sender, DataReadCompleteArgs e)
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
+        {
+            CloseXmlFile();
+            base.BubbleUpCompletedEvent(e);
+        }
+
+        protected internal void CloseXmlFile()
         {
             try
             {
@@ -91,11 +107,10 @@ namespace Vovin.CmcLibNet.Export
                 _xw.Flush();
                 _xw.Close();
             }
-            base.CurrentRow = e.Row;
         }
 
         // callback needed to read XSD. We don't use it.
-        private static void ValidationCallback(object sender, ValidationEventArgs args)
+        protected internal static void ValidationCallback(object sender, ValidationEventArgs args)
         {
             if (args.Severity == XmlSeverityType.Warning)
                 Console.Write("WARNING: ");
@@ -105,7 +120,7 @@ namespace Vovin.CmcLibNet.Export
             Console.WriteLine(args.Message);
         }
 
-        private void WriteConnectedValue(CommenceValue v)
+        protected internal void WriteConnectedValue(CommenceValue v)
         {
             if (base._settings.SkipConnectedItems || v.ConnectedFieldValues == null) { return; }
 

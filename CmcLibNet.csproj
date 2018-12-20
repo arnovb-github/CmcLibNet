@@ -61,6 +61,10 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmcLibNet.Export\DataReader.cs" />
+    <Compile Include="CmcLibNet.Export\ExcelWriter.cs" />
+    <Compile Include="CmcLibNet.Export\ExportCompleteArgs.cs" />
+    <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
     <Compile Include="CmcLibNet\CommenceApp.cs" />
     <Compile Include="CmcLibNet\PowerSavings.cs" />
     <Compile Include="CmcLibNet\RCWReleasePublisher.cs" />
@@ -89,13 +93,11 @@
     <Compile Include="CmcLibNet.Export\BaseWriter.cs" />
     <Compile Include="CmcLibNet.Export\ColumnDefinition.cs" />
     <Compile Include="CmcLibNet.Export\ColumnParser.cs" />
-    <Compile Include="CmcLibNet.Export\DataRowsReadArgs.cs" />
+    <Compile Include="CmcLibNet.Export\ExportProgressAsJsonChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValue.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValueConverter.cs" />
-    <Compile Include="CmcLibNet.Export\DataReader.cs" />
     <Compile Include="CmcLibNet.Export\DataSetExporter.cs" />
     <Compile Include="CmcLibNet.Export\EventWriter.cs" />
-    <Compile Include="CmcLibNet.Export\ExcelWriter.cs" />
     <Compile Include="CmcLibNet.Export\ExportSettings.cs" />
     <Compile Include="CmcLibNet.Export\HTMLWriter.cs" />
     <Compile Include="CmcLibNet.Export\IExportEngineCOMEvents.cs" />
@@ -106,7 +108,6 @@
     <Compile Include="CmcLibNet.Export\JSONCreator.cs" />
     <Compile Include="CmcLibNet.Export\JSONWriter.cs" />
     <Compile Include="CmcLibNet.Export\ListChopper.cs" />
-    <Compile Include="CmcLibNet.Export\DataRowReadArgs.cs" />
     <Compile Include="CmcLibNet.Export\AdoNetRowWriter.cs" />
     <Compile Include="CmcLibNet.Export\TableDef.cs" />
     <Compile Include="CmcLibNet.Export\TextWriter.cs" />
