@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal abstract class BaseWriter : IDisposable
     {
-        internal event ExportProgressAsJsonChangedHandler ExportProgressChanged; // we want to bubble up this event
+        internal event ExportProgressAsStringChangedHandler ExportProgressChanged; // we want to bubble up this event
         internal event ExportCompletedHandler ExportCompleted; // we want to bubble up this event
 
         #region Fields
@@ -404,14 +404,14 @@ namespace Vovin.CmcLibNet.Export
         /// Handler used to bubble up the ExportProgressChanged event
         /// </summary>
         /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressAsJsonChangedArgs e)
+        protected virtual void OnExportProgressChanged(ExportProgressAsStringChangedArgs e)
         {
-            ExportProgressAsJsonChangedHandler handler = ExportProgressChanged;
+            ExportProgressAsStringChangedHandler handler = ExportProgressChanged;
             if (handler == null) { return; } // no subscriptions
             Delegate[] eventHandlers = handler.GetInvocationList();
             foreach (Delegate currentHandler in eventHandlers)
             {
-                ExportProgressAsJsonChangedHandler currentSubscriber = (ExportProgressAsJsonChangedHandler)currentHandler;
+                ExportProgressAsStringChangedHandler currentSubscriber = (ExportProgressAsStringChangedHandler)currentHandler;
                 try
                 {
                     currentSubscriber(this, e);
@@ -446,7 +446,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e">ExportProgressChangedArgs</param>
         protected void BubbleUpProgressEvent(ExportProgressChangedArgs e)
         {
-            OnExportProgressChanged(new ExportProgressAsJsonChangedArgs(e.RowsProcessed, e.RowsTotal));
+            OnExportProgressChanged(new ExportProgressAsStringChangedArgs(e.RowsProcessed, e.RowsTotal));
         }
 
         protected void BubbleUpCompletedEvent(ExportCompleteArgs e)

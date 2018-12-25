@@ -81,24 +81,12 @@ namespace Vovin.CmcLibNet.Export
 
         protected virtual void OnDataProgressChanged(ExportProgressChangedArgs e)
         {
-            try
-            {
-                DataProgressChangedHandler handler = DataProgressChanged;
-                if (handler != null)
-                    handler(this, e);
-            }
-            catch { }
+            DataProgressChanged?.Invoke(this, e);
         }
 
         protected virtual void OnDataReadCompleted(ExportCompleteArgs e)
         {
-            try
-            {
-                DataReadCompleteHandler handler = DataReadCompleted;
-                if (handler != null)
-                    handler(this, e);
-            }
-            catch { }
+            DataReadCompleted?.Invoke(this, e);
         }
 
         #endregion

@@ -11,8 +11,9 @@ namespace Vovin.CmcLibNet.Export
     internal class JSONCreator
     {
         /* Using JObject and JArray may seem overly complex,
-        * but it is needed because the input data is of type List<List<CommenceValue>>, not some POCO class.
-        * You cannot serialize that to a meaningful object.
+        * but it is needed because the input data is of type List<List<CommenceValue>>, 
+        * not some POCO class.
+        * You cannot serialize that to a meaningful object easily.
         * So, we create a JSON object 'by hand'.
         * Another approach could be to create a dynamic object class, then serialize that.
          * However, since the JObject is itself already a dynamic object especially suitable for JSON.Net,
@@ -41,7 +42,7 @@ namespace Vovin.CmcLibNet.Export
 
         #region Methods
 
-        internal void AddRowValues(List<List<CommenceValue>> rowvalues)
+        internal void AppendRowValues(List<List<CommenceValue>> rowvalues)
         {
             // Take the rowvalues and process them into a JSON object.
             foreach (List<CommenceValue> lrv in rowvalues) // process rows

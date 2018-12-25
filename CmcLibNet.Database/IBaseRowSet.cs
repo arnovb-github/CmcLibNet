@@ -1,5 +1,4 @@
 ﻿using System;
-using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {

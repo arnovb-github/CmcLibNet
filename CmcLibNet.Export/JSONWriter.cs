@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Export
     {
         private bool disposed = false;
         private StreamWriter _sw = null;
-        private JSONCreator _jg = null;
+        private JSONCreator _jc = null;
 
         #region Contructors
         internal JSONWriter(Database.ICommenceCursor cursor, IExportSettings settings)
@@ -29,15 +29,14 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
-            _jg = new JSONCreator(this);
+            _jc = new JSONCreator(this);
             _sw = new StreamWriter(fileName);
             base.ReadCommenceData();
         }
 
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
-            _jg.AddRowValues(e.RowValues);
-            // we should write to filesteam here for better performance
+            _jc.AppendRowValues(e.RowValues); // we should write to filesteam here for better performance
             BubbleUpProgressEvent(e);
         }
 
@@ -48,9 +47,12 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e"><see cref="ExportCompleteArgs"/>.</param>
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
+            // ideally, we want to write the file incrementally, so as to avoid memory load.
+            // not sure how to do that yet.
+            // it could be as simple as adding a bottom and top portion to the file I suppose
             try
             {
-                JObject o = _jg.ToJObject(); // o may be HUGE. TODO: rethink this.
+                JObject o = _jc.ToJObject(); // may be HUGE. TODO: rethink this.
                 _sw.Write(o.ToString());
             }
             finally

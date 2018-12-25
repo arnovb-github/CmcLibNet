@@ -31,9 +31,9 @@ namespace Vovin.CmcLibNet.Export
         {
             // construct data, create eventargs, raise event
             JSONCreator ja = new JSONCreator(this);
-            ja.AddRowValues(e.RowValues);
+            ja.AppendRowValues(e.RowValues);
             // do custom bubbling up
-            ExportProgressAsJsonChangedArgs args = new ExportProgressAsJsonChangedArgs(
+            ExportProgressAsStringChangedArgs args = new ExportProgressAsStringChangedArgs(
                 e.RowsProcessed,
                 e.RowsTotal,
                 ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented, null));

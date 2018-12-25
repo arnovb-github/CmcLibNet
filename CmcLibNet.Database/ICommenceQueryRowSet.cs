@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Returns a unique ID string (less than 100 chars) on success, <c>null</c> on error.</returns>
         string GetRowID(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
         /// <summary>
-        /// Undocumented method, most likely returns a timestamp.
+        /// Undocumented method, most likely returns a timestamp :).
         /// </summary>
         /// <param name="nRow">The (0-based) index of the row.</param>
         /// <param name="flags">(Assumed) Logical OR of following option flags:

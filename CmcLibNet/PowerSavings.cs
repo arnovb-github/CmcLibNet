@@ -50,8 +50,8 @@ namespace Vovin.CmcLibNet
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct POWER_REQUEST_CONTEXT
         {
-            public UInt32 Version;
-            public UInt32 Flags;
+            public uint Version;
+            public uint Flags;
             [MarshalAs(UnmanagedType.LPWStr)]
             public string SimpleReasonString;
         }
@@ -60,8 +60,8 @@ namespace Vovin.CmcLibNet
         public struct PowerRequestContextDetailedInformation
         {
             public IntPtr LocalizedReasonModule;
-            public UInt32 LocalizedReasonId;
-            public UInt32 ReasonStringCount;
+            public uint LocalizedReasonId;
+            public uint ReasonStringCount;
             [MarshalAs(UnmanagedType.LPWStr)]
             public string[] ReasonStrings;
         }
@@ -69,8 +69,8 @@ namespace Vovin.CmcLibNet
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct POWER_REQUEST_CONTEXT_DETAILED
         {
-            public UInt32 Version;
-            public UInt32 Flags;
+            public uint Version;
+            public uint Flags;
             public PowerRequestContextDetailedInformation DetailedInformation;
         }
         #endregion

@@ -5,13 +5,13 @@ using Vovin.CmcLibNet.Database;
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
-    /// Delegate for the ExportProgressAsJsonChanged event to deal with batches of rows.
+    /// Delegate for the ExportProgressChanged event to deal with batches of rows.
     /// For use by external assemblies.
     /// </summary>
     /// <param name="sender">sender object.</param>
-    /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
+    /// <param name="e">ExportProgressAsStringChangedArgs.</param>
     [ComVisible(false)] // there is a separate interface for COM
-    public delegate void ExportProgressAsJsonChangedHandler(object sender, ExportProgressAsJsonChangedArgs e);
+    public delegate void ExportProgressAsStringChangedHandler(object sender, ExportProgressAsStringChangedArgs e);
 
     /// <summary>
     /// Delegate for the ExportCompleted event to deal with batches of rows.
@@ -48,7 +48,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// ExportProgressChanged event for outside assemblies.
         /// </summary>
-        public event ExportProgressAsJsonChangedHandler ExportProgressChanged;
+        public event ExportProgressAsStringChangedHandler ExportProgressChanged;
         /// <summary>
         /// ExportCompleted event for outside assemblies.
         /// </summary>
@@ -255,7 +255,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="sender">sender object.</param>
         /// <param name="e">ExportProgressAsJsonChangedArgs object.</param>
-        public virtual void HandleExportProgressChanged(object sender, ExportProgressAsJsonChangedArgs e)
+        public virtual void HandleExportProgressChanged(object sender, ExportProgressAsStringChangedArgs e)
         {
             // just re-raise event
             OnExportProgressChanged(e); // outside assemblies can subscribe to this
@@ -273,24 +273,10 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Raise the ExportProgressChanged event.
         /// </summary>
-        /// <param name="e">ExportProgressAsJsonChangedArgs object.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressAsJsonChangedArgs e)
+        /// <param name="e">ExportProgressAsStringChangedArgs object.</param>
+        protected virtual void OnExportProgressChanged(ExportProgressAsStringChangedArgs e)
         {
-            ExportProgressAsJsonChangedHandler handler = ExportProgressChanged;
-            if (handler == null) // no subscriptions
-            {
-                return;
-            } 
-            Delegate[] eventHandlers = handler.GetInvocationList();
-            foreach (Delegate currentHandler in eventHandlers)
-            {
-                ExportProgressAsJsonChangedHandler currentSubscriber = (ExportProgressAsJsonChangedHandler)currentHandler;
-                try
-                {
-                    currentSubscriber(this, e);
-                }
-                catch { }
-            }
+            ExportProgressChanged?.Invoke(this, e);
         }
 
         /// <summary>
@@ -299,21 +285,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e">ExportCompleteArgs</param>
         protected virtual void OnExportCompleted(ExportCompleteArgs e)
         {
-            ExportCompletedHandler handler = ExportCompleted;
-            if (handler == null) // no subscriptions
-            {
-                return;
-            }
-            Delegate[] eventHandlers = handler.GetInvocationList();
-            foreach (Delegate currentHandler in eventHandlers)
-            {
-                ExportCompletedHandler currentSubscriber = (ExportCompletedHandler)currentHandler;
-                try
-                {
-                    currentSubscriber(this, e);
-                }
-                catch { }
-            }
+            ExportCompleted?.Invoke(this, e);
         }
 
         /// <inheritdoc />

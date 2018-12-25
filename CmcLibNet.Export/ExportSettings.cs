@@ -55,7 +55,7 @@ namespace Vovin.CmcLibNet.Export
         GoogleSheets = 5,
         /// <summary>
         /// Does not export to file, but instead reads the data and emits a <see cref="IExportEngineEvents.ExportProgressChanged"/> event that you can subscribe to.
-        /// <para>The <see cref="ExportProgressAsJsonChangedArgs.RowValues"/> property will contain the Commence data in a JSON representation.</para>
+        /// <para>The <see cref="ExportProgressAsStringChangedArgs.RowValues"/> property will contain the Commence data in a JSON representation.</para>
         /// <para>The number of items contained in the JSON depends on the number of rows you request.</para>
         /// <para>The filename argument passed to any Export* methods is simply ignored when using this setting.</para>
         /// </summary>

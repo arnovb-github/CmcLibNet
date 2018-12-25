@@ -436,7 +436,6 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public int SeekRow(CmcCursorBookmark bkOrigin, int nRows)
         {
-            //Console.WriteLine(_cur.SeekRow((int)bkOrigin, nRows));
             return _cur.SeekRow((int)bkOrigin, nRows);
         }
 
@@ -767,8 +766,7 @@ namespace Vovin.CmcLibNet.Database
         {
             if (_cur != null)
             {
-                Marshal.FinalReleaseComObject(_cur);
-                _cur = null; // unneeded
+                Marshal.ReleaseComObject(_cur);
             }
         }
 
@@ -812,10 +810,10 @@ namespace Vovin.CmcLibNet.Database
 
         /// <summary>
         /// Reads the Commence data (using API, not DDE). This is the fastest way to retrieve Commence data.
-        /// Note that this function has no knowledge of the rowpointer.
         /// </summary>
         /// <param name="nRows">Number of rows to read at a time.</param>
         /// <returns>string[][] (a 'jagged array').</returns>
+        /// <remarks>This function has no knowledge of the rowpointer.</remarks>
         internal string[][] GetRawData(int nRows)
         {
             /* Note that for connected items, Commence returns a linefeed-delimited string, OR a comma delimited string(!)

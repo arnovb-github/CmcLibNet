@@ -11,7 +11,6 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(ICategoryDef))]
     public class CategoryDef : ICategoryDef
     {
-        private int _categoryID = -1;
         internal CategoryDef() { }
         /// <inheritdoc />
         public int MaxItems { get; internal set; }
@@ -26,15 +25,6 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ClarifyField { get; internal set; }
         /// <inheritdoc />
-        public int CategoryID { 
-            get
-            {
-                return _categoryID;
-            }
-            internal set
-            {
-                _categoryID = value;
-            }
-        }
+        public int CategoryID { get; internal set; } = -1;
     }
 }

@@ -44,9 +44,9 @@ namespace Vovin.CmcLibNet.Export
         /// Represents a batch of rows read from Commence.
         /// </summary>
         /// <param name="sender">sender</param>
-        /// <param name="e">ExportProgressAsJsonChangedArgs</param>
+        /// <param name="e">ExportProgressAsStringChangedArgs</param>
         [DispId(1)]
-        void ExportProgressChanged(object sender, ExportProgressAsJsonChangedArgs e);
+        void ExportProgressChanged(object sender, ExportProgressAsStringChangedArgs e);
 
         /// <summary>
         /// Export completed

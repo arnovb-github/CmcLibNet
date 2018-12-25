@@ -15,7 +15,7 @@
         /// <summary>
         /// ExportProgressChanged event raised for every batch of rows read.
         /// </summary>
-        event ExportProgressAsJsonChangedHandler ExportProgressChanged;
+        event ExportProgressAsStringChangedHandler ExportProgressChanged;
 
         /// <summary>
         /// ExportCompleted event
