@@ -230,7 +230,7 @@ namespace Vovin.CmcLibNet.Export
                     _writer = new XMLWriter(cursor, settings);
                     break;
                 case ExportFormat.Json:
-                    _writer = new JSONWriter(cursor, settings);
+                    _writer = new JsonWriter(cursor, settings);
                     break;
                 case ExportFormat.Excel:
                     _writer = new ExcelWriter(cursor, settings);

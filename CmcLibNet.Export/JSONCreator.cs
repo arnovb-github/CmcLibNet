@@ -1,35 +1,23 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
     /// Collect Commence data and convert them into a JSON object.
-    /// Allows for consistent JSON output format.
-    /// Used by export methods that return JSON.
+    /// Allows for consistent Json output format.
+    /// Used by export methods that return Json.
     /// </summary>
-    internal class JSONCreator
+    internal class JsonCreator
     {
-        /* Using JObject and JArray may seem overly complex,
-        * but it is needed because the input data is of type List<List<CommenceValue>>, 
-        * not some POCO class.
-        * You cannot serialize that to a meaningful object easily.
-        * So, we create a JSON object 'by hand'.
-        * Another approach could be to create a dynamic object class, then serialize that.
-         * However, since the JObject is itself already a dynamic object especially suitable for JSON.Net,
-         * we're not going to bother.
-        */
+        private readonly BaseWriter _wr = null;
 
-        private JArray _rows = null;
-        private BaseWriter _wr = null;
-
-        internal JSONCreator(BaseWriter writer)
+        internal JsonCreator(BaseWriter writer)
         {
             _wr = writer;
             this.Category = _wr._cursor.Category;
             this.DataSource = _wr._dataSourceName;
             this.DataSourceType = string.IsNullOrEmpty(_wr._cursor.View) ? CmcLibNet.Database.CmcCursorType.Category.ToString() : CmcLibNet.Database.CmcCursorType.View.ToString();
-            _rows = new JArray();
         }
 
         #region Properties
@@ -37,13 +25,30 @@ namespace Vovin.CmcLibNet.Export
         private string Category { get; set; }
         private string DataSource { get; set; }
         private string DataSourceType { get; set; }
+        internal JObject MetaData
+        {
+            get
+            {
+                string type = string.IsNullOrEmpty(_wr._cursor.View) ? CmcLibNet.Database.CmcCursorType.Category.ToString() : CmcLibNet.Database.CmcCursorType.View.ToString();
+                return new JObject(
+                             new JProperty("CommenceDataSource", DataSource),
+                             new JProperty("CommenceCategory", Category),
+                             new JProperty("CommenceDataSourceType", type)
+                         );
+            }
+        }
 
         #endregion
 
-        #region Methods
-
-        internal void AppendRowValues(List<List<CommenceValue>> rowvalues)
+        #region Helper methods
+        /// <summary>
+        /// Takes a batch of Commence rowvalues and turns it into Json
+        /// </summary>
+        /// <param name="rowvalues">List of list of Commence rowvalues</param>
+        /// <returns>List of JObject</returns>
+        internal List<JObject> SerializeRowValues(List<List<CommenceValue>> rowvalues)
         {
+            List<JObject> retval = new List<JObject>();
             // Take the rowvalues and process them into a JSON object.
             foreach (List<CommenceValue> lrv in rowvalues) // process rows
             {
@@ -81,21 +86,9 @@ namespace Vovin.CmcLibNet.Export
                         row.Add(_wr.ExportHeaders[v.ColumnDefinition.ColumnIndex], v.DirectFieldValue);
                     } // if v.IsConnection
                 } // foreach CommenceValue
-                _rows.Add(row); // add row
+                retval.Add(row); // add row
             } // foreach List<CommenceValue>
-        }
-
-        // add metadata headers and return populated JSON object
-        internal JObject ToJObject()
-        {
-            JObject j = new JObject
-            {
-                { "CommenceDataSource", this.DataSource },
-                { "CommenceDataSourceType", this.DataSourceType },
-                { "CommenceCategory", this.Category },
-                { "Items", this._rows }
-            };
-            return j;
+            return retval;
         }
         #endregion
     }

@@ -18,10 +18,10 @@ namespace Vovin.CmcLibNet.Export
         internal event ExportCompletedHandler ExportCompleted; // we want to bubble up this event
 
         #region Fields
-        /// <summary>
-        /// File to export to.
-        /// </summary>
-        protected internal readonly string _fileName = null;
+        ///// <summary>
+        ///// File to export to.
+        ///// </summary>
+        //protected internal readonly string _fileName = null;
         /// <summary>
         /// Custom headers.
         /// </summary>

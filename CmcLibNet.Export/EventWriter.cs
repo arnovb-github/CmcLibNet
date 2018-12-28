@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Export
@@ -30,13 +33,14 @@ namespace Vovin.CmcLibNet.Export
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
             // construct data, create eventargs, raise event
-            JSONCreator ja = new JSONCreator(this);
-            ja.AppendRowValues(e.RowValues);
+            JsonCreator jc = new JsonCreator(this);
+            List<JObject> list = jc.SerializeRowValues(e.RowValues);
+            var jsonString = "[" + string.Join(",", list.Select(o => o.ToString())) + "]";
             // do custom bubbling up
             ExportProgressAsStringChangedArgs args = new ExportProgressAsStringChangedArgs(
                 e.RowsProcessed,
                 e.RowsTotal,
-                ja.ToJObject().ToString(Newtonsoft.Json.Formatting.Indented, null));
+                jsonString);
             base.OnExportProgressChanged(args);
         }
 

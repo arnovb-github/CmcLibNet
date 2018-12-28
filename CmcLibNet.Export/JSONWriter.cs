@@ -1,25 +1,32 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
     /// Writes to JSON.
     /// </summary>
-    // TODO: make this write incremental.
-    // The current implementation creates a single JSON object and then writes it to string.
-    // On large database, this is a problem.
-    internal class JSONWriter : BaseWriter
+    internal class JsonWriter : BaseWriter
     {
         private bool disposed = false;
         private StreamWriter _sw = null;
-        private JSONCreator _jc = null;
+        private string _fileName;
+        private readonly string _tempFile;
+        private readonly JsonCreator _jc;
 
-        #region Contructors
-        internal JSONWriter(Database.ICommenceCursor cursor, IExportSettings settings)
-            : base(cursor, settings) { }
+        #region Constructors
+        internal JsonWriter(Database.ICommenceCursor cursor, IExportSettings settings)
+            : base(cursor, settings)
+        {
+            _tempFile = Path.GetTempFileName();
+            _jc = new JsonCreator(this);
+        }
 
-        ~JSONWriter()
+        ~JsonWriter()
         {
             Dispose(false);
         }
@@ -29,14 +36,22 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
-            _jc = new JSONCreator(this);
-            _sw = new StreamWriter(fileName);
+            _sw = new StreamWriter(_tempFile); //change to fileName to use 'old' way
+            _fileName = fileName;
             base.ReadCommenceData();
         }
 
+        /// <summary>
+        /// Writes json to a temporary file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
         {
-            _jc.AppendRowValues(e.RowValues); // we should write to filesteam here for better performance
+            StringBuilder sb = new StringBuilder();
+            List<JObject> list = _jc.SerializeRowValues(e.RowValues);
+            var jsonString = string.Join(",", list.Select(o => o.ToString()));
+            _sw.Write(jsonString);
             BubbleUpProgressEvent(e);
         }
 
@@ -47,18 +62,27 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e"><see cref="ExportCompleteArgs"/>.</param>
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
-            // ideally, we want to write the file incrementally, so as to avoid memory load.
-            // not sure how to do that yet.
-            // it could be as simple as adding a bottom and top portion to the file I suppose
-            try
+            _sw.Flush();
+            _sw.Close();
+            using (StreamWriter sw = new StreamWriter(_fileName))
             {
-                JObject o = _jc.ToJObject(); // may be HUGE. TODO: rethink this.
-                _sw.Write(o.ToString());
-            }
-            finally
-            {
-                _sw.Flush();
-                _sw.Close();
+                using (JsonTextWriter jtw = new JsonTextWriter(sw))
+                {
+                    jtw.WriteStartObject();
+                    foreach (var o in _jc.MetaData)
+                    {
+                        jtw.WritePropertyName(o.Key);
+                        jtw.WriteValue(o.Value);
+                    }
+                    jtw.WritePropertyName("Items");
+                    jtw.WriteStartArray();
+                    using (StreamReader tr = new StreamReader(_tempFile))
+                    {
+                        jtw.WriteRaw(tr.ReadToEnd());
+                    }
+                    jtw.WriteEndArray();
+                    jtw.WriteEndObject();
+                }
             }
             base.BubbleUpCompletedEvent(e);
         }
@@ -78,7 +102,13 @@ namespace Vovin.CmcLibNet.Export
                 //
                 if (_sw != null)
                 {
-                    _sw.Close();
+                    try
+                    {
+                        _sw.Flush();
+                        _sw.Close();
+                        File.Delete(_tempFile);
+                    }
+                    catch { }
                 }
             }
 
