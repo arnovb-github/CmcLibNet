@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Export
     /// 'Note that you have to be very specific with the signature, you explicitly need the ByVal keyword
     /// 'Don't leave ByVal out, and don't use ByRef.
     /// 'Also note that the sender argument has to be of type Variant, not Object.
-    /// Private Sub cmclibnet_ExportProgressChanged(ByVal sender As Variant, ByVal args As ExportProgressAsJsonChangedArgs)
+    /// Private Sub cmclibnet_ExportProgressChanged(ByVal sender As Variant, ByVal args As ExportProgressAsStringChangedArgs)
     ///     Debug.Print args.CurrentRow
     /// End Sub
     /// </code>
