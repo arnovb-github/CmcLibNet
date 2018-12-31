@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Vovin.CmcLibNet;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -865,6 +866,5 @@ namespace Vovin.CmcLibNet.Database
             } // using; qrs will be disposed now
         }
         #endregion
-
     }
 }

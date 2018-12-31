@@ -137,7 +137,7 @@ namespace Vovin.CmcLibNet.Export
             else
             {
                 dr.GetDataByAPI();
-                //await dr.GetDataByAPIAsync();
+                //dr.GetDataByAPIAsync2();
             }
         }
         #endregion
