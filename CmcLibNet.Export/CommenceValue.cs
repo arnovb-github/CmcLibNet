@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace Vovin.CmcLibNet.Export
+﻿namespace Vovin.CmcLibNet.Export
 {
+
 
     /// <summary>
     /// Represents a single Commence rowvalue.
@@ -9,21 +8,19 @@ namespace Vovin.CmcLibNet.Export
     internal class CommenceValue
     {
         /* This class holds the raw commence data for a requested cursor row and its associated columndefinition.
-         * Its purpose is to provide a consistent way of representing rowdata throughout the assembly.
-         *
-         * It is up to the consumer to get either the DirectFieldValue (=direct fieldvalue)
-         * or the ConnectedValues (=fieldvalues from connections).
-         * This information is contained in the ColumnDefinition.
-         * 
-         * This approach is overly complex, we could have just a single property, being array with values.
-         * if direct, it would contain 1 element, if connected 0, 1 or many.
-         * We could also get rid of the IsEmpty property.
-         * 
-         * It does not matter that much, because from the value itself it is not possible to tell what kind of field we are dealing with.
-         * We need to query ColumnDefinition anyway, so there isn't much gained when using just a single value property.
-         */
-        private string _directfieldvalue = null;
-        private string[] _connectedvalues = null; // connected field values
+        * Its purpose is to provide a consistent way of representing rowdata throughout the assembly.
+        *
+        * It is up to the consumer to get either the DirectFieldValue (=direct fieldvalue)
+        * or the ConnectedValues (=fieldvalues from connections).
+        * This information is contained in the ColumnDefinition.
+        * 
+        * This approach is overly complex, we could have just a single property, being array with values.
+        * if direct, it would contain 1 element, if connected 0, 1 or many.
+        * We could also get rid of the IsEmpty property.
+        * 
+        * It does not matter that much, because from the value itself it is not possible to tell what kind of field we are dealing with.
+        * We need to query ColumnDefinition anyway, so there isn't much gained when using just a single value property.
+        */
 
         #region Constructors
         /// <summary>
@@ -33,7 +30,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cd"><see cref="ColumnDefinition"/>.</param>
         internal CommenceValue(string singlevalue, ColumnDefinition cd)
         {
-            _directfieldvalue = singlevalue;
+            DirectFieldValue = singlevalue;
             this.ColumnDefinition = cd;
         }
         /// <summary>
@@ -44,7 +41,7 @@ namespace Vovin.CmcLibNet.Export
         internal CommenceValue(string[] connectedvalues, ColumnDefinition cd)
         {
             this.ColumnDefinition = cd;
-            _connectedvalues = connectedvalues;
+            ConnectedFieldValues = connectedvalues;
         }
 
         /// <summary>
@@ -63,25 +60,12 @@ namespace Vovin.CmcLibNet.Export
         /// Direct field.
         /// </summary>
         internal string DirectFieldValue // direct value
-        {
-            get
-            {
-                //if (this.ColumnDefinition.IsConnection) { throw new Exception("Direct column value requested for column that is marked as connection."); }
-                return _directfieldvalue;
-            }
-        }
+        { get; } = null;
 
         /// <summary>
         /// String array containing connected values.
         /// </summary>
-        internal string[] ConnectedFieldValues
-        {
-            get
-            {
-                //if (!this.ColumnDefinition.IsConnection) { throw new Exception("Connected column values requested for column that is marked as direct field."); }
-                return _connectedvalues; 
-            }
-        }
+        internal string[] ConnectedFieldValues { get; } = null;
 
         /// <summary>
         /// Columndefinition of the field.
