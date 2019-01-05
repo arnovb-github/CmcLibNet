@@ -40,6 +40,7 @@ namespace Vovin.CmcLibNet.Export
             xws.Indent = true;
             _xw = XmlWriter.Create(fileName, xws);
             _xw.WriteStartDocument();
+            _xw.WriteStartElement("root");
             if (!String.IsNullOrEmpty(base._settings.XSDFile)) // include xsd declaration
             {
                 // we need to load in our XSD file to get some settings from it
