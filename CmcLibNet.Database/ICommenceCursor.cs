@@ -294,9 +294,10 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Read all data from a cursor. Data will be as Commence returns them.
         /// <para>This method is just a convenient way to return data without having to create a QueryRowSet.</para>
-        /// <para>If you need to apply formatting, see the <see cref="Export.IExportEngine"/> interface.</para>
+        /// <para>Keep in mind reading data from Commence is quite slow!</para>
+        /// <para>For more advanced reading and export options see <see cref="Export.IExportEngine"/>.</para>
         /// </summary>
-        /// <returns>List with List of commence rowvalues, <c>null</c> on error.</returns>
+        /// <returns>List of Lists containing commence rowvalues, <c>null</c> on error.</returns>
         /// <remarks>This method is not available to COM clients.
         /// <para>If the cursor has the <see cref="CmcOptionFlags"/> thids flag defined, the first element will contain the thid.
         /// In that case the list count will be the number of columns in the category + 1.</para>
