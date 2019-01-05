@@ -99,9 +99,17 @@ namespace Vovin.CmcLibNet.Export
         internal void GetDataByAPI()
         {
             int rowsProcessed = 0;
+            string[][] rawdata =  null;
             for (int rows = 0; rows < totalRows; rows += numRows)
             {
-                string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
+                try
+                {
+                    rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
+                }
+                catch (CommenceCOMException)
+                {
+                    throw;
+                }
                 rowsProcessed += numRows;
                 var data = ProcessDataBatch(rawdata);
                 // raise 'progress' event
@@ -380,7 +388,7 @@ namespace Vovin.CmcLibNet.Export
             return retval;
         }
 
-        internal async Task GetDataByAPIAsync()
+        internal async Task GetDataByAPIAsync2()
         {
             IList<Task<string[][]>> tasks = CreateCursorReadTasks();
             var processingTasks = tasks.Select(AwaitAndProcessResultAsync).ToList();
@@ -470,7 +478,7 @@ namespace Vovin.CmcLibNet.Export
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
         internal CancellationTokenSource CTS { get; } = new CancellationTokenSource();
-        internal void GetDataByAPIAsync2()
+        internal void GetDataByAPIAsync()
         {
             int rowsProcessed = 0;
             // Use the desired data type instead of string
