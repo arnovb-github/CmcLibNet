@@ -756,9 +756,7 @@ namespace Vovin.CmcLibNet.Database
                     }
                 }
             }
-            // For some reason is is needed to first put rowpointer back to where we started.
-            // If we don't do that, subsequent calls to the cursor may have very strange results.
-            // This is probably just masking some deeper problem.
+            // put back the pointer back to where it was
             this.SeekRow(CmcCursorBookmark.Beginning, rowpointer);
             return retval;
         }
@@ -815,6 +813,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nRows">Number of rows to read at a time.</param>
         /// <returns>string[][] (a 'jagged array').</returns>
         /// <remarks>This function has no knowledge of the rowpointer.</remarks>
+        /// <exception cref="CommenceCOMException"></exception>
         internal string[][] GetRawData(int nRows)
         {
             /* Note that for connected items, Commence returns a linefeed-delimited string, OR a comma delimited string(!)
@@ -839,6 +838,7 @@ namespace Vovin.CmcLibNet.Database
                 // so make sure the return value is sized properly
                 string[][] rowvalues = new string[qrs.RowCount][];
                 object[] buffer = null;
+                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0);
 
                 for (int i = 0; i < qrs.RowCount; i++)
                 {
@@ -855,7 +855,16 @@ namespace Vovin.CmcLibNet.Database
 
                     // process rowset
                     buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
-
+                    if (buffer == null)
+                    {
+                        throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
+                    }
+                    #if DEBUG
+                    if (i == 5) // simulate error
+                    {
+                        //throw new CommenceCOMException("An error occurred while reading row " + (rowpointer + i + 1).ToString());
+                    }
+                    #endif
                     for (int j = 0; j < qrs.ColumnCount; j++)
                     {
                         rowvalues[i][j + 1] = buffer[j].ToString(); // put rowvalue in 2nd and up column of row
