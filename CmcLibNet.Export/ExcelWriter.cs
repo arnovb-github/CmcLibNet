@@ -18,7 +18,7 @@ namespace Vovin.CmcLibNet.Export
         bool disposed = false;
         readonly string dataFile;
         readonly string xsdFile;
-        //string fileName;
+        string fileName;
 
         #region Constructors
         internal ExcelWriter(ICommenceCursor cursor, IExportSettings settings)
@@ -43,7 +43,7 @@ namespace Vovin.CmcLibNet.Export
                 throw new IOException("File '" + fileName + "' in use.");
             }
             // capture fileName
-            //this.fileName = fileName;
+            this.fileName = fileName;
             PrepareXmlFile(dataFile);
             PrepareXsdFile();
             base.ReadCommenceData();

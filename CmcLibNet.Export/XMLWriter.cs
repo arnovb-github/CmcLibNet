@@ -7,9 +7,6 @@ using System.IO;
 namespace Vovin.CmcLibNet.Export
 {
     // Writes data to XML file.
-    // An important difference with the JSON writer is that this class writes to disk immediately,
-    // whereas the JSON writer first aggregates all data.
-    // That means that memory use for this class is considerably lower.
     internal class XMLWriter : BaseWriter
     {
         XmlWriter _xw = null; // the writer object.
@@ -27,11 +24,6 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Write the export file
-        /// </summary>
-        /// <param name="fileName">file name</param>
-        /// <exception cref="System.IO.IOException"></exception>
         protected internal override void WriteOut(string fileName)
         {
             if (base.IsFileLocked(new FileInfo(fileName)))
