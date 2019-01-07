@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using Vovin.CmcLibNet.Database;
 
@@ -90,11 +91,12 @@ namespace Vovin.CmcLibNet.Export
         }
         #endregion
 
-        #region Abstract methods
+        #region Methods
         /// <summary>
-        /// Starting point for export process for writer.
+        /// Write the export file
         /// </summary>
-        /// <param name="fileName">(fully qualified) Filename.</param>
+        /// <param name="fileName">File name</param>
+        /// <exception cref="System.IO.IOException">File in use.</exception>
         protected internal abstract void WriteOut(string fileName);
         /// <summary>
         /// Method that deals with the data as it is being read.
@@ -137,8 +139,34 @@ namespace Vovin.CmcLibNet.Export
             else
             {
                 //dr.GetDataByAPI();
-                dr.GetDataByAPIAsync();
+                dr.GetDataByAPIAsync(); // not awaited!
             }
+        }
+
+        protected internal virtual bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
         #endregion
 

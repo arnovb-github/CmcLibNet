@@ -36,6 +36,10 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
+            if (base.IsFileLocked(new FileInfo(fileName)))
+            {
+                throw new IOException("File '" + fileName + "' in use.");
+            }
             _sw = new StreamWriter(_tempFile); //change to fileName to use 'old' way
             _fileName = fileName;
             base.ReadCommenceData();

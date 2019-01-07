@@ -24,6 +24,10 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
+            if (base.IsFileLocked(new FileInfo(fileName)))
+            {
+                throw new IOException("File '" + fileName + "' in use.");
+            }
             _sw = new StreamWriter(fileName);
             _sw.WriteLine("<!DOCTYPE html><html>");
             _sw.WriteLine("<head>");

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Database;
 
@@ -17,7 +18,7 @@ namespace Vovin.CmcLibNet.Export
         bool disposed = false;
         readonly string dataFile;
         readonly string xsdFile;
-        string fileName;
+        //string fileName;
 
         #region Constructors
         internal ExcelWriter(ICommenceCursor cursor, IExportSettings settings)
@@ -37,8 +38,12 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void WriteOut(string fileName)
         {
+            if (base.IsFileLocked(new FileInfo(fileName)))
+            {
+                throw new IOException("File '" + fileName + "' in use.");
+            }
             // capture fileName
-            this.fileName = fileName;
+            //this.fileName = fileName;
             PrepareXmlFile(dataFile);
             PrepareXsdFile();
             base.ReadCommenceData();

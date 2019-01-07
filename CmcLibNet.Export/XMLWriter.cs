@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Schema;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -11,8 +12,8 @@ namespace Vovin.CmcLibNet.Export
     // That means that memory use for this class is considerably lower.
     internal class XMLWriter : BaseWriter
     {
-        protected internal XmlWriter _xw = null; // the writer object.
-        protected internal readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
+        XmlWriter _xw = null; // the writer object.
+        readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
         bool disposed = false;
 
         #region Constructors
@@ -26,8 +27,17 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Write the export file
+        /// </summary>
+        /// <param name="fileName">file name</param>
+        /// <exception cref="System.IO.IOException"></exception>
         protected internal override void WriteOut(string fileName)
         {
+            if (base.IsFileLocked(new FileInfo(fileName)))
+            {
+                throw new IOException("File '" + fileName + "' in use.");
+            }
             PrepareXmlFile(fileName);
             base.ReadCommenceData(); // call data reading engine
         }
@@ -211,6 +221,7 @@ namespace Vovin.CmcLibNet.Export
                 //
                 if (_xw != null)
                 {
+                    _xw.Flush();
                     _xw.Close();
                 }
             }

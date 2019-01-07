@@ -23,6 +23,10 @@ namespace Vovin.CmcLibNet.Export
         #region Methods
         protected internal override void WriteOut(string fileName)
         {
+            if (base.IsFileLocked(new FileInfo(fileName)))
+            {
+                throw new IOException("File '" + fileName + "' in use.");
+            }
             _sw = new StreamWriter(fileName);
             // headers
             if (base._settings.HeadersOnFirstRow)
