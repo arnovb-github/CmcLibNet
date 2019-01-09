@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Database
     /// interface for CommenceEditRowSet
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("24AED779-089D-4E9A-B143-0EE9BAC94E4E")]
+    [Guid("24AED779-089D-4E9A-B143-0EE9BAC94E4E")]
     public interface ICommenceEditRowSet : IBaseRowSet
     {
         /// <inheritdoc />

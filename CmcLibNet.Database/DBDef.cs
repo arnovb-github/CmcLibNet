@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
     /// Exposes members of the database definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("574A9962-86A3-4489-8001-67AC08464EEB")]
+    [Guid("574A9962-86A3-4489-8001-67AC08464EEB")]
     public interface IDBDef
     {
         /// <summary>
@@ -47,7 +47,7 @@ namespace Vovin.CmcLibNet.Database
     /// Holds information on the database definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("7ABBCC06-26AE-4a34-B07D-873F9B0A9C26")]
+    [Guid("7ABBCC06-26AE-4a34-B07D-873F9B0A9C26")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IDBDef))]
     public class DBDef : IDBDef

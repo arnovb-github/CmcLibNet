@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a filter of type 'Field' (F).
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("5B58E064-675F-4d91-A34E-ED3824118033")]
+    [Guid("5B58E064-675F-4d91-A34E-ED3824118033")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilterTypeF))]
     public sealed class CursorFilterTypeF : CursorFilter, ICursorFilterTypeF

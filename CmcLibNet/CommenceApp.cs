@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet
     /// Commence option flags.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("1382A6E0-19E5-41c1-9BE7-10545F538DBE")]
+    [Guid("1382A6E0-19E5-41c1-9BE7-10545F538DBE")]
     [FlagsAttribute]
     public enum CmcOptionFlags
     {
@@ -94,7 +94,7 @@ namespace Vovin.CmcLibNet
     /// <para>When used from Commence Item Detail Forms or Office VBA, be sure to read this: <see cref="Close"/>.</para>
     /// </remarks>
     [ComVisible(true)] // make COM visible (overrides AssemblyInfo setting)
-    [GuidAttribute("2F0DD17C-C020-4898-924A-82F4593DD569")] // explicitly set GUID so compiler doesn't generate a new one upon every build
+    [Guid("2F0DD17C-C020-4898-924A-82F4593DD569")] // explicitly set GUID so compiler doesn't generate a new one upon every build
     [ProgId("CmcLibNet.CommenceApp")] // custom ProgID, this is the name used when creating the object through COM
     [ClassInterface(ClassInterfaceType.None)] // tells compiler to not create a class interface (we'll supply our own interfaces).
     [ComDefaultInterface(typeof(ICommenceApp))] // explicitly define interface to expose to COM

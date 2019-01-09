@@ -7,17 +7,17 @@ using System.IO;
 namespace Vovin.CmcLibNet.Export
 {
     // Writes data to XML file.
-    internal class XMLWriter : BaseWriter
+    internal class XmlWriter : BaseWriter
     {
-        XmlWriter _xw = null; // the writer object.
+        System.Xml.XmlWriter _xw = null; // the writer object.
         readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
         bool disposed = false;
 
         #region Constructors
-        internal XMLWriter(Database.ICommenceCursor cursor, IExportSettings settings)
+        internal XmlWriter(Database.ICommenceCursor cursor, IExportSettings settings)
             : base(cursor, settings){}
 
-        ~XMLWriter()
+        ~XmlWriter()
         {
             Dispose(false);
         }
@@ -40,7 +40,7 @@ namespace Vovin.CmcLibNet.Export
             // note that the state of the writer is left open.
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.Indent = true;
-            _xw = XmlWriter.Create(fileName, xws);
+            _xw = System.Xml.XmlWriter.Create(fileName, xws);
             _xw.WriteStartDocument();
             _xw.WriteStartElement("root");
             if (!String.IsNullOrEmpty(base._settings.XSDFile)) // include xsd declaration
@@ -191,7 +191,7 @@ namespace Vovin.CmcLibNet.Export
             xsd.Items.Add(rel);
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.Indent = true;
-            using (XmlWriter writer = XmlWriter.Create(fileName, xws))
+            using (System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(fileName, xws))
             {
                 xsd.Write(writer);
             }

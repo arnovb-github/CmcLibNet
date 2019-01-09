@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a AddRowSet to add items to Commence.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("B7E1F32E-D346-48F0-B0D6-8BDCC3D96565")]
+    [Guid("B7E1F32E-D346-48F0-B0D6-8BDCC3D96565")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceAddRowSet))]
     public sealed class CommenceAddRowSet : BaseRowSet, Vovin.CmcLibNet.Database.ICommenceAddRowSet

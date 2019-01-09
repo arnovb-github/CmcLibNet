@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     /// <remarks>Most of the documentation on this interface was copied 'verbatim' from the Commence help files.</remarks>
     [ComVisible(true)]
-    [GuidAttribute("028E932E-4B00-49eb-BBD6-C1C7F2C0B834")]
+    [Guid("028E932E-4B00-49eb-BBD6-C1C7F2C0B834")]
     [ClassInterface(ClassInterfaceType.None)]
     [ProgIdAttribute("CmcLibNet.Database")]
     [ComDefaultInterface(typeof(ICommenceDatabase))]

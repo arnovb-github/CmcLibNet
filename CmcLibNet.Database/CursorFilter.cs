@@ -10,7 +10,7 @@ namespace Vovin.CmcLibNet.Database
     /// Filter Types that a Commence ViewFilter request can use, i.e. the filters you can apply to Commence.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("55B52ADD-2B54-489D-AF40-800F750E2EE1")]
+    [Guid("55B52ADD-2B54-489D-AF40-800F750E2EE1")]
     public enum FilterType 
     {
         /// <summary>
@@ -148,7 +148,7 @@ namespace Vovin.CmcLibNet.Database
     /// You can still set filters the old-fashioned way via CommenceCursor.SetFilter.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("691B0432-73F1-4508-B44E-A8AACB26F1FB")]
+    [Guid("691B0432-73F1-4508-B44E-A8AACB26F1FB")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilter))]
     /* a problem we will now run into is,

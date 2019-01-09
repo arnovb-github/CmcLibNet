@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Export
     /// Interface for ExportProgressChanged, primarily for use with COM Interop.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("D8A5F198-6D37-401F-AAD8-59B49E84ECA7")]
+    [Guid("D8A5F198-6D37-401F-AAD8-59B49E84ECA7")]
     public interface IExportProgressAsStringChangedArgs
     {
         /// <summary>
@@ -29,7 +29,7 @@ namespace Vovin.CmcLibNet.Export
     /// Reports export progress and data to outside the assembly.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("40919A47-E618-4C5F-AF94-EAFCEA5B3F0D")]
+    [Guid("40919A47-E618-4C5F-AF94-EAFCEA5B3F0D")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IExportProgressAsStringChangedArgs))]
     public class ExportProgressAsStringChangedArgs : EventArgs, IExportProgressAsStringChangedArgs

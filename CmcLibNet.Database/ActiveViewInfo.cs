@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
     /// Exposes properties of the currently active Commence view.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("1B602809-2599-4dac-8BDB-71D0931E909F")]
+    [Guid("1B602809-2599-4dac-8BDB-71D0931E909F")]
     public interface IActiveViewInfo
     {
         /// <summary>
@@ -35,7 +35,7 @@ namespace Vovin.CmcLibNet.Database
     /// Exposes properties of the currently active Commence view.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("BE123F26-7226-41ea-9DC4-9B6B20C9DC2C")]
+    [Guid("BE123F26-7226-41ea-9DC4-9B6B20C9DC2C")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IActiveViewInfo))]
     public class ActiveViewInfo : IActiveViewInfo

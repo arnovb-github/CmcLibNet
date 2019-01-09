@@ -6,17 +6,17 @@ using System.IO;
 
 namespace Vovin.CmcLibNet.Export
 {
-    internal class HTMLWriter : BaseWriter
+    internal class HtmlWriter : BaseWriter
     {
         bool disposed = false;
         StreamWriter _sw = null;
         int _rowcounter = 0;
 
         #region Constructors
-        internal HTMLWriter(Database.ICommenceCursor cursor, IExportSettings settings)
+        internal HtmlWriter(Database.ICommenceCursor cursor, IExportSettings settings)
             : base(cursor, settings){}
 
-        ~HTMLWriter()
+        ~HtmlWriter()
         {
             Dispose(false);
         }

@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a rowset of items to query.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("A1EF7CED-7305-4371-AAD0-73EC91A22AD4")]
+    [Guid("A1EF7CED-7305-4371-AAD0-73EC91A22AD4")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceQueryRowSet))]
     public sealed class CommenceQueryRowSet : BaseRowSet, Vovin.CmcLibNet.Database.ICommenceQueryRowSet

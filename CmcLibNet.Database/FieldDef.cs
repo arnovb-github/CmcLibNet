@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Commence field types.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("FC59E8E7-B996-45B5-ABDD-5B582E7B2B9D")]
+    [Guid("FC59E8E7-B996-45B5-ABDD-5B582E7B2B9D")]
     public enum CommenceFieldType
     {
         /// <summary>
@@ -92,7 +92,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for the field definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("D4434784-03C4-4eea-8660-BB03182B4D1C")]
+    [Guid("D4434784-03C4-4eea-8660-BB03182B4D1C")]
     public interface IFieldDef
     {
         /// <summary>
@@ -133,7 +133,7 @@ namespace Vovin.CmcLibNet.Database
     /// Holds information on the field definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("1F0AEAE1-84CD-44e7-8504-08EE94493439")]
+    [Guid("1F0AEAE1-84CD-44e7-8504-08EE94493439")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IFieldDef))]
     public class FieldDef : IFieldDef

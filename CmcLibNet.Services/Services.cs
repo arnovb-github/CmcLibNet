@@ -8,8 +8,8 @@ namespace Vovin.CmcLibNet.Services
     /// <summary>
     /// Specifies how active item fields will be copied to clipboard.
     /// </summary>
-    [ComVisible(true),
-    GuidAttribute("A10A1A10-A862-4E44-9C6B-89C0588C6082")]
+    [ComVisible(true)]
+    [Guid("A10A1A10-A862-4E44-9C6B-89C0588C6082")]
     public enum ClipActiveItem
     {
         /// <summary>
@@ -34,7 +34,7 @@ namespace Vovin.CmcLibNet.Services
     /// Class that points to services
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("BFE25F8A-9F4C-4AD9-8662-84D13B12B4D9")]
+    [Guid("BFE25F8A-9F4C-4AD9-8662-84D13B12B4D9")]
     [ProgIdAttribute("CmcLibNet.Services")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IServices))]

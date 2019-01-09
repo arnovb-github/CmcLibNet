@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represent a rowset of items to delete. Items are not deleted until Commit is called.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("613CBDBF-C2EB-46F1-8743-BB4E512B00A3")]
+    [Guid("613CBDBF-C2EB-46F1-8743-BB4E512B00A3")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceDeleteRowSet))]
     public sealed class CommenceDeleteRowSet : BaseRowSet,Vovin.CmcLibNet.Database.ICommenceDeleteRowSet

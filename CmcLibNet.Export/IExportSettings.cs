@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Export
     /// interface for ExportSettings.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("2C8B94A9-10AA-49F8-90C7-056492031E17")]
+    [Guid("2C8B94A9-10AA-49F8-90C7-056492031E17")]
     public interface IExportSettings
     {
         /// <summary>

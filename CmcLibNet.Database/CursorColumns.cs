@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for CursorColumns, allows for a convenient way of setting direct and related columns.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("72AC55CA-BCB6-4B96-95CA-78A5BE52441A")]
+    [Guid("72AC55CA-BCB6-4B96-95CA-78A5BE52441A")]
     public interface ICursorColumns
     {
         /// <summary>
@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     /// <remarks>Use of this class is recommended over setting columns directly. You cannot instantiate this class, it is automatically created when you call the <see cref="ICommenceCursor.Columns"/> property.</remarks>
     [ComVisible(true)]
-    [GuidAttribute("48AA02B3-4616-4C2D-B273-096F1E7C5F00")]
+    [Guid("48AA02B3-4616-4C2D-B273-096F1E7C5F00")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(CmcLibNet.Database.ICursorColumns))]
     public class CursorColumns : ICursorColumns

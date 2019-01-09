@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet
     /// Interface for CommenceApp.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("3C377558-ADDF-47a6-A7E3-0CB4735534DD")]
+    [Guid("3C377558-ADDF-47a6-A7E3-0CB4735534DD")]
     public interface ICommenceApp
     {
         /// <summary>

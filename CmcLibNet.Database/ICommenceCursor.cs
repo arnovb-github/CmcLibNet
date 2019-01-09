@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Database
     /// CommenceCursor interface.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("4C35C430-3EB7-4c6d-851A-315B0FAEFBF5")]
+    [Guid("4C35C430-3EB7-4c6d-851A-315B0FAEFBF5")]
     public interface ICommenceCursor : IDisposable
     {
         /// <summary>

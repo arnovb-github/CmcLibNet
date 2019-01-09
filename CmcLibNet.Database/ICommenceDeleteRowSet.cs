@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for CommenceDeleteRowSet
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("72F4E7E6-2ED1-491D-851F-50EDA90CCF4D")]
+    [Guid("72F4E7E6-2ED1-491D-851F-50EDA90CCF4D")]
     public interface ICommenceDeleteRowSet : IBaseRowSet
     {
         /// <inheritdoc />

@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Export
     /// Internally, the ExcelWriter is just like the XMLWriter anyway
     /// At least until we have created a better implementation
     /// </summary>
-    internal class ExcelWriter : XMLWriter
+    internal class ExcelWriter : XmlWriter
     {
         bool disposed = false;
         readonly string dataFile;

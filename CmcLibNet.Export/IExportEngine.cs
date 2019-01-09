@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Export
     /// interface for ExportEngine.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("F7E7295C-7151-41BC-BACE-4CB789EDA5B1")]
+    [Guid("F7E7295C-7151-41BC-BACE-4CB789EDA5B1")]
     public interface IExportEngine : IExportEngineEvents
     {
         /// <summary>

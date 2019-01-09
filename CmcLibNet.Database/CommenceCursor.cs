@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Database
     /// Cursor flags enum; determines what type of cursor to create.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("7E21D7C0-B0FE-431e-8E74-99FAF8CAED12")]
+    [Guid("7E21D7C0-B0FE-431e-8E74-99FAF8CAED12")]
     public enum CmcCursorType
     {
         /// <summary>
@@ -64,7 +64,7 @@ namespace Vovin.CmcLibNet.Database
     /// Cursor's rowpointer enum
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("A2EA7D1C-85CE-4bfa-8E7F-764C01F1546C")]
+    [Guid("A2EA7D1C-85CE-4bfa-8E7F-764C01F1546C")]
     public enum CmcCursorBookmark
     {
         /// <summary>
@@ -88,7 +88,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     /// 
     [ComVisible(true)]
-    [GuidAttribute("E4970967-1D0D-41a8-81A1-7863A94EEE9C")]
+    [Guid("E4970967-1D0D-41a8-81A1-7863A94EEE9C")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICommenceCursor))]
     public class CommenceCursor : ICommenceCursor

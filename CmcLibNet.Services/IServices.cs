@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Services
     /// Interface for Services.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("D719FD36-8828-426A-97E3-F9EADCF45A91")]
+    [Guid("D719FD36-8828-426A-97E3-F9EADCF45A91")]
     public interface IServices
     {
         /// <summary>

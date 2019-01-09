@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for CursorFilterTypeCTCF.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("41375E56-2540-4619-9C2A-E0E84D586393")]
+    [Guid("41375E56-2540-4619-9C2A-E0E84D586393")]
     public interface ICursorFilterTypeCTCF
     {
         // replicated from ICursorFilter

@@ -145,6 +145,9 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal virtual bool IsFileLocked(FileInfo file)
         {
+            // file does not exist so it cannot be locked
+            if (!File.Exists(file.FullName)) { return false; }
+
             FileStream stream = null;
 
             try

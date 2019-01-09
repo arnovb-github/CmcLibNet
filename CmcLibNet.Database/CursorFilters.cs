@@ -90,7 +90,7 @@ namespace Vovin.CmcLibNet.Database
     /// </example>
 
     [ComVisible(true)]
-    [GuidAttribute("57C88F8C-8D4C-4ba3-9487-4354065809D4")]
+    [Guid("57C88F8C-8D4C-4ba3-9487-4354065809D4")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilters))]
     public class CursorFilters : ICursorFilters, IEnumerable<CursorFilter>

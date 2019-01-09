@@ -33,7 +33,7 @@ namespace Vovin.CmcLibNet.Database
     /// Exposes member of the view definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("94D7005B-1E3F-45d1-B566-9A0F55BE3A3C")]
+    [Guid("94D7005B-1E3F-45d1-B566-9A0F55BE3A3C")]
     public interface IViewDef
     {
         /// <summary>
@@ -58,7 +58,7 @@ namespace Vovin.CmcLibNet.Database
     /// Holds information on the view definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("7326FF13-98BC-466c-B45F-44F1656B605C")]
+    [Guid("7326FF13-98BC-466c-B45F-44F1656B605C")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IViewDef))]
     public class ViewDef : IViewDef

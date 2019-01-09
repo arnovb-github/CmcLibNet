@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for CommenceQueryRowSet
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("F083B422-05FC-4C23-A5DE-C4528DDC477A")]
+    [Guid("F083B422-05FC-4C23-A5DE-C4528DDC477A")]
     public interface ICommenceQueryRowSet : IBaseRowSet
     {
         /* Anything marked with the new keyword is in there to make the method/property available to COM */

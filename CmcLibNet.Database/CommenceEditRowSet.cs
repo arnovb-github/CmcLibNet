@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a rowset of items to edit.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("B2B03D51-74A6-4D98-A1C0-A4B6FB0997D3")]
+    [Guid("B2B03D51-74A6-4D98-A1C0-A4B6FB0997D3")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceEditRowSet))]
     public sealed class CommenceEditRowSet : BaseRowSet, Vovin.CmcLibNet.Database.ICommenceEditRowSet

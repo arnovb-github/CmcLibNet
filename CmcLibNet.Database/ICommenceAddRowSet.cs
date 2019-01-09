@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Database
     /// Interface for CommenceAddRowSet.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("68063DB8-A8C4-49F3-AFD7-4E8F7ED1A426")]
+    [Guid("68063DB8-A8C4-49F3-AFD7-4E8F7ED1A426")]
     public interface ICommenceAddRowSet : IBaseRowSet
     {
         /// <inheritdoc />

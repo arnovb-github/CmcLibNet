@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a filter of type 'Connection To Category Field' (CTCF).
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("AEADD9F3-002F-4f93-AA98-A8CF730AE1F3")]
+    [Guid("AEADD9F3-002F-4f93-AA98-A8CF730AE1F3")]
     [ClassInterface(ClassInterfaceType.None)] // tells compiler to use first interface instead of AutoDispatch (generates IDispatch based on class, late-binding only) or AutoDual (also creates vtable, AutoDual is strongly recommended against)
     [ComDefaultInterface(typeof(ICursorFilterTypeCTCF))]
     // ideally, this should inherit from ICursorFilterF, but that would break COM

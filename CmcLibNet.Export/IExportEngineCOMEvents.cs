@@ -35,7 +35,7 @@ namespace Vovin.CmcLibNet.Export
     /// </remarks>
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("521C2F4E-4596-4D04-BA57-0B0A6377F7F6")]
+    [Guid("521C2F4E-4596-4D04-BA57-0B0A6377F7F6")]
     // The ComInterfaceType.InterfaceIsIDispatch argument for the InterfaceTypeAttribute is important especially for VB6 clients.
     [InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
     public interface IExportEngineCOMEvents // no interfaces should inherit this interface!

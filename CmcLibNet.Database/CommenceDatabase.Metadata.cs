@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Database
     /// Link modes used with View linking. Only used in the GetViewToFile method.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("1E6E5FBB-A9CB-4838-84E2-B0691F7CB935")]
+    [Guid("1E6E5FBB-A9CB-4838-84E2-B0691F7CB935")]
     public enum CmcLinkMode
     {
         /// <summary>

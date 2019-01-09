@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
     /// Contains the category definition.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("ABA6E0E8-F97B-4eb5-877A-E2C9C86BEF21")]
+    [Guid("ABA6E0E8-F97B-4eb5-877A-E2C9C86BEF21")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICategoryDef))]
     public class CategoryDef : ICategoryDef

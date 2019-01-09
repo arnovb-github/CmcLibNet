@@ -36,7 +36,7 @@ namespace Vovin.CmcLibNet.Export
     /// </remarks>
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("298DA1F6-9A8D-4BB2-A7EC-F776013F440A")]
+    [Guid("298DA1F6-9A8D-4BB2-A7EC-F776013F440A")]
     [ProgId("CmcLibNet.Export")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IExportEngine))]
@@ -214,6 +214,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cursor">Database.ICommenceCursor reference.</param>
         /// <param name="settings">Settings object.</param>
         /// <returns>Derived BaseDataWriter object.</returns>
+        /// <remarks>Defaults to XML</remarks>
         internal BaseWriter GetExportWriter(ICommenceCursor cursor, IExportSettings settings)
         {
             switch (settings.ExportFormat)
@@ -224,10 +225,10 @@ namespace Vovin.CmcLibNet.Export
                     break;
                 case ExportFormat.Html:
                     settings.SplitConnectedItems = false;
-                    _writer = new HTMLWriter(cursor, settings);
+                    _writer = new HtmlWriter(cursor, settings);
                     break;
                 case ExportFormat.Xml:
-                    _writer = new XMLWriter(cursor, settings);
+                    _writer = new XmlWriter(cursor, settings);
                     break;
                 case ExportFormat.Json:
                     _writer = new JsonWriter(cursor, settings);
@@ -241,6 +242,9 @@ namespace Vovin.CmcLibNet.Export
                 case ExportFormat.GoogleSheets:
                     // will probably always be too slow
                     throw new NotImplementedException();
+                default:
+                    _writer = new XmlWriter(cursor, settings);
+                    break;
             }
             return _writer;
         }

@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// Represents a filter of type 'Connection To Connected Item' (CTCTI).
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("1866675F-7D57-4142-9A91-600C753EAEAB")]
+    [Guid("1866675F-7D57-4142-9A91-600C753EAEAB")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilterTypeCTCTI))]
     public sealed class CursorFilterTypeCTCTI : CursorFilter, ICursorFilterTypeCTCTI

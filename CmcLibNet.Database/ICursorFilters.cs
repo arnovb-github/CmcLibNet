@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
     /// Exposes members of the CursorFilters class. For code examples see <see cref="CursorFilters"/>.
     /// </summary>
     [ComVisible(true)]
-    [GuidAttribute("25EF6186-CEEE-4c54-9C52-A689548AD563")]
+    [Guid("25EF6186-CEEE-4c54-9C52-A689548AD563")]
     public interface ICursorFilters
     {
         /// <summary>
