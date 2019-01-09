@@ -22,7 +22,7 @@ namespace Vovin.CmcLibNet.Export
         ///// <summary>
         ///// File to export to.
         ///// </summary>
-        //protected internal readonly string _fileName = null;
+        // protected internal readonly string _fileName = null;
         /// <summary>
         /// Custom headers.
         /// </summary>
