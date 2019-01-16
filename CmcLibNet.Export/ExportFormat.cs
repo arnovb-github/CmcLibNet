@@ -31,21 +31,17 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         Text = 3,
         /// <summary>
-        /// Export to Microsoft Excel. No checks are performed to see if the Excel sheet can actually hold all data. Especially when there are connected items involved, you may quickly hit Excel worksheet limits.
-        /// <remarks>Pass <c>null</c> or an empty string as filename to the export method to create and open a new Workbook instead of writing values to a file.</remarks>
-        /// <para>In its current implementation, integrity of connected items is preserved. That means that every connection and every connected item gets its own row, with the parent item values repeated. CmcLibNet is the only export tool I know that does not treat connected values as a single string, which would likely not fit an Excel cell anyway.</para>
-        /// <para>This makes the Excel sheet very suitable for importing into other systems.</para>
-        /// <para>However, including connections makes the Excel sheet useless for meaningful calculations.</para>
-        /// <para>If you want to do calculations, and most of you will want to, you have the following option(s):
-        /// <list type="table">
-        ///     <item>  
-        ///         <term>Skip connections</term>  
-        ///         <description>Simply tell the export to ignore connected items <see cref=" IExportSettings.SkipConnectedItems"/>. Or simply create and export a view that does not contain any.</description>  
-        ///     </item>
-        /// </list></para>
-        /// <para>While the current implementation of Excel exports makes them very well suited for importing into other systems, it makes them rather limited for calculations, say for invoicing. Truth be told it is probably easier to use the Report Writer for that, but data in the Report Writer are fixed after generating the report.</para>
-        /// <para>Future implementations of the export engine will have additional parameters controlling Excel exports to include connected data as simple field values.</para>
-        /// <para>You can of course always export to another format first, then import into Excel.</para>
+        /// Export to Microsoft Excel (xslx extension is mandatory).
+        /// <remarks>No checks are performed to see if the Excel sheet can actually hold all rows.
+        /// <para>Excel does not have to be installed on the system. CmcLibNet uses the <c>Microsoft.ACE.OLEDB.12.0</c> driver to create the file.
+        /// This driver is installed with Microsoft Office, but is also available as separate component. There are two flavors (32 and 64 bit), CmcLibNet was only tested with the 32-bit version.</para>
+        /// <para>Because CmcLibNet does not communicate with Excel at all, the export is much faster.
+        /// There is a downside to this: columns cannot be formatted.
+        /// Excel does a pretty good job at guessing the data type, but things like columnwidths remain default.</para>
+        /// <para>The filename has to have the <c>.xslx</c> extension. CmcLibNet cannot export to an open file.
+        /// It can also not write data to a sheet with the same name as the exported Commence category.
+        /// If you want an unattended export, set <see cref="IExportSettings.DeleteExcelFileBeforeToExport"/> to <c>true</c> and the file will simply be recreated.
+        /// </para></remarks>
         /// </summary>
         Excel = 4,
         /// <summary>

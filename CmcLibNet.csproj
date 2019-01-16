@@ -27,6 +27,7 @@
     <DocumentationFile>bin\Debug\Vovin.CmcLibNet.xml</DocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -61,12 +62,22 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmcLibNet.Database\CmcCursorBookmark.cs" />
+    <Compile Include="CmcLibNet.Database\CmcCursorType.cs" />
+    <Compile Include="CmcLibNet.Database\CmcLinkMode.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceFieldType.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceViewType.cs" />
+    <Compile Include="CmcLibNet.Database\FilterQualifier.cs" />
+    <Compile Include="CmcLibNet.Database\FilterType.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
-    <Compile Include="CmcLibNet.Export\ExcelWriter.cs" />
+    <Compile Include="CmcLibNet.Export\ExcelWriterUsingOleDb.cs" />
+    <Compile Include="CmcLibNet.Export\ExcelWriterUsingXml.cs" />
     <Compile Include="CmcLibNet.Export\ExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\ExportFormat.cs" />
     <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\HeaderMode.cs" />
+    <Compile Include="CmcLibNet.Export\OleDbConnections.cs" />
+    <Compile Include="CmcLibNet.Export\XmlWriter2.cs" />
     <Compile Include="CmcLibNet\CommenceApp.cs" />
     <Compile Include="CmcLibNet\PowerSavings.cs" />
     <Compile Include="CmcLibNet\RCWReleasePublisher.cs" />
@@ -135,6 +146,7 @@
     <Compile Include="CmcLibNet\ICommenceApp.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceQueryRowSet.cs" />
     <Compile Include="CmcLibNet.Database\ViewDef.cs" />
+    <Compile Include="CmcLibNet\CmcOptionFlags.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CmcLibNet.Services\Services.cs" />
     <Compile Include="CmcLibNet\Utils.cs" />

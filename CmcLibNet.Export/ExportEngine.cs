@@ -228,13 +228,14 @@ namespace Vovin.CmcLibNet.Export
                     _writer = new HtmlWriter(cursor, settings);
                     break;
                 case ExportFormat.Xml:
-                    _writer = new XmlWriter(cursor, settings);
+                    _writer = new XmlWriter2(cursor, settings);
                     break;
                 case ExportFormat.Json:
                     _writer = new JsonWriter(cursor, settings);
                     break;
                 case ExportFormat.Excel:
-                    _writer = new ExcelWriter(cursor, settings);
+                    //_writer = new ExcelWriterUsingXml(cursor, settings);
+                    _writer = new ExcelWriterUsingOleDb(cursor, settings);
                     break;
                 case ExportFormat.Event:
                     _writer = new EventWriter(cursor, settings);
@@ -243,7 +244,7 @@ namespace Vovin.CmcLibNet.Export
                     // will probably always be too slow
                     throw new NotImplementedException();
                 default:
-                    _writer = new XmlWriter(cursor, settings);
+                    _writer = new XmlWriter2(cursor, settings);
                     break;
             }
             return _writer;
