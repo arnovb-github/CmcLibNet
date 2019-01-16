@@ -80,7 +80,6 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Event raising methods
-
         protected virtual void OnDataProgressChanged(ExportProgressChangedArgs e)
         {
             DataProgressChanged?.Invoke(this, e);
@@ -90,12 +89,13 @@ namespace Vovin.CmcLibNet.Export
         {
             DataReadCompleted?.Invoke(this, e);
         }
-
         #endregion
 
         #region Data fetching methods
-        // collect Commence rowvalues as jagged array,
-        // then raises an event with that array.
+        /// <summary>
+        /// collect Commence rowvalues as jagged array,
+        /// then raises an event with that array.
+        /// </summary>
         internal void GetDataByAPI()
         {
             int rowsProcessed = 0;
@@ -249,9 +249,9 @@ namespace Vovin.CmcLibNet.Export
             ExportCompleteArgs a = new ExportCompleteArgs(itemCount);
             OnDataReadCompleted(a);
         }
-
         #endregion
 
+        #region Supporting methods
         /// <summary>
         /// Takes raw cursor data and returns a list of CommenceValue lists
         /// </summary>
@@ -337,7 +337,6 @@ namespace Vovin.CmcLibNet.Export
             } // for i
             return retval;
         }
-        #region Supporting methods
         private static string[] FormatValues(string[] values, ValueFormatting format, ColumnDefinition cd)
         {
             string[] retval = values;
@@ -376,112 +375,12 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Experimental stuff
-        //dabbling with async stuff. It is safe to say I don't get it :)
-        // DOES NOT WORK PROPERLY, DO NOT CALL
-        private IList<Task<string[][]>> CreateCursorReadTasks()
-        {
-            IList<Task<string[][]>> retval = new List<Task<string[][]>>();
-            for (int totalrows = 0; totalrows < this.cursor.RowCount; totalrows += numRows)
-            {
-                retval.Add(Task.Run(() => cursor.GetRawData(numRows)));
-            }
-            return retval;
-        }
-
-        internal async Task GetDataByAPIAsync2()
-        {
-            IList<Task<string[][]>> tasks = CreateCursorReadTasks();
-            var processingTasks = tasks.Select(AwaitAndProcessResultAsync).ToList();
-            await Task.WhenAll(processingTasks);
-            // apparently the above line isn't awaited
-            ExportCompleteArgs e = new ExportCompleteArgs(0);
-            OnDataReadCompleted(e); // done with reading data
-        }
-
-        internal async Task AwaitAndProcessResultAsync(Task<string[][]> task)
-        {
-            string[][] rawdata = await task;
-            int counter = 0;
-            List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
-            CommenceValue cv = null;
-            ColumnDefinition cd = null;
-
-            // rawdata represents the actual database row values
-            for (int i = 0; i < rawdata.GetLength(0); i++) // rows
-            {
-                List<CommenceValue> rowdata = new List<CommenceValue>();
-                // for thids we can assume the first row of rawdata contains the thid
-                if (this.useThids)
-                {
-                    cv = new CommenceValue(rawdata[i][0], this.columnDefinitions.First()); // assumes thid column is first. This is an accident waiting to happen.
-                    rowdata.Add(cv);
-                }
-
-                // process row
-                for (int j = 1; j < rawdata[i].Length; j++) // columns
-                {
-                    // a column for the thid is only returned when a thid is requested
-                    // therefore getting the right column is a little tricky
-                    int colindex = (this.useThids) ? j : j - 1;
-                    cd = this.columnDefinitions[colindex];
-                    string[] buffer = null;
-                    if (cd.IsConnection)
-                    {
-                        if (String.IsNullOrEmpty(rawdata[i][j].Trim()))
-                        {
-                            cv = new CommenceValue(cd); // always create a CommenceValue for consistency
-                        }
-                        else
-                        {
-                            if (!settings.SplitConnectedItems)
-                            {
-                                buffer = new string[] { rawdata[i][j] };
-
-                            } // if
-                            else
-                            {
-                                switch (cd.FieldType)
-                                {
-                                    case Database.CommenceFieldType.Text:
-                                        // we use a regex to split values at "\n" *but not* "\r\n"
-                                        // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
-                                        // in that case, your only option is to suppress the splitting in ExportSettings
-                                        buffer = regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
-                                        break;
-                                    default:
-                                        buffer = rawdata[i][j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
-                                        break;
-                                } // switch
-
-                                // buffer now contains the connected values as array, do any formatting transformation
-                                buffer = FormatValues(buffer, this.Formatting, cd);
-                            }
-                            cv = new CommenceValue(buffer, cd);
-                        } // if !String.IsNullOrEmpty
-                    } // if IsConnection
-                    else // single value
-                    {
-                        buffer = new string[] { rawdata[i][j] };
-                        buffer = FormatValues(buffer, this.Formatting, cd);
-                        cv = new CommenceValue(buffer[0], cd);
-                    } // else IsConnection
-                    if (cv != null) { rowdata.Add(cv); }
-                } // for j
-                counter++;
-                retval.Add(rowdata);
-            } // for i
-            // per batch of rows
-            ExportProgressChangedArgs args = new ExportProgressChangedArgs(retval, counter, totalRows);
-            DataProgressChanged?.Invoke(this, args); // raise event after each batch of rows
-        }
-
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
         internal CancellationTokenSource CTS { get; } = new CancellationTokenSource();
         internal void GetDataByAPIAsync()
         {
             int rowsProcessed = 0;
-            // Use the desired data type instead of string
             var values = new BlockingCollection<string[][]>();
             var readTask = Task.Run(() =>
             {
@@ -508,8 +407,7 @@ namespace Vovin.CmcLibNet.Export
             {
                 foreach (var value in values.GetConsumingEnumerable())
                 {
-                    if (CTS.Token.IsCancellationRequested)
-                        break;
+                    if (CTS.Token.IsCancellationRequested) { break; }
 
                     var data = ProcessDataBatch(value);
                     ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
@@ -522,6 +420,7 @@ namespace Vovin.CmcLibNet.Export
             ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
             OnDataReadCompleted(e); // done with reading data
         }
+
         #endregion
     }
 }

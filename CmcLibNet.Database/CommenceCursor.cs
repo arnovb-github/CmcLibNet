@@ -7,82 +7,6 @@ using System.Threading.Tasks;
 
 namespace Vovin.CmcLibNet.Database
 {
-    #region Enumerations
-    /// <summary>
-    /// Cursor flags enum; determines what type of cursor to create.
-    /// </summary>
-    [ComVisible(true)]
-    [Guid("7E21D7C0-B0FE-431e-8E74-99FAF8CAED12")]
-    public enum CmcCursorType
-    {
-        /// <summary>
-        /// Use a category.
-        /// </summary>
-        Category = 0,
-        /// <summary>
-        /// Use a view.
-        /// </summary>
-        View = 1,
-        /// <summary>
-        /// Use the fields as defined for the Palm Pilot Address Book.
-        /// </summary>
-        PilotAb = 2,
-        /// <summary>
-        /// Use the fields as defined for the Palm Pilot Memo.
-        /// </summary>
-        PilotMemo = 3,
-        /// <summary>
-        /// Use the fields as defined for the Palm Pilot To-Do list.
-        /// </summary>
-        PilotToDo = 5,
-        /// <summary>
-        /// Use the fields as defined for the Palm Pilot Calendar.
-        /// </summary>
-        PilotAppt = 6,
-        /// <summary>
-        /// Use the fields as defined for the Microsoft Outlook Address book.
-        /// </summary>
-        OutlookAb = 7,
-        /// <summary>
-        /// Use the fields as defined for the Microsoft Outlook Calendar.
-        /// </summary>
-        OutlookAppt = 8,
-        /// <summary>
-        /// Use the fields as defined for the E-mail Log category.
-        /// </summary>
-        EmailLog = 9,
-        /// <summary>
-        /// Use the fields as defined for the Microsoft Outlook Tasks.
-        /// </summary>
-        OutlookTask = 10,
-        /// <summary>
-        /// Based cursor on the view used when Send Letter command was called.
-        /// </summary>
-        Merge = 11,
-    }
-    /// <summary>
-    /// Cursor's rowpointer enum
-    /// </summary>
-    [ComVisible(true)]
-    [Guid("A2EA7D1C-85CE-4bfa-8E7F-764C01F1546C")]
-    public enum CmcCursorBookmark
-    {
-        /// <summary>
-        /// Move rows starting from first row in cursor.
-        /// </summary>
-        Beginning = 0,
-        /// <summary>
-        /// Move rows starting from current row in cursor.
-        /// </summary>
-        Current = 1,
-        /// <summary>
-        /// Move rows starting from last row in cursor.
-        /// </summary>
-        End = 2
-    }
-
-    #endregion
-    
     /// <summary>
     /// Wrapper around the Commence FormOA.ICommenceCursor interface.
     /// </summary>
@@ -857,6 +781,7 @@ namespace Vovin.CmcLibNet.Database
                     buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
                     if (buffer == null)
                     {
+						qrs.Close();
                         throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
                     }
                     #if DEBUG

@@ -98,6 +98,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="fileName">File name</param>
         /// <exception cref="System.IO.IOException">File in use.</exception>
         protected internal abstract void WriteOut(string fileName);
+
         /// <summary>
         /// Method that deals with the data as it is being read.
         /// The minimum amount of expected data is a single list of CommenceValue objects representing a single item (row) in Commence,
@@ -107,6 +108,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="sender">sender.</param>
         /// <param name="e">ExportProgressChangedArgs.</param>
         protected internal abstract void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e);
+
         /// <summary>
         /// Method that deals with any finalization of the export,
         /// such as writing closing elements and closing streams.
@@ -329,7 +331,7 @@ namespace Vovin.CmcLibNet.Export
                         throw;
                     }
                     // set column properties
-                    dc.DataType = Utils.GetSystemTypeForCommenceField(td.ColumnDefinitions[j].FieldType);
+                    dc.DataType = Utils.GetTypeForCommenceField(td.ColumnDefinitions[j].FieldType);
                     dc.AllowDBNull = true; // this is default, but setting it explicitly makes it more clear.
                 }
             }
@@ -374,7 +376,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="list">List to test for label.</param>
         /// <param name="counter">Number to append or increment.</param>
         /// <returns>Label with a number appended making it unique in list.</returns>
-        private string GetUniqueColumnLabel(string label, List<string> list, int counter)
+        private string GetUniqueStringForList(string label, List<string> list, int counter)
         {
             string retval = label;
             int append = counter;
@@ -384,7 +386,7 @@ namespace Vovin.CmcLibNet.Export
             {
                 retval = this._label + append.ToString();
                 append++;
-                return GetUniqueColumnLabel(retval, list, append); // recurse
+                return GetUniqueStringForList(retval, list, append); // recurse
             }
             else
             {
@@ -530,7 +532,7 @@ namespace Vovin.CmcLibNet.Export
                         {
                             case HeaderMode.Columnlabel:
                                 _label = cd.ColumnLabel; // store original label
-                                string s = GetUniqueColumnLabel(cd.ColumnLabel, _exportHeaders, 1); // make sure we have unique columnlabels, or XML and JSON may complain.
+                                string s = GetUniqueStringForList(cd.ColumnLabel, _exportHeaders, 1); // make sure we have unique columnlabels, or XML and JSON may complain.
                                 _exportHeaders.Add(s);
                                 break;
                             case HeaderMode.Fieldname:

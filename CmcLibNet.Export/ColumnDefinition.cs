@@ -10,15 +10,13 @@ namespace Vovin.CmcLibNet.Export
     internal class ColumnDefinition
     {
         /* The columndefinition is fetched once for every cursor we read. */
-
         private CommenceFieldType _fieldType = CommenceFieldType.Text;
         private bool _fieldTypeFetched;
-        private readonly int _colIndex = 0;
 
         #region Constructors
         internal ColumnDefinition(int colindex, string columnName)
         {
-            _colIndex = colindex;
+            ColumnIndex = colindex;
             this.ColumnName = columnName;
         }
         #endregion
@@ -56,6 +54,9 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
+        /// <summary>
+        /// This involves an expensive DDE call so only make it when necessary
+        /// </summary>
         internal CommenceFieldType FieldType
         {
             get
@@ -69,10 +70,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        internal int ColumnIndex
-        {
-            get { return _colIndex; }
-        }
+        internal int ColumnIndex { get; } = 0;
 
         /// <summary>
         /// Returns the connection name and the category; i.e. "ConnectionName ToCategory"
@@ -169,7 +167,6 @@ namespace Vovin.CmcLibNet.Export
                 elField.MinOccurs = 0; // we can have no connections.
                 elField.MaxOccursString = "unbounded";
                 catSeq.Items.Add(elField);
-                //return catNode; // abort and return early. DEBUG
 
                 // connection name
                 XmlSchemaElement conNode = new XmlSchemaElement();

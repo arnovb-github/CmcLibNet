@@ -25,7 +25,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="regularCommenceValue">regular Commence value.</param>
         /// <param name="fieldType">Commence fieldtype.</param>
         /// <returns>string.</returns>
-        internal static string ToCanonical(string regularCommenceValue, CommenceFieldType fieldType)
+        internal static string ToCanonical(string regularCommenceValue, Vovin.CmcLibNet.Database.CommenceFieldType fieldType)
         {
             // TODO: should we include a check if a canonical value was passed in?
 
