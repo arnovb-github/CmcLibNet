@@ -7,6 +7,7 @@ using System.IO;
 namespace Vovin.CmcLibNet.Export
 {
     // Writes data to XML file.
+    [Obsolete]
     internal class XmlWriter : BaseWriter
     {
         System.Xml.XmlWriter _xw = null; // the writer object.
