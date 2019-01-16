@@ -2,6 +2,7 @@
 using System.Text;
 using Vovin.CmcLibNet;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -83,10 +84,6 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
-        //private string GetQualifier()
-        //{
-        //    return String.Empty;
-        //}
         /// <summary>
         /// Sets filter syntax according to direct and 'between' filter qualifiers
         /// </summary>

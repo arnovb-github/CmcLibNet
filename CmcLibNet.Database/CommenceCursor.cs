@@ -69,7 +69,7 @@ namespace Vovin.CmcLibNet.Database
             if (_cursorType == CmcCursorType.View) 
             {
                 this._viewName = pName;
-                this._viewType = Utils.GetValueFromDescription<CommenceViewType>(viewType);
+                this._viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
             }
             _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;

@@ -146,8 +146,8 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int MaxFieldSize { get; set; }
         /// <summary>
-        /// Delete and recreate Excel file when exporting. Only applies to <seealso cref="ExportFormat.Excel"/>
+        /// Delete and recreate Excel file when exporting. Only applies to <seealso cref="ExportFormat.Excel"/>. Default is <c>true</c>.
         /// </summary>
-        bool DeleteExcelFileBeforeToExport { get; set; }
+        bool DeleteExcelFileBeforeExport { get; set; }
     }
 }

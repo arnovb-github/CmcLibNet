@@ -111,7 +111,6 @@ namespace Vovin.CmcLibNet.Database
             string retval = null;
             try
             {
-                //retval = _nativeConv.Request(dde);
                 retval = this.Conversation.Request(dde);
                 //in order to be able to check for a returned null from this method
                 //we will include an extra check for that
@@ -124,7 +123,6 @@ namespace Vovin.CmcLibNet.Database
 
             catch (System.Runtime.InteropServices.COMException e)
             {
-                //System.Windows.Forms.MessageBox.Show(e.Message + "\n" + e.InnerException);
                 //a generic COM exception occurred,
                 //so we'll throw our own custom error here to provide some more info
                 string DDEError = string.Empty;

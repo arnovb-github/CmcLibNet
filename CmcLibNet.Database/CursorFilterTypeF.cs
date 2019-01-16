@@ -2,6 +2,7 @@
 using System.Text;
 using Vovin.CmcLibNet;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {

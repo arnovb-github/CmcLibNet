@@ -115,6 +115,6 @@ namespace Vovin.CmcLibNet.Export
             }
         }
         /// <inheritdoc />
-        public bool DeleteExcelFileBeforeToExport { get; set; } = false;
+        public bool DeleteExcelFileBeforeExport { get; set; } = true;
     }
 }

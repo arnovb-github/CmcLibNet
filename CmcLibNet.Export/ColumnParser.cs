@@ -5,16 +5,6 @@ using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet.Export
 {
-    #region Enumerations
-    /// <summary>
-    /// Enum for fieldtypes (field or connection).
-    /// </summary>
-    internal enum LabelType
-    {
-        Field = 0,
-        Connection = 1
-    }
-    #endregion
     /// <summary>
     /// Captures information on the fields and columns of a cursor.
     /// </summary>
@@ -96,7 +86,6 @@ namespace Vovin.CmcLibNet.Export
                 for (int i = 0; i < qrs.ColumnCount; i++)
                 {
                     ColumnDefinition cd = new ColumnDefinition(_columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
-                    //ColumnDefinition cd = new ColumnDefinition(i, qrs.GetColumnLabel(i, Core.CmcOptionFlags.Fieldname));
                     _columnDefinitions.Add(cd);
                     cd.ColumnLabel = qrs.GetColumnLabel(i);
                     if (this._customHeaders != null)

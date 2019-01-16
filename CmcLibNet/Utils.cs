@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using System.ComponentModel;
-using System.Linq;
-using Vovin.CmcLibNet.Database;
-using System.Text.RegularExpressions;
 using System.Data;
 using System.Data.OleDb;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet
 {
@@ -46,23 +45,7 @@ namespace Vovin.CmcLibNet
             }
             return new string[] { arg.ToString() };
         }
-        /// <summary>
-        /// Extension method for enums that returns description attributes for enum value.
-        /// </summary>
-        /// <param name="value">Enum value.</param>
-        /// <returns>String representation of enum member, or its description (if defined).</returns>
-        public static string GetEnumDescription(this Enum value)
-        {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
 
-            DescriptionAttribute[] attributes =
-                (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-            if (attributes != null && attributes.Length > 0)
-                return attributes[0].Description;
-            else
-                return value.ToString();
-        }
         /// <summary>
         /// Return enum value from description.
         /// </summary>
@@ -70,7 +53,7 @@ namespace Vovin.CmcLibNet
         /// <param name="description">Description of enum value to search for.</param>
         /// <returns>Enum value matching description.</returns>
         /// <exception cref="InvalidOperationException">No enum provided.</exception>
-        public static T GetValueFromDescription<T>(string description)
+        public static T GetValueFromEnumDescription<T>(string description)
         {
             var type = typeof(T);
             if (!type.IsEnum) throw new InvalidOperationException();

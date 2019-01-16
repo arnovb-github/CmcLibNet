@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Xml;
-using System.Xml.Schema;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Xml;
 
 namespace Vovin.CmcLibNet.Export
 {
     // Writes data to XML file.
-    [Obsolete]
     internal class XmlWriter : BaseWriter
     {
         System.Xml.XmlWriter _xw = null; // the writer object.
-        readonly string _defaultNS = "http://cmclibnet.vovin.nl/export";
         bool disposed = false;
 
         #region Constructors
@@ -35,7 +33,7 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData(); // call data reading engine
         }
 
-        protected internal void PrepareXmlFile(string fileName)
+        private void PrepareXmlFile(string fileName)
         {
             // create a new XMLWriterSettings and some starting elements
             // note that the state of the writer is left open.
@@ -43,20 +41,7 @@ namespace Vovin.CmcLibNet.Export
             xws.Indent = true;
             _xw = System.Xml.XmlWriter.Create(fileName, xws);
             _xw.WriteStartDocument();
-            _xw.WriteStartElement("root");
-            if (!String.IsNullOrEmpty(base._settings.XSDFile)) // include xsd declaration
-            {
-                // we need to load in our XSD file to get some settings from it
-                XmlTextReader reader = new XmlTextReader(base._settings.XSDFile);
-                XmlSchema myschema = XmlSchema.Read(reader, ValidationCallback);  // no idea what this does
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(base._dataSourceName), myschema.TargetNamespace);
-                _xw.WriteAttributeString("xsi", "schemaLocation", "http://www.w3.org/2001/XMLSchema-instance", myschema.TargetNamespace + " " + base._settings.XSDFile);
-            }
-            else
-            {
-                // node names have to be properly encoded or else Write*Element may complain.
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category)); // <-- Important: root element
-            }
+            _xw.WriteStartElement("dataroot");
         }
 
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
@@ -65,29 +50,27 @@ namespace Vovin.CmcLibNet.Export
             BubbleUpProgressEvent(e);
         }
 
-        protected internal void AppendToXml(List<List<CommenceValue>> rows)
+        private void AppendToXml(List<List<CommenceValue>> rows)
         {
             // populate XMLWriter with data
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
-                _xw.WriteStartElement("Item");
+                _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
+                var citems = row.Where(s => s.ColumnDefinition.IsConnection).OrderBy(o => o.ColumnDefinition.FieldName).GroupBy(g => g.ColumnDefinition.Category).ToList();
                 foreach (CommenceValue v in row)
                 {
-                    if (v.ColumnDefinition.IsConnection) // connection
-                    {
-                        WriteConnectedValue(v);
-                    }
-                    else // direct field
+                    if (!v.ColumnDefinition.IsConnection) // connection
                     {
                         // only write if we have something
                         if (!String.IsNullOrEmpty(v.DirectFieldValue))
                         {
-                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex])); // not good. there shouldn't be a separate array for the headers, they should be in columndefinition.
+                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             _xw.WriteString(v.DirectFieldValue);
                             _xw.WriteEndElement();
                         }
                     } // if IsConnection
                 } // row
+                WriteConnectedItems(citems);
                 _xw.WriteEndElement();
             } // rows
         }
@@ -113,88 +96,33 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        // callback needed to read XSD. We don't use it.
-        protected internal static void ValidationCallback(object sender, ValidationEventArgs args)
+        private void WriteConnectedItems(List<IGrouping<string, CommenceValue>> list)
         {
-            if (args.Severity == XmlSeverityType.Warning)
-                Console.Write("WARNING: ");
-            else if (args.Severity == XmlSeverityType.Error)
-                Console.Write("ERROR: ");
-
-            Console.WriteLine(args.Message);
-        }
-
-        protected internal void WriteConnectedValue(CommenceValue v)
-        {
-            if (base._settings.SkipConnectedItems || v.ConnectedFieldValues == null) { return; }
-
-            if (base._settings.IncludeConnectionInfo)
+            // a group contains all CommenceValues for a connection
+            foreach (IGrouping<string, CommenceValue> group in list)
             {
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(v.ColumnDefinition.Connection));
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(v.ColumnDefinition.Category));
-                foreach (string s in v.ConnectedFieldValues)
+                string connectionName = XmlConvert.EncodeLocalName(group.FirstOrDefault().ColumnDefinition.QualifiedConnection);
+                _xw.WriteStartElement(connectionName);
+                // iterate over the connected value and grab every x-th connected value from the columns
+                for (int i = 0; i < group.FirstOrDefault().ConnectedFieldValues?.Length; i++)
                 {
-                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(v.ColumnDefinition.FieldName));
-                    _xw.WriteString(s);
+                    string categoryName = group.FirstOrDefault().ColumnDefinition.Category;
+                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
+                    // now iterate over the different columns
+                    for (int j = 0; j < group.Count(); j++)
+                    {
+                        string value = group.ElementAt(j).ConnectedFieldValues[i];
+                        if (!string.IsNullOrEmpty(value))
+                        {
+                            string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
+                            _xw.WriteStartElement(fieldName);
+                            _xw.WriteString(value);
+                            _xw.WriteEndElement();
+                        }
+                    }
                     _xw.WriteEndElement();
-                } //foreach s
-                _xw.WriteEndElement();
-                _xw.WriteEndElement();
-                _xw.WriteEndElement();
-            }
-            else
-            {
-                foreach (string s in v.ConnectedFieldValues)
-                {
-                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
-                    _xw.WriteString(s);
-                    _xw.WriteEndElement();
-                } //foreach s
-            }
-        }
-
-        internal void WriteXMLSchemaFile(string fileName)
-        {
-            string ns = _defaultNS + "/" + XmlConvert.EncodeLocalName(_cursor.Category);
-            XmlSchema xsd = new XmlSchema();
-            xsd.Namespaces.Add("cmc", ns);
-            xsd.TargetNamespace = ns;
-            xsd.ElementFormDefault = XmlSchemaForm.Qualified;
-
-            // root
-            XmlSchemaElement rel = new XmlSchemaElement();
-            XmlSchemaComplexType rcomplexType = new XmlSchemaComplexType();
-            rel.Name = XmlConvert.EncodeLocalName(base._dataSourceName);
-            rel.SchemaType = rcomplexType;
-            XmlSchemaSequence eseq = new XmlSchemaSequence();
-            rcomplexType.Particle = eseq;
-
-            // item
-            XmlSchemaElement iel = new XmlSchemaElement();
-            XmlSchemaComplexType icomplexType = new XmlSchemaComplexType();
-            iel.Name = "Item";
-            iel.SchemaType = icomplexType;
-            iel.MinOccurs = 0;
-            iel.MaxOccursString = "unbounded";
-            XmlSchemaSequence iseq = new XmlSchemaSequence();
-            icomplexType.Particle = iseq;
-            // now we have to add our fields
-            foreach (ColumnDefinition cd in base.ColumnDefinitions)
-            {
-                // skip connected columns
-                if (!(cd.IsConnection && base._settings.SkipConnectedItems))
-                {
-                    iseq.Items.Add(cd.XmlSchemaElement);
                 }
-            }
-            eseq.Items.Add(iel);
-            xsd.Items.Add(rel);
-            XmlWriterSettings xws = new XmlWriterSettings();
-            xws.Indent = true;
-            using (System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(fileName, xws))
-            {
-                xsd.Write(writer);
+                _xw.WriteEndElement();
             }
         }
 

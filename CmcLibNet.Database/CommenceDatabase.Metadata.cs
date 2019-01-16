@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
-using System.Timers;
-using Vovin.CmcLibNet;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Timers;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -661,7 +661,7 @@ namespace Vovin.CmcLibNet.Database
                 vd.TypeDescription = buffer[1];
                 vd.Category = buffer[2];
                 vd.FileName = buffer[3];
-                vd.Type = Utils.GetValueFromDescription<CommenceViewType>(vd.TypeDescription);
+                vd.Type = Utils.GetValueFromEnumDescription<CommenceViewType>(vd.TypeDescription);
             }
             return vd;
         }
