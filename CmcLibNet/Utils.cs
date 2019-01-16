@@ -3,6 +3,9 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Linq;
 using Vovin.CmcLibNet.Database;
+using System.Text.RegularExpressions;
+using System.Data;
+using System.Data.OleDb;
 
 namespace Vovin.CmcLibNet
 {
@@ -95,7 +98,7 @@ namespace Vovin.CmcLibNet
         /// </summary>
         /// <param name="fieldType">Commence field type</param>
         /// <returns>System.Type</returns>
-        internal static Type GetSystemTypeForCommenceField(CommenceFieldType fieldType)
+        internal static Type GetTypeForCommenceField(CommenceFieldType fieldType)
         {
             // String type DataTable columns can be specified to have a certain length,
             // but by default they take any length,
@@ -104,17 +107,80 @@ namespace Vovin.CmcLibNet
             {
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
-                    return typeof(Decimal);
+                    return typeof(double); // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return typeof(DateTime);
                 case CommenceFieldType.Sequence:
-                    return typeof(UInt32);
+                    return typeof(int);
                 case CommenceFieldType.Checkbox:
-                    return typeof(Boolean);
+                    return typeof(bool);
                 default:
-                    return typeof(String);
+                    return typeof(string);
             }
+        }
+
+        internal static string GetOleDbTypeStringForCommenceField(CommenceFieldType fieldType)
+        {
+            switch (fieldType)
+            {
+                case CommenceFieldType.Number:
+                case CommenceFieldType.Calculation:
+                case CommenceFieldType.Sequence:
+                    return "double"; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                case CommenceFieldType.Date:
+                case CommenceFieldType.Time:
+                    return "datetime";
+                case CommenceFieldType.Checkbox:
+                    return "bit";
+                case CommenceFieldType.Name:
+                    return "char (50)";
+                default:
+                    return "memo"; // just make it big :)
+            }
+        }
+
+        internal static DbType GetDbTypeForCommenceField(CommenceFieldType fieldType)
+        {
+            switch (fieldType)
+            {
+                case CommenceFieldType.Number:
+                case CommenceFieldType.Calculation:
+                case CommenceFieldType.Sequence:
+                    return DbType.Double; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                case CommenceFieldType.Date:
+                case CommenceFieldType.Time:
+                    return DbType.DateTime;
+                case CommenceFieldType.Checkbox:
+                    return DbType.Boolean;
+                default:
+                    return DbType.String;
+            }
+        }
+
+        internal static OleDbType GetOleDbTypeForCommenceField(CommenceFieldType fieldType)
+        {
+            switch (fieldType)
+            {
+                case CommenceFieldType.Number:
+                case CommenceFieldType.Calculation:
+                case CommenceFieldType.Sequence:
+                    return OleDbType.Double; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                case CommenceFieldType.Date:
+                case CommenceFieldType.Time:
+                    return OleDbType.Date;
+               case CommenceFieldType.Checkbox:
+                    return OleDbType.Boolean;
+                default:
+                    return OleDbType.LongVarWChar;
+            }
+        }
+
+        internal static string GetOleDbFieldName(string cmcFieldName, char replaceInvalidCharsWith)
+        {
+            string pattern = @"[^.\d\w]";
+            // returns a string that contains only alfanumeric characters, everything else replaced
+            return Regex.Replace(cmcFieldName, pattern, replaceInvalidCharsWith.ToString());
         }
     }
 }
