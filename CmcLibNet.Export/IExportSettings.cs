@@ -38,6 +38,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <remarks>You cannot use custom headers in a nested export.</remarks>
         /// <remarks>Supply custom headers for all columns, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</remarks>
+        /// <remarks>Datatype is object for compatibility with COM.</remarks>
         object[] CustomHeaders { get; set;}
         /// <summary>
         /// Data format the export engine should generate. Default is XML.
@@ -144,5 +145,9 @@ namespace Vovin.CmcLibNet.Export
         /// <see cref="Database.ICommenceCursor.MaxFieldSize"/>
         /// </summary>
         int MaxFieldSize { get; set; }
+        /// <summary>
+        /// Delete and recreate Excel file when exporting. Only applies to <seealso cref="ExportFormat.Excel"/>
+        /// </summary>
+        bool DeleteExcelFileBeforeToExport { get; set; }
     }
 }

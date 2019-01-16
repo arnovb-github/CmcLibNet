@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -14,8 +15,8 @@ namespace Vovin.CmcLibNet.Export
         private bool _useThids = false;
         private object[] _customHeaders = null;
         private bool _xsdcompliant =  false;
-        private int _maxrows = 1000;
-        private int _maxfieldsize = 500000;
+        private int _maxrows = (int)Math.Pow(2, 10); // 1024
+        private int _maxfieldsize = (int)Math.Pow(2, 19); // that is ~500.000
 
         /// <inheritdoc />
         public bool Canonical { get; set; } = false;
@@ -113,5 +114,7 @@ namespace Vovin.CmcLibNet.Export
                 }
             }
         }
+        /// <inheritdoc />
+        public bool DeleteExcelFileBeforeToExport { get; set; } = false;
     }
 }
