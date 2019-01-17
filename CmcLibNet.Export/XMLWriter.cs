@@ -118,7 +118,7 @@ namespace Vovin.CmcLibNet.Export
                         if (!string.IsNullOrEmpty(value))
                         {
                             string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
-                            _xw.WriteStartElement(fieldName);
+                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
                             _xw.WriteString(value);
                             _xw.WriteEndElement();
                         }
