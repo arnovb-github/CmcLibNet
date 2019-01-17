@@ -137,7 +137,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         bool SplitConnectedItems { get; set; }
         /// <summary>
-        /// Specify the number of rows to export at a time. Default is 1000.
+        /// Specify the number of rows to export at a time. Default is 1024.
         /// </summary>
         int NumRows { get; set; }
         /// <summary>
@@ -146,7 +146,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int MaxFieldSize { get; set; }
         /// <summary>
-        /// Delete and recreate Excel file when exporting. Only applies to <seealso cref="ExportFormat.Excel"/>. Default is <c>true</c>.
+        /// Delete and recreate Excel file when exporting. Only applies to <see cref="ExportFormat.Excel"/>. Default is <c>true</c>.
         /// </summary>
         bool DeleteExcelFileBeforeExport { get; set; }
     }

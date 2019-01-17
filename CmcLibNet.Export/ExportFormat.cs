@@ -40,7 +40,7 @@ namespace Vovin.CmcLibNet.Export
         /// Excel does a pretty good job at guessing the data type, but things like columnwidths remain default.</para>
         /// <para>The filename has to have the <c>.xslx</c> extension. CmcLibNet cannot export to an open file.
         /// It can also not write data to a sheet with the same name as the exported Commence category.
-        /// If you want an unattended export, set <see cref="IExportSettings.DeleteExcelFileBeforeExport"/> to <c>true</c> and the file will simply be recreated.
+        /// If you want an unattended export, set <seealso cref="IExportSettings.DeleteExcelFileBeforeExport"/> to <c>true</c> and the file will simply be recreated.
         /// </para></remarks>
         /// </summary>
         Excel = 4,
