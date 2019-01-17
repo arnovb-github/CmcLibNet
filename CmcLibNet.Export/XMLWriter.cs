@@ -56,10 +56,10 @@ namespace Vovin.CmcLibNet.Export
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
                 _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
-                var citems = row.Where(s => s.ColumnDefinition.IsConnection).OrderBy(o => o.ColumnDefinition.FieldName).GroupBy(g => g.ColumnDefinition.Category).ToList();
+                var citems = row.Where(s => s.ColumnDefinition.IsConnection).OrderBy(o => o.ColumnDefinition.FieldName).GroupBy(g => g.ColumnDefinition.ColumnName).ToList();
                 foreach (CommenceValue v in row)
                 {
-                    if (!v.ColumnDefinition.IsConnection) // connection
+                    if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
                         // only write if we have something
                         if (!String.IsNullOrEmpty(v.DirectFieldValue))
@@ -70,7 +70,10 @@ namespace Vovin.CmcLibNet.Export
                         }
                     } // if IsConnection
                 } // row
-                WriteConnectedItems(citems);
+                if (!base._settings.SkipConnectedItems)
+                {
+                    WriteConnectedItems(citems);
+                }
                 _xw.WriteEndElement();
             } // rows
         }
