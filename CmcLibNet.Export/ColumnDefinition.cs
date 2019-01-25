@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Export
         /* The columndefinition is fetched once for every cursor we read. */
         //private CommenceFieldType _fieldType = CommenceFieldType.Text;
         private ICommenceFieldDefinition _fieldDefinition = null;
-        private bool _fieldTypeFetched;
+        private bool _fieldDefinitionFetched;
 
         #region Constructors
         internal ColumnDefinition(int colindex, string columnName)
@@ -34,31 +34,28 @@ namespace Vovin.CmcLibNet.Export
         internal string CustomColumnLabel { get; set; }
         internal string Delimiter { get; private set; }
 
-        //internal DbType DbType { get; set; } = DbType.String;
-        //internal OleDbType OleDbType { get; set; } = OleDbType.VarWChar;
-        //internal bool TreatAsCData { get; set; } = false;
+        internal DbType DbType => Utils.GetDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
+        internal OleDbType OleDbType => Utils.GetOleDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
 
-        //// retrieving the fielddefinition requires an expensive DDE call
-        //// However, in the interest of properly dealing with exports, it may be worth it
         internal ICommenceFieldDefinition CommenceFieldDefinition
         {
             get
             {
-                if (!_fieldTypeFetched) // do not use null-check on _fieldDefinition because with very odd fieldnames (like ones that contain a double quote) this will cause an error and they always will be null, leading to many DDE calls.
+                // do not use null-check on _fieldDefinition
+                // because with very odd fieldnames (like ones that contain a double quote)
+                // GetFieldDefinition will return null, leading to many DDE calls.
+                if (!_fieldDefinitionFetched)
                 {
-                    ICommenceDatabase db = null;
-                    try
+                    ICommenceDatabase db = new CommenceDatabase();
+                    _fieldDefinition = db.GetFieldDefinition(this.Category, this.FieldName);
+                    if (_fieldDefinition == null)
                     {
-                        db = new CommenceDatabase();
-                        _fieldDefinition = db.GetFieldDefinition(this.Category, this.FieldName);
-
+                        // an error occurred getting the fielddefinition
+                        // return default one
+                        _fieldDefinition = new CommenceFieldDefinition();
                     }
-                    catch (CommenceDDEException e) { }
-                    finally
-                    {
-                        db.Close();
-                        _fieldTypeFetched = true;
-                    }
+                    db.Close();
+                    _fieldDefinitionFetched = true;
                 }
                 return _fieldDefinition;
             }
