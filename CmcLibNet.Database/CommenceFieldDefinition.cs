@@ -25,7 +25,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string DefaultString { get; internal set; }
         /// <inheritdoc />
-        public CommenceFieldType Type { get; internal set; }
+        public CommenceFieldType Type { get; internal set; } = CommenceFieldType.Text;
         ///// <inheritdoc />
         //public string TypeDescription { get; internal set; }
     }
