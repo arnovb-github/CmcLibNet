@@ -74,6 +74,7 @@ namespace Vovin.CmcLibNet.Export
             if (_writer != null) {
                 UnsubscribeToWriterEvents(_writer);
             }
+            _db.Close();
         }
         #endregion
 
@@ -211,10 +212,10 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Factory method for creating the required export writer object for a cursor export.
         /// </summary>
-        /// <param name="cursor">Database.ICommenceCursor reference.</param>
+        /// <param name="cursor">Database.ICommenceCursor .</param>
         /// <param name="settings">Settings object.</param>
         /// <returns>Derived BaseDataWriter object.</returns>
-        /// <remarks>Defaults to XML</remarks>
+        /// <remarks>Defaults to XML.</remarks>
         internal BaseWriter GetExportWriter(ICommenceCursor cursor, IExportSettings settings)
         {
             switch (settings.ExportFormat)

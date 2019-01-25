@@ -428,6 +428,11 @@ namespace Vovin.CmcLibNet.Export
                     dr.DataProgressChanged -= this.HandleProcessedDataRows;
                     dr.DataReadCompleted -= this.HandleDataReadComplete;
                 }
+
+                if (_cursor!= null)
+                {
+                    _cursor.Close();
+                }
                 //is this overkill?
                 this.ExportProgressChanged = null;
             }
