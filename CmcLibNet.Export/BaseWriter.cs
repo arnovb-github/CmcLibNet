@@ -140,8 +140,14 @@ namespace Vovin.CmcLibNet.Export
             }
             else
             {
-                //dr.GetDataByAPI();
-                dr.GetDataByAPIAsync(); // not awaited!
+                if (_settings.ReadCommenceDataAsync)
+                {
+                    dr.GetDataByAPIAsync(); // not awaited!
+                }
+                else
+                {
+                    dr.GetDataByAPI();
+                }
             }
         }
 
@@ -331,7 +337,7 @@ namespace Vovin.CmcLibNet.Export
                         throw;
                     }
                     // set column properties
-                    dc.DataType = Utils.GetTypeForCommenceField(td.ColumnDefinitions[j].FieldType);
+                    dc.DataType = Utils.GetTypeForCommenceField(td.ColumnDefinitions[j].CommenceFieldDefinition.Type);
                     dc.AllowDBNull = true; // this is default, but setting it explicitly makes it more clear.
                 }
             }

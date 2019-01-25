@@ -306,7 +306,7 @@ namespace Vovin.CmcLibNet.Export
                             } // if
                             else
                             {
-                                switch (cd.FieldType)
+                                switch (cd.CommenceFieldDefinition.Type)
                                 {
                                     case Database.CommenceFieldType.Text:
                                         // we use a regex to split values at "\n" *but not* "\r\n"
@@ -348,7 +348,7 @@ namespace Vovin.CmcLibNet.Export
                         if (!String.IsNullOrEmpty(retval[i]))
                         {
                             //retval[i] = GetCanonicalCommenceValue(retval[i], cd.FieldType);
-                            retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.FieldType);
+                            retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
                         }
                     }
                     break;
@@ -358,8 +358,8 @@ namespace Vovin.CmcLibNet.Export
                         if (!String.IsNullOrEmpty(retval[i]))
                         {
                             //string canonical = GetCanonicalCommenceValue(retval[i], cd.FieldType);
-                            string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.FieldType);
-                            retval[i] = CommenceValueConverter.toIso8601(canonical, cd.FieldType);
+                            string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
+                            retval[i] = CommenceValueConverter.toIso8601(canonical, cd.CommenceFieldDefinition.Type);
                         }
                     }
                     break;
@@ -420,7 +420,6 @@ namespace Vovin.CmcLibNet.Export
             ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
             OnDataReadCompleted(e); // done with reading data
         }
-
         #endregion
     }
 }

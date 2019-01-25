@@ -61,6 +61,8 @@ namespace Vovin.CmcLibNet.Export
                 {
                     if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
+                        // can we get away with writing the value or do we need to use CData?
+                        if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80) { }
                         // only write if we have something
                         if (!String.IsNullOrEmpty(v.DirectFieldValue))
                         {

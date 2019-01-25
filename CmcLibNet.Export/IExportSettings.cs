@@ -149,5 +149,9 @@ namespace Vovin.CmcLibNet.Export
         /// Delete and recreate Excel file when exporting. Only applies to <see cref="ExportFormat.Excel"/>. Default is <c>true</c>.
         /// </summary>
         bool DeleteExcelFileBeforeExport { get; set; }
+        /// <summary>
+        /// Read Commence data async. In terms of performance this is barely noticable. Set to false in case of debugging. Defaults to <c>true</c>.
+        /// </summary>
+        bool ReadCommenceDataAsync { get; set; }
     }
 }

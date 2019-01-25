@@ -272,8 +272,8 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="categoryName">Commence category name.</param>
         /// <param name="fieldName">Commence field name.</param>
         /// <returns>FieldDef object exposing properties of the field, <c>null</c> on error.</returns>
-        /// <remarks>Unlike it's Commence counterpart, this method returns a <see cref="IFieldDef"/> object instead of a delimited string.</remarks>
-		IFieldDef GetFieldDefinition(string categoryName, string fieldName);
+        /// <remarks>Unlike it's Commence counterpart, this method returns a <see cref="ICommenceFieldDefinition"/> object instead of a delimited string.</remarks>
+		ICommenceFieldDefinition GetFieldDefinition(string categoryName, string fieldName);
 
         /// <summary>
         /// Gets the fieldnames for the specified category.

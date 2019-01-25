@@ -366,17 +366,17 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        public IFieldDef GetFieldDefinition(string categoryName, string fieldName)
+        public ICommenceFieldDefinition GetFieldDefinition(string categoryName, string fieldName)
         {
-            FieldDef fd = null;
+            CommenceFieldDefinition fd = null;
             string dde = buildDDERequestCommand(new string[] { "GetFieldDefinition", categoryName, fieldName, CMC_DELIM });
             string fieldInfo = DDERequest(dde);
             if (fieldInfo != null)
             {
                 string[] buffer = fieldInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                fd = new FieldDef();
+                fd = new CommenceFieldDefinition();
                 fd.Type = (CommenceFieldType)int.Parse(buffer[0]); // is this dangerous? If all goes well, buffer always contains a number represented as string.
-                fd.TypeDescription = fd.Type.GetEnumDescription();
+                //fd.TypeDescription = fd.Type.GetEnumDescription();
                 string s = buffer[1];
                 fd.Combobox = (s.Substring(6,1) == "1") ? true : false;
                 fd.Shared = (s.Substring(7, 1) == "1") ? true : false;
@@ -1137,20 +1137,13 @@ namespace Vovin.CmcLibNet.Database
             // a) the overhead of opening a new conversation
             // b) too many conversations being opened (there can be only 10).
             string retval = null;
-            try
-            {
-                if (_conv == null) 
-                {
-                    _conv = CommenceConversation.Instance; // CommenceConversation handles the actual call to commence
-                    _conv.Topic = this._db.Path;
-                }
-            }
-            catch (Exception e) //swallow all errors
-            {
-                // DEBUG
-                string s = e.Message;
-            }
 
+            if (_conv == null) 
+            {
+                _conv = CommenceConversation.Instance; // CommenceConversation handles the actual call to commence
+                _conv.Topic = this._db.Path;
+            }
+            
             if (DDETimer == null)
             {
                 DDETimer = new Timer(DDETimeout);
@@ -1168,7 +1161,9 @@ namespace Vovin.CmcLibNet.Database
             catch (CommenceDDEException e)
             {
                 this.LastError = e.Message; // store the last error
-                retval = null; // if null, we know an exception occurred without having to (re)throw it.
+                //retval = null; // if null, we know an exception occurred without having to (re)throw it
+                Close();
+                throw;
             }
             return retval;
         }

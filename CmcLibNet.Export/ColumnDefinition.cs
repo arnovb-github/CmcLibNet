@@ -1,6 +1,8 @@
 ﻿using Vovin.CmcLibNet.Database;
 using System.Xml;
 using System.Xml.Schema;
+using System.Data.OleDb;
+using System.Data;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -10,7 +12,8 @@ namespace Vovin.CmcLibNet.Export
     internal class ColumnDefinition
     {
         /* The columndefinition is fetched once for every cursor we read. */
-        private CommenceFieldType _fieldType = CommenceFieldType.Text;
+        //private CommenceFieldType _fieldType = CommenceFieldType.Text;
+        private ICommenceFieldDefinition _fieldDefinition = null;
         private bool _fieldTypeFetched;
 
         #region Constructors
@@ -31,6 +34,36 @@ namespace Vovin.CmcLibNet.Export
         internal string CustomColumnLabel { get; set; }
         internal string Delimiter { get; private set; }
 
+        //internal DbType DbType { get; set; } = DbType.String;
+        //internal OleDbType OleDbType { get; set; } = OleDbType.VarWChar;
+        //internal bool TreatAsCData { get; set; } = false;
+
+        //// retrieving the fielddefinition requires an expensive DDE call
+        //// However, in the interest of properly dealing with exports, it may be worth it
+        internal ICommenceFieldDefinition CommenceFieldDefinition
+        {
+            get
+            {
+                if (!_fieldTypeFetched) // do not use null-check on _fieldDefinition because with very odd fieldnames (like ones that contain a double quote) this will cause an error and they always will be null, leading to many DDE calls.
+                {
+                    ICommenceDatabase db = null;
+                    try
+                    {
+                        db = new CommenceDatabase();
+                        _fieldDefinition = db.GetFieldDefinition(this.Category, this.FieldName);
+
+                    }
+                    catch (CommenceDDEException e) { }
+                    finally
+                    {
+                        db.Close();
+                        _fieldTypeFetched = true;
+                    }
+                }
+                return _fieldDefinition;
+            }
+        }
+
         /// <summary>
         /// Contains detailed information on the related column.
         /// </summary>
@@ -46,29 +79,26 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        internal XmlSchemaElement XmlSchemaElement 
-        { 
-            get
-            {
-                return GetXmlSchemaElementForColumn();
-            }
-        }
+        //internal XmlSchemaElement XmlSchemaElement 
+        //{ 
+        //    get
+        //    {
+        //        return GetXmlSchemaElementForColumn();
+        //    }
+        //}
 
-        /// <summary>
-        /// This involves an expensive DDE call so only make it when necessary
-        /// </summary>
-        internal CommenceFieldType FieldType
-        {
-            get
-            {
-                if (!_fieldTypeFetched)
-                {
-                    _fieldType = GetFieldType(this.Category, this.FieldName);
-                    _fieldTypeFetched = true;
-                }
-                return _fieldType;
-            }
-        }
+        //internal CommenceFieldType FieldType
+        //{
+        //    get
+        //    {
+        //        if (!_fieldTypeFetched)
+        //        {
+        //            _fieldType = GetFieldType(this.Category, this.FieldName);
+        //            _fieldTypeFetched = true;
+        //        }
+        //        return _fieldType;
+        //    }
+        //}
 
         internal int ColumnIndex { get; } = 0;
 
@@ -110,103 +140,103 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Methods
-        XmlSchemaElement GetXmlSchemaElementForColumn()
-        {
-            // first we get the type of the field
-            XmlSchemaElement elField = new XmlSchemaElement();
-            // note that almost all elements are set nillable;
-            // we do not check this against non-null field restrictions in the database.
-            elField.Name = XmlConvert.EncodeLocalName(this.FieldName);
-            elField.IsNillable = true;
-            switch (this.FieldType)
-            {
-                case CommenceFieldType.Name:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("string", "http://www.w3.org/2001/XMLSchema");
-                    elField.IsNillable = false;
-                    break;
-                case CommenceFieldType.Text:
-                case CommenceFieldType.Telephone:
-                case CommenceFieldType.Datafile:
-                case CommenceFieldType.ExcelCell:
-                case CommenceFieldType.Selection:
-                case CommenceFieldType.Email:
-                case CommenceFieldType.URL:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("string", "http://www.w3.org/2001/XMLSchema");
-                    break;
-                case CommenceFieldType.Number: // note that Commence may return a currency symbol, but there is no way to find out in advance.
-                case CommenceFieldType.Calculation:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("decimal", "http://www.w3.org/2001/XMLSchema");
-                    break;
-                case CommenceFieldType.Sequence:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("integer", "http://www.w3.org/2001/XMLSchema");
-                    elField.IsNillable = false;
-                    break;
-                case CommenceFieldType.Checkbox:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("boolean", "http://www.w3.org/2001/XMLSchema");
-                    break;
-                case CommenceFieldType.Date:
-                    elField.SchemaTypeName = new System.Xml.XmlQualifiedName("date", "http://www.w3.org/2001/XMLSchema");
-                    break;
-            }
-            if (this.IsConnection) // if we are a connection, wrap field in elements
-            {
-                // when dealing with connections, additional nodes are created to ensure uniqueness.
-                // <fullnodename />
-                // <connectionName />
-                // <connectedCategoryname/>
-                // <connectedFieldName /> <- this is the sequence
+        //XmlSchemaElement GetXmlSchemaElementForColumn()
+        //{
+        //    // first we get the type of the field
+        //    XmlSchemaElement elField = new XmlSchemaElement();
+        //    // note that almost all elements are set nillable;
+        //    // we do not check this against non-null field restrictions in the database.
+        //    elField.Name = XmlConvert.EncodeLocalName(this.FieldName);
+        //    elField.IsNillable = true;
+        //    switch (this.FieldType)
+        //    {
+        //        case CommenceFieldType.Name:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("string", "http://www.w3.org/2001/XMLSchema");
+        //            elField.IsNillable = false;
+        //            break;
+        //        case CommenceFieldType.Text:
+        //        case CommenceFieldType.Telephone:
+        //        case CommenceFieldType.Datafile:
+        //        case CommenceFieldType.ExcelCell:
+        //        case CommenceFieldType.Selection:
+        //        case CommenceFieldType.Email:
+        //        case CommenceFieldType.URL:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("string", "http://www.w3.org/2001/XMLSchema");
+        //            break;
+        //        case CommenceFieldType.Number: // note that Commence may return a currency symbol, but there is no way to find out in advance.
+        //        case CommenceFieldType.Calculation:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("decimal", "http://www.w3.org/2001/XMLSchema");
+        //            break;
+        //        case CommenceFieldType.Sequence:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("integer", "http://www.w3.org/2001/XMLSchema");
+        //            elField.IsNillable = false;
+        //            break;
+        //        case CommenceFieldType.Checkbox:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("boolean", "http://www.w3.org/2001/XMLSchema");
+        //            break;
+        //        case CommenceFieldType.Date:
+        //            elField.SchemaTypeName = new System.Xml.XmlQualifiedName("date", "http://www.w3.org/2001/XMLSchema");
+        //            break;
+        //    }
+        //    if (this.IsConnection) // if we are a connection, wrap field in elements
+        //    {
+        //        // when dealing with connections, additional nodes are created to ensure uniqueness.
+        //        // <fullnodename />
+        //        // <connectionName />
+        //        // <connectedCategoryname/>
+        //        // <connectedFieldName /> <- this is the sequence
 
-                // category name
-                XmlSchemaElement catNode = new XmlSchemaElement();
-                XmlSchemaComplexType catComplexType = new XmlSchemaComplexType();
-                catNode.Name = XmlConvert.EncodeLocalName(this.Category);
-                catNode.SchemaType = catComplexType;
-                XmlSchemaSequence catSeq = new XmlSchemaSequence();
-                catComplexType.Particle = catSeq;
-                elField.IsNillable = true;
-                elField.MinOccurs = 0; // we can have no connections.
-                elField.MaxOccursString = "unbounded";
-                catSeq.Items.Add(elField);
+        //        // category name
+        //        XmlSchemaElement catNode = new XmlSchemaElement();
+        //        XmlSchemaComplexType catComplexType = new XmlSchemaComplexType();
+        //        catNode.Name = XmlConvert.EncodeLocalName(this.Category);
+        //        catNode.SchemaType = catComplexType;
+        //        XmlSchemaSequence catSeq = new XmlSchemaSequence();
+        //        catComplexType.Particle = catSeq;
+        //        elField.IsNillable = true;
+        //        elField.MinOccurs = 0; // we can have no connections.
+        //        elField.MaxOccursString = "unbounded";
+        //        catSeq.Items.Add(elField);
 
-                // connection name
-                XmlSchemaElement conNode = new XmlSchemaElement();
-                XmlSchemaComplexType conComplexType = new XmlSchemaComplexType();
-                conNode.Name = XmlConvert.EncodeLocalName(this.Connection);
-                conNode.SchemaType = conComplexType;
-                XmlSchemaSequence conSeq = new XmlSchemaSequence();
-                conComplexType.Particle = conSeq;
-                conSeq.Items.Add(catNode);
+        //        // connection name
+        //        XmlSchemaElement conNode = new XmlSchemaElement();
+        //        XmlSchemaComplexType conComplexType = new XmlSchemaComplexType();
+        //        conNode.Name = XmlConvert.EncodeLocalName(this.Connection);
+        //        conNode.SchemaType = conComplexType;
+        //        XmlSchemaSequence conSeq = new XmlSchemaSequence();
+        //        conComplexType.Particle = conSeq;
+        //        conSeq.Items.Add(catNode);
 
-                // raw field name (i.e. connection%%category%%field)
-                XmlSchemaElement rawNode = new XmlSchemaElement();
-                XmlSchemaComplexType rawComplexType = new XmlSchemaComplexType();
-                XmlSchemaSequence rawSeq = new XmlSchemaSequence();
-                rawNode.Name = XmlConvert.EncodeLocalName(this.ColumnName);
-                //rawNode.MinOccurs = 0;
-                //rawNode.MaxOccurs = 1;
-                rawNode.SchemaType = rawComplexType;
-                rawComplexType.Particle = rawSeq;
-                rawSeq.Items.Add(conNode);
-                return rawNode;
-            }
-            else
-            {
-                return elField;
-            }
-        }
+        //        // raw field name (i.e. connection%%category%%field)
+        //        XmlSchemaElement rawNode = new XmlSchemaElement();
+        //        XmlSchemaComplexType rawComplexType = new XmlSchemaComplexType();
+        //        XmlSchemaSequence rawSeq = new XmlSchemaSequence();
+        //        rawNode.Name = XmlConvert.EncodeLocalName(this.ColumnName);
+        //        //rawNode.MinOccurs = 0;
+        //        //rawNode.MaxOccurs = 1;
+        //        rawNode.SchemaType = rawComplexType;
+        //        rawComplexType.Particle = rawSeq;
+        //        rawSeq.Items.Add(conNode);
+        //        return rawNode;
+        //    }
+        //    else
+        //    {
+        //        return elField;
+        //    }
+        //}
 
-        private CommenceFieldType GetFieldType(string categoryName, string fieldName)
-        {
-            CommenceFieldType retval = CommenceFieldType.Text; // default to text
-            try
-            {
-                ICommenceDatabase db = new CommenceDatabase();
-                IFieldDef fd = db.GetFieldDefinition(categoryName, fieldName);
-                retval = fd.Type;
-            }
-            catch { } // ignore all errors
-            return retval;
-        }
+        //private CommenceFieldType GetFieldType(string categoryName, string fieldName)
+        //{
+        //    CommenceFieldType retval = CommenceFieldType.Text; // default to text
+        //    try
+        //    {
+        //        ICommenceDatabase db = new CommenceDatabase();
+        //        ICommenceFieldDefinition fd = db.GetFieldDefinition(categoryName, fieldName);
+        //        retval = fd.Type;
+        //    }
+        //    catch { } // ignore all errors
+        //    return retval;
+        //}
         #endregion
     }
 }

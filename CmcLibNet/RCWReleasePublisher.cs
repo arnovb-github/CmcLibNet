@@ -39,12 +39,7 @@ namespace Vovin.CmcLibNet
         // raises the actual event.
         protected virtual void OnRCWRelease(EventArgs e)
         {
-            EventHandler handler = RCWRelease;
-            if (handler != null)
-            {
-                // raise event
-                handler(this, e);
-            }
+            RCWRelease?.Invoke(this, e);
         }
     }
 }

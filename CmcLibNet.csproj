@@ -46,7 +46,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CmcLibNetKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CmcLibNet45.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -70,6 +70,7 @@
     <Compile Include="CmcLibNet.Database\CommenceViewType.cs" />
     <Compile Include="CmcLibNet.Database\FilterQualifier.cs" />
     <Compile Include="CmcLibNet.Database\FilterType.cs" />
+    <Compile Include="CmcLibNet.Database\ICommenceFieldDefinition.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingOleDb.cs" />
     <Compile Include="CmcLibNet.Export\ExportCompleteArgs.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="CmcLibNet.Services\Field.cs" />
     <Compile Include="CmcLibNet.Services\IServices.cs" />
     <Compile Include="CmcLibNet.Database\DBDef.cs" />
-    <Compile Include="CmcLibNet.Database\FieldDef.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceFieldDefinition.cs" />
     <Compile Include="CmcLibNet.Database\IBaseRowSet.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceAddRowSet.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceCursor.cs" />
@@ -174,6 +175,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="CmcLibNet45.pfx" />
     <None Include="CmcLibNetKey.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

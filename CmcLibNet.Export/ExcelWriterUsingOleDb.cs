@@ -107,8 +107,8 @@ namespace Vovin.CmcLibNet.Export
                 else
                 {
                     p.ParameterName = "@" + columnMap[cd.ColumnName];
-                    p.DbType = Utils.GetDbTypeForCommenceField(cd.FieldType);
-                    p.OleDbType = Utils.GetOleDbTypeForCommenceField(cd.FieldType);
+                    p.DbType = Utils.GetDbTypeForCommenceField(cd.CommenceFieldDefinition.Type);
+                    p.OleDbType = Utils.GetOleDbTypeForCommenceField(cd.CommenceFieldDefinition.Type);
                 }
                 oleDbParams.Add(p);
             }
@@ -137,7 +137,7 @@ namespace Vovin.CmcLibNet.Export
                 }
                 else
                 {
-                    sb2.Append(Utils.GetOleDbTypeStringForCommenceField(cd.FieldType).ToUpper());
+                    sb2.Append(Utils.GetOleDbTypeStringForCommenceField(cd.CommenceFieldDefinition.Type).ToUpper());
                 }
 
                 fielddefs.Add(sb2.ToString());
@@ -157,7 +157,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     string value = string.Empty;
                     // remove currency symbol if present or we'll get a type cast error
-                    if (v.ColumnDefinition.FieldType == CommenceFieldType.Number)
+                    if (v.ColumnDefinition.CommenceFieldDefinition.Type == CommenceFieldType.Number)
                     {
                         value = CommenceValueConverter.RemoveCurrencySymbol(v.DirectFieldValue);
                     }
