@@ -82,57 +82,27 @@ namespace Vovin.CmcLibNet.Export
         /// Adds an id value to every exported item and all it's connection data. Formatting options are ignored.
         /// </summary>
         /// <remarks>
-        /// When set to <c>false</c>, values from connections are exported as individual nodes.
-        /// If a field has no value, an empty node is returned.
-        /// <para>The relationship between fields belonging to a connected item is preserved by the position of the node.
-        /// For example, every 2-nd node for field A in connection X and every 2-nd node for field B belong to the same connected item in category X.</para>
-        /// <para>That is fine for XPath style querying, but if you want more SQL-style querying, 
-        /// setting this property to <c>true</c> will include an (arbitrary) id value for every item and for every connected item.</para>
-        /// <para>Internally, this uses a completely different way of exporting, which is why formatting settings are ignored.</para>
+        /// Only applies to <see cref="ExportFormat.Json"/>.
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
-        /// Make Commence use DDE calls to retrieve data. WARNING: extremely slow! I am not kidding.
+        /// Make Commence use DDE calls to retrieve data. WARNING: extremely slow! I am not kidding!
         /// </summary>
         /// <remarks>Should only be used as a last resort, as this can take a very long time (up to days!).
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
-        /// The Commence API only returns a limited number of characters by default; note that the limit is settable <see cref="Vovin.CmcLibNet.Database.CommenceCursor.MaxFieldSize"/>.
-        /// This setting will request the connected items one by one.</para></remarks>
+        /// The Commence API only returns a limited number of characters by default; note that the limit is settable <see cref="Database.CommenceCursor.MaxFieldSize"/>.
+        /// This setting will request the connected items one by one, via DDE.</para></remarks>
         bool PreserveAllConnections { get; set; }
         /// <summary>
-        /// Include additional connection information. Applies to XML and JSON only. Default is <c>true</c>.
+        /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// </summary>
         /// <remarks>
-        /// <para>When set to <c>true</c>, connection values are exported as follows:</para>
-        /// <code language="xml">
-        /// <Item>
-        ///    <Name>ItemX in CategoryB</Name>
-        ///    <ConnectedItem>
-        ///      <ConnectionName>
-        ///        <ConnectedCategory>
-        ///          <ConnectedField>Item1 in CategoryA</ConnectedField>
-        ///          <ConnectedField>Item2 in CategoryA</ConnectedField>
-        ///          <ConnectedField>ItemN in CategoryA</ConnectedField>
-        ///        </ConnectedCategory>
-        ///      </ConnectionName>
-        ///    </ConnectedItem>
-        ///  </Item>
-        ///  </code>
-        ///  <para>When set to <c>false</c>, connection values are exported as follows:</para>
-        /// <code language="xml">
-        /// <Item>
-        ///   <Name>ItemX in CategoryB</Name>
-        ///   <ConnectedField>Item1 in CategoryA</ConnectedField>
-        ///   <ConnectedField>Item2 in CategoryA</ConnectedField>
-        ///   <ConnectedField>ItemN in CategoryA</ConnectedField>
-        /// </Item>
-        /// </code>
-        /// <para>For Json, when set to <c>true</c>, any connected value is an object containing information about the connection,
-        /// when set to <c>false</c>, the values will be just an array.</para>
+        /// When set to <c>true</c>, any connected value is an object containing information about the connection,
+        /// when set to <c>false</c>, the values will be just an array.
         /// </remarks>
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
-        /// Split connected values into separate nodes (XML, JSON). Default is <c>true</c>.
+        /// Split connected values into separate nodes. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// If set to <c>false</c>, connected values are not split and you will get the data as Commence returns them.
         /// </summary>
         bool SplitConnectedItems { get; set; }
@@ -141,7 +111,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int NumRows { get; set; }
         /// <summary>
-        /// Maximum number of characters to retreive from fields. This includes related fields. The default when exporting from the export engine is 500.000.
+        /// Maximum number of characters to retrieve from fields. This includes related fields. The default when exporting from the export engine is 500.000, which is rougly five times the Commence default.
         /// <see cref="Database.ICommenceCursor.MaxFieldSize"/>
         /// </summary>
         int MaxFieldSize { get; set; }

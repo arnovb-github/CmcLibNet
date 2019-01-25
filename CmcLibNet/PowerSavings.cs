@@ -105,7 +105,6 @@ namespace Vovin.CmcLibNet
                 PowerClearRequest(_PowerRequest, PowerRequestType.PowerRequestSystemRequired);
                 // we don't care about the monitor
                 //PowerClearRequest(_PowerRequest, PowerRequestType.PowerRequestDisplayRequired);
-
                 CloseHandle(_PowerRequest);
             }
         }

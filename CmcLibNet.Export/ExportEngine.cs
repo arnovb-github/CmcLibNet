@@ -108,7 +108,7 @@ namespace Vovin.CmcLibNet.Export
                      * In future versions, it may be that all export functions use a dataset.
                      * However, creating an in-memory dataset on top of the Commence memory stuff impacts RAM usage.
                      */
-                    if (settings.ExportFormat == ExportFormat.Xml || settings.ExportFormat == ExportFormat.Json)
+                    if (settings.ExportFormat == ExportFormat.Json)
                     {
                         // we're okay for now but we will not win coding prizes for this ;->
                     }
