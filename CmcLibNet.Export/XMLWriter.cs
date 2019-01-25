@@ -56,18 +56,27 @@ namespace Vovin.CmcLibNet.Export
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
                 _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
-                var citems = row.Where(s => s.ColumnDefinition.IsConnection).OrderBy(o => o.ColumnDefinition.FieldName).GroupBy(g => g.ColumnDefinition.ColumnName).ToList();
+                var citems = row.Where(s => s.ColumnDefinition.IsConnection)
+                    .OrderBy(o => o.ColumnDefinition.FieldName)
+                    .GroupBy(g => g.ColumnDefinition.ColumnName)
+                    .ToList();
                 foreach (CommenceValue v in row)
                 {
                     if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
-                        // can we get away with writing the value or do we need to use CData?
-                        if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80) { }
                         // only write if we have something
                         if (!String.IsNullOrEmpty(v.DirectFieldValue))
                         {
                             _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
-                            _xw.WriteString(v.DirectFieldValue);
+                            // can we get away with writing the value or do we need to use CData?
+                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
+                            {
+                                _xw.WriteCData(v.DirectFieldValue);
+                            }
+                            else
+                            {
+                                _xw.WriteString(v.DirectFieldValue);
+                            }
                             _xw.WriteEndElement();
                         }
                     } // if IsConnection
@@ -101,7 +110,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private void WriteConnectedItems(List<IGrouping<string, CommenceValue>> list)
+        private void WriteConnectedItems(IList<IGrouping<string, CommenceValue>> list)
         {
             // a group contains all CommenceValues for a connection
             foreach (IGrouping<string, CommenceValue> group in list)
@@ -121,7 +130,15 @@ namespace Vovin.CmcLibNet.Export
                         {
                             string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
                             _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
-                            _xw.WriteString(value);
+                            // are we dealing with a large text field?
+                            if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
+                            {
+                                _xw.WriteCData(value);
+                            }
+                            else
+                            {
+                                _xw.WriteString(value);
+                            }
                             _xw.WriteEndElement();
                         }
                     }

@@ -107,8 +107,8 @@ namespace Vovin.CmcLibNet.Export
                 else
                 {
                     p.ParameterName = "@" + columnMap[cd.ColumnName];
-                    p.DbType = Utils.GetDbTypeForCommenceField(cd.CommenceFieldDefinition.Type);
-                    p.OleDbType = Utils.GetOleDbTypeForCommenceField(cd.CommenceFieldDefinition.Type);
+                    p.DbType = cd.DbType;
+                    p.OleDbType = cd.OleDbType;
                 }
                 oleDbParams.Add(p);
             }
@@ -217,32 +217,6 @@ namespace Vovin.CmcLibNet.Export
             }
             return retval;
         }
-        #region Dispose
-        // Protected implementation of Dispose pattern.
-        /// <summary>
-        /// Dispose method.
-        /// </summary>
-        /// <param name="disposing">disposing.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            if (disposing)
-            {
-                // Free any other managed objects here.
-                //
-                if (cn != null) { cn.Close(); }
-            }
-
-            // Free any unmanaged objects here.
-            //
-            disposed = true;
-
-            // Call the base class implementation.
-            base.Dispose(disposing);
-        }
-        #endregion
 
         #region Properties
         private Dictionary<string, string> ColumnMap
@@ -291,6 +265,33 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
+        #endregion
+
+        #region Dispose
+        // Protected implementation of Dispose pattern.
+        /// <summary>
+        /// Dispose method.
+        /// </summary>
+        /// <param name="disposing">disposing.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                //
+                if (cn != null) { cn.Close(); }
+            }
+
+            // Free any unmanaged objects here.
+            //
+            disposed = true;
+
+            // Call the base class implementation.
+            base.Dispose(disposing);
+        }
         #endregion
     }
 }
