@@ -566,7 +566,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="viewName">Commence view name, case-sensitive.</param>
         /// <returns>ViewDef object that exposes properties of the view, <c>null</c> on error.</returns>
-        /// <remarks>Unlike it's Commence counterpart, this method returns a <see cref="IViewDef"/> object instead of a delimited string. Returns <c>null</c> on error. You cannot use this method on Multiviews.</remarks>
+        /// <remarks>Unlike it's (undocumented) Commence counterpart, this method returns a <see cref="IViewDef"/> object instead of a delimited string. Returns <c>null</c> on error. You cannot use this method on Multiviews.</remarks>
         IViewDef GetViewDefinition(string viewName);
 
         /// <summary>
