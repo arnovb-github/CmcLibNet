@@ -7,14 +7,14 @@ namespace Vovin.CmcLibNet.Extensions
     /// <summary>
     /// Enum extension methods
     /// </summary>
-    public static class EnumExtensions
+    internal static class EnumExtensions
     {
         /// <summary>
         /// Extension method for enums that returns description attributes for enum value.
         /// </summary>
         /// <param name="value">Enum value.</param>
         /// <returns>String representation of enum member, or its description (if defined).</returns>
-        public static string GetEnumDescription(this Enum value)
+        internal static string GetEnumDescription(this Enum value)
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
 

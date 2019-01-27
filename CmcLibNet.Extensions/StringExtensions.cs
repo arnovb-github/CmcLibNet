@@ -5,7 +5,7 @@ namespace Vovin.CmcLibNet.Extensions
     /// <summary>
     /// String extension methods
     /// </summary>
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         /// <summary>
         /// Returns number of occurrences of a character in a string
@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Extensions
         /// <param name="str">String to search in.</param>
         /// <param name="c">Character to count.</param>
         /// <returns></returns>
-        public static int CountChar(this string str, char c)
+        internal static int CountChar(this string str, char c)
         {
             int counter = 0;
             foreach (char x in str)
@@ -32,7 +32,7 @@ namespace Vovin.CmcLibNet.Extensions
         /// <param name="nth">Nth occurrence</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public static int IndexOfNthChar(this string input, char value, int startIndex, int nth)
+        internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth)
         {
             if (nth < 1)
                 throw new NotSupportedException("Param 'nth' must be greater than 0!");
