@@ -42,9 +42,21 @@ namespace Vovin.CmcLibNet.Extensions
             return input.IndexOfNthChar(value, input.IndexOf(value, startIndex) + 1, --nth);
         }
 
-        internal static string EncloseWithChar(this string input, char encloseWith)
+        /// <summary>
+        /// Surround string with character.
+        /// </summary>
+        /// <param name="input"><c>string</c> to enclose.</param>
+        /// <param name="encloseWith"><c>char</c> to enclose with.</param>
+        /// <param name="number">Number of chars to enclose with (up to 255).</param>
+        /// <returns><c>string</c> enclosed by char(s).</returns>
+        internal static string EncloseWithChar(this string input, char encloseWith, byte number = 1)
         {
-            return encloseWith + input + encloseWith;
+            string retval = input;
+            for (int i = 0; i < number; i++)
+            {
+                retval = encloseWith + retval + encloseWith;
+            }
+            return retval;
         }
     }
 }
