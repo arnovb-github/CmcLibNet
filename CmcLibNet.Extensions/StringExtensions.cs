@@ -41,5 +41,10 @@ namespace Vovin.CmcLibNet.Extensions
 
             return input.IndexOfNthChar(value, input.IndexOf(value, startIndex) + 1, --nth);
         }
+
+        internal static string EncloseWithChar(this string input, char encloseWith)
+        {
+            return encloseWith + input + encloseWith;
+        }
     }
 }

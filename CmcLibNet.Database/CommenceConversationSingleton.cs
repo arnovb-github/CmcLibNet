@@ -121,7 +121,7 @@ namespace Vovin.CmcLibNet.Database
                 return retval;
             }
 
-            catch (System.Runtime.InteropServices.COMException e)
+            catch (COMException e)
             {
                 //a generic COM exception occurred,
                 //so we'll throw our own custom error here to provide some more info
@@ -143,7 +143,7 @@ namespace Vovin.CmcLibNet.Database
                 {
                     throw;
                 }
-                catch (System.Runtime.InteropServices.COMException) //useful??
+                catch (COMException) //useful??
                 {
                     throw;
                 }
@@ -165,7 +165,7 @@ namespace Vovin.CmcLibNet.Database
                 //return _nativeConv.Execute(dde);
             }
 
-            catch (System.Runtime.InteropServices.COMException e)
+            catch (COMException e)
             {
                 // a generic COM exception occurred,
                 // we'll throw our own custom error here to provide some more info
@@ -188,7 +188,7 @@ namespace Vovin.CmcLibNet.Database
                 {
                     throw;
                 }
-                catch (System.Runtime.InteropServices.COMException) // useful if GetLastError failed?
+                catch (COMException) // useful if GetLastError failed?
                 {
                     throw;
                 }

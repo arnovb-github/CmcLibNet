@@ -429,18 +429,21 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), String.Join("\",\"", fieldNames) });
+                //return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
+                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
+                //return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join("\",\"", fieldNames), delim });
+                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetFields(string categoryName, string itemName, List<string> fieldNames)
         {
-            return GetDDEValuesAsList(new string[] { "GetFields", categoryName, itemName, fieldNames.Count.ToString(), String.Join("\",\"", fieldNames), CMC_DELIM });
+            //return GetDDEValuesAsList(new string[] { "GetFields", categoryName, itemName, fieldNames.Count.ToString(), string.Join("\",\"", fieldNames), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetFields", categoryName, itemName, fieldNames.Count.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), CMC_DELIM });
         }
 
         /// <inheritdoc />
@@ -755,11 +758,13 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames) });
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
+                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
+                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
 
@@ -800,11 +805,13 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames) });
+                //return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
+                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
+                //return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join("\",\"", fieldNames), delim });
+                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
 
@@ -827,7 +834,8 @@ namespace Vovin.CmcLibNet.Database
         public bool ViewFilter(int clauseNumber, string filterType, bool notFlag, object args)
         {
             string[] fltParams = ToStringArray(args);
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join("\",\"", fltParams) }));
+            //object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join("\",\"", fltParams) }));
+            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join(",", EncodeDdeArguments(fltParams)) }));
             return (retval == null) ? false : true;
         }
 
@@ -957,14 +965,16 @@ namespace Vovin.CmcLibNet.Database
                 this.LastError = "Too many parameters for FireTrigger.";
                 return false;
             }
-            return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, String.Join("\",\"", trgParams) }));
+            //return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join("\",\"", trgParams) }));
+            return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join(",", EncodeDdeArguments(trgParams)) }));
         }
 
         /// <inheritdoc />
         public bool LogPhoneCall(object[] args)
         {
             string[] ciPairs = ToStringArray(args);
-            return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", String.Join("\",\"", ciPairs) }));
+            //return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", string.Join("\",\"", ciPairs) }));
+            return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", string.Join(",", EncodeDdeArguments(ciPairs)) }));
         }
 
         /// <inheritdoc />
@@ -1082,9 +1092,45 @@ namespace Vovin.CmcLibNet.Database
                 sb.Append("()]");
                 return sb.ToString();
             }
-            sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
+            //sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
+            sb.Append("(");
+            sb.Append(String.Join(",", EncodeDdeArguments(args.Skip(1))));
+            sb.Append(")]"); // note the skip of the first argument
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Encodes the DDE arguments so that they will be processed correctly
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns>DDE-safe argument string.</returns>
+        /// <remarks>Does not work 100% of the time.</remarks>
+        private static IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args)
+        {
+            // By default, arguments used in a DDE request will be double quoted
+            // Commence does not require that they are, it is just a little safer
+            // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
+            // however, if the argument contains an embedded 'control' character,
+            // we need to make special arrangements
+
+            foreach (string arg in args)
+            {
+                // when the argument contains a double-quote, forego double-quoting and just return the string
+                string retval = arg.EncloseWithChar('\"');
+                if (arg.Contains('\"'))
+                {
+                    retval = arg;
+                }
+                if (arg.Contains('\"') && arg.Contains(','))
+                {
+                    // now we're in trouble. This DDE request will always fail
+                    // I do not yet know how to deal with this, if at all possible
+                    // TODO even while this is very rare, it needs a solution
+                }
+                yield return retval;
+            }
+        }
+
         /// <summary>
         /// Creates object array from string array.
         /// </summary>
