@@ -41,17 +41,5 @@ namespace Vovin.CmcLibNet
         /// <para>Technical details: calling this method tells the assembly to release all COM handles (called 'RCW' for 'runtime callable wrapper') to Commence that are open. This is needed because when the object reference to this assembly is set to Nothing (in VB), the .NET assembly may not be notified and will think they are still in use. Garbage Collection will therefore not release them, and the commence.exe process will not be terminated.</para>
         /// </remarks>
         void Close();
-        /// <summary>
-        /// Returns a reference to the Commence database.
-        /// </summary>
-        Database.ICommenceDatabase Database { get; }
-        /// <summary>
-        /// Returns a reference to the Export engine.
-        /// </summary>
-        Export.IExportEngine Export { get; }
-        /// <summary>
-        /// Returns a reference to the Services utility.
-        /// </summary>
-        Services.IServices Services { get; }
     }
 }

@@ -40,7 +40,7 @@ namespace Vovin.CmcLibNet
     public class CommenceApp : ICommenceApp
     {
         private IRcwReleasePublisher rw = null;
-        private const string PROCESS_NAME = "commence";
+        private readonly string PROCESS_NAME = "commence";
         /* _cmc is marked static to ensure that only a single reference to Commence ever exists
          Most calls to this assembly will be from Vovin.CmcLibNet.Database.CommenceDatabase
          That class uses the DB property of this class that returns this static field to access the Commence database.
@@ -49,10 +49,7 @@ namespace Vovin.CmcLibNet
          which never makes sense unless Commence ever makes it possible to talk to multiple instances 
          and in which case this whole assembly needs redesigning.
          */
-        private static FormOA.ICommenceDB _cmc = null;
-        private Database.ICommenceDatabase _database = null;
-        private Export.IExportEngine _exportengine = null;
-        private Services.IServices _services = null;
+        private static ICommenceDB _cmc = null;
 
         #region Constructors
 
@@ -62,7 +59,7 @@ namespace Vovin.CmcLibNet
         /// <exception cref="CommenceNotRunningException">Commence is not running (COM error: 0x80131500).</exception>
         /// <exception cref="CommenceMultipleInstancesException">Commence is running more than 1 instance (COM error: 0x80131500).</exception>
         /// <remarks>If the constructor fails because either Commence is not running,
-        /// or Commence is running multiple instances, an exception is thrown.
+        /// or Commence is running multiple instances in the same userprofile, an exception is thrown.
         /// COM users (VBScript, VBA, etc.) will not get a useful error message.
         /// This is a bit of a problem that I am unsure how to solve.
         /// We could incorporate a lazy initialization routine and call that as soon as any of the properties are called, 
@@ -113,8 +110,8 @@ namespace Vovin.CmcLibNet
         /// <summary>
         /// Exposes the 'raw' Commence database (FormOA.ICommenceDB) object.
         /// For internal use only.
-         /// </summary>
-        protected internal static FormOA.ICommenceDB DB
+        /// </summary>
+        internal static FormOA.ICommenceDB DB
         {
             get
             {
@@ -174,46 +171,6 @@ namespace Vovin.CmcLibNet
         {
             get { return _cmc.RegisteredUser; }
         }
-
-        // the next properties expose the 'subdivisions' of CmcLibNet.
-        /// <inheritdoc />
-        public Database.ICommenceDatabase Database
-        {
-            get 
-            {
-                if (_database == null)
-                {
-                    _database = new Database.CommenceDatabase();
-                }
-                    return _database;
-            }
-        }
-
-        /// <inheritdoc />
-        public Export.IExportEngine Export
-        {
-            get 
-            {
-                if (_exportengine == null)
-                {
-                    _exportengine = new Export.ExportEngine();
-                }
-                return _exportengine;
-            }
-        }
-
-        /// <inheritdoc />
-        public Services.IServices Services
-        {
-            get 
-            {
-                if (_services == null)
-                {
-                    _services = new Services.Services();
-                }
-                return _services;
-            }
-        }
         #endregion
 
         #region Methods
@@ -264,7 +221,6 @@ namespace Vovin.CmcLibNet
         {
             // releases the FormOA COM references.
             rw.ReleaseRCWReferences();
-            _cmc = null; // overkill
         }
 
         // event handling method

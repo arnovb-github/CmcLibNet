@@ -81,7 +81,10 @@
     <Compile Include="CmcLibNet.Export\XmlWriter.cs" />
     <Compile Include="CmcLibNet.Extensions\EnumExtensions.cs" />
     <Compile Include="CmcLibNet.Extensions\StringExtensions.cs" />
+    <Compile Include="CmcLibNet\Application.cs" />
+    <Compile Include="CmcLibNet\AssemblyInfo.cs" />
     <Compile Include="CmcLibNet\CommenceApp.cs" />
+    <Compile Include="CmcLibNet\IApplication.cs" />
     <Compile Include="CmcLibNet\PowerSavings.cs" />
     <Compile Include="CmcLibNet\RcwReleasePublisher.cs" />
     <Compile Include="CmcLibNet.Database\ActiveViewInfo.cs" />
