@@ -186,8 +186,7 @@ namespace Vovin.CmcLibNet.Export
                 // A default cursor on a category contains all fields including connections.
                 // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
                 // We optimize here by only including direct fields in the cursor
-                // WAIT...we cannot do that because of potential custom headers
-                // fuck.
+                // WAIT...we cannot do that because of potential custom headers...
                 // okay, we only optimize when no custom headers were passed
                 flags = flags | CmcOptionFlags.IgnoreSyncCondition;
                 using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags))
