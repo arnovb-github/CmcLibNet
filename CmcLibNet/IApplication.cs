@@ -16,6 +16,7 @@ namespace Vovin.CmcLibNet
         /// <summary>
         /// Returns information on the assembly. .Net only.
         /// </summary>
+        [ComVisible(false)]
         AssemblyInfo AssemblyInfo { get; }
         /// <summary>
         /// Returns a reference to the Commence application
