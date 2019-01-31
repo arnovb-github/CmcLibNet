@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Export
     // Writes data to XML file.
     internal class XmlWriter : BaseWriter
     {
-        System.Xml.XmlWriter _xw = null; // the writer object.
+        XmlTextWriter _xtw = null; // the writer object.
         bool disposed = false;
 
         #region Constructors
@@ -37,11 +37,11 @@ namespace Vovin.CmcLibNet.Export
         {
             // create a new XMLWriterSettings and some starting elements
             // note that the state of the writer is left open.
-            XmlWriterSettings xws = new XmlWriterSettings();
-            xws.Indent = true;
-            _xw = System.Xml.XmlWriter.Create(fileName, xws);
-            _xw.WriteStartDocument();
-            _xw.WriteStartElement("dataroot");
+            //XmlWriterSettings xws = new XmlWriterSettings();
+            //xws.Indent = true;
+            _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8);
+            _xtw.WriteStartDocument();
+            _xtw.WriteStartElement("dataroot");
         }
 
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
@@ -55,7 +55,7 @@ namespace Vovin.CmcLibNet.Export
             // populate XMLWriter with data
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
-                _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
+                _xtw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
                 var citems = row.Where(s => s.ColumnDefinition.IsConnection)
                     .OrderBy(o => o.ColumnDefinition.FieldName)
                     .GroupBy(g => g.ColumnDefinition.ColumnName)
@@ -67,17 +67,17 @@ namespace Vovin.CmcLibNet.Export
                         // only write if we have something
                         if (!String.IsNullOrEmpty(v.DirectFieldValue))
                         {
-                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
+                            _xtw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             // can we get away with writing the value or do we need to use CData?
                             if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
                             {
-                                _xw.WriteCData(v.DirectFieldValue);
+                                _xtw.WriteCData(v.DirectFieldValue);
                             }
                             else
                             {
-                                _xw.WriteString(v.DirectFieldValue);
+                                _xtw.WriteString(v.DirectFieldValue);
                             }
-                            _xw.WriteEndElement();
+                            _xtw.WriteEndElement();
                         }
                     } // if IsConnection
                 } // row
@@ -85,7 +85,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     WriteConnectedItems(citems);
                 }
-                _xw.WriteEndElement();
+                _xtw.WriteEndElement();
             } // rows
         }
 
@@ -100,13 +100,13 @@ namespace Vovin.CmcLibNet.Export
             try
             {
                 // write closing elements and close XMLWriter
-                _xw.WriteEndElement();
-                _xw.WriteEndDocument();
+                _xtw.WriteEndElement();
+                _xtw.WriteEndDocument();
             }
             finally
             {
-                _xw.Flush();
-                _xw.Close();
+                _xtw.Flush();
+                _xtw.Close();
             }
         }
 
@@ -116,12 +116,12 @@ namespace Vovin.CmcLibNet.Export
             foreach (IGrouping<string, CommenceValue> group in list)
             {
                 string connectionName = XmlConvert.EncodeLocalName(group.FirstOrDefault().ColumnDefinition.QualifiedConnection);
-                _xw.WriteStartElement(connectionName);
+                _xtw.WriteStartElement(connectionName);
                 // iterate over the connected value and grab every x-th connected value from the columns
                 for (int i = 0; i < group.FirstOrDefault().ConnectedFieldValues?.Length; i++)
                 {
                     string categoryName = group.FirstOrDefault().ColumnDefinition.Category;
-                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
+                    _xtw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
                     // now iterate over the different columns
                     for (int j = 0; j < group.Count(); j++)
                     {
@@ -129,22 +129,22 @@ namespace Vovin.CmcLibNet.Export
                         if (!string.IsNullOrEmpty(value))
                         {
                             string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
-                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
+                            _xtw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
                             // are we dealing with a large text field?
                             if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
                             {
-                                _xw.WriteCData(value);
+                                _xtw.WriteCData(value);
                             }
                             else
                             {
-                                _xw.WriteString(value);
+                                _xtw.WriteString(value);
                             }
-                            _xw.WriteEndElement();
+                            _xtw.WriteEndElement();
                         }
                     }
-                    _xw.WriteEndElement();
+                    _xtw.WriteEndElement();
                 }
-                _xw.WriteEndElement();
+                _xtw.WriteEndElement();
             }
         }
 
@@ -162,10 +162,10 @@ namespace Vovin.CmcLibNet.Export
             {
                 // Free any other managed objects here.
                 //
-                if (_xw != null)
+                if (_xtw != null && _xtw.WriteState != WriteState.Closed)
                 {
-                    _xw.Flush();
-                    _xw.Close();
+                    _xtw.Flush();
+                    _xtw.Close();
                 }
             }
 
