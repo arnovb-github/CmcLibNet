@@ -39,7 +39,7 @@ namespace Vovin.CmcLibNet
     [ComDefaultInterface(typeof(ICommenceApp))] // explicitly define interface to expose to COM
     public class CommenceApp : ICommenceApp
     {
-        private IRCWReleasePublisher rw = null;
+        private IRcwReleasePublisher rw = null;
         private const string PROCESS_NAME = "commence";
         /* _cmc is marked static to ensure that only a single reference to Commence ever exists
          Most calls to this assembly will be from Vovin.CmcLibNet.Database.CommenceDatabase
@@ -103,7 +103,7 @@ namespace Vovin.CmcLibNet
                     //_cmc = new CommenceDB(); // get whatever Commence reference Windows gives us.
                     throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
             }
-            rw = new RCWReleasePublisher();
+            rw = new RcwReleasePublisher();
             rw.RCWRelease += RCWReleaseHandler;
         }
         #endregion

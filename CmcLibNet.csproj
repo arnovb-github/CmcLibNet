@@ -83,7 +83,7 @@
     <Compile Include="CmcLibNet.Extensions\StringExtensions.cs" />
     <Compile Include="CmcLibNet\CommenceApp.cs" />
     <Compile Include="CmcLibNet\PowerSavings.cs" />
-    <Compile Include="CmcLibNet\RCWReleasePublisher.cs" />
+    <Compile Include="CmcLibNet\RcwReleasePublisher.cs" />
     <Compile Include="CmcLibNet.Database\ActiveViewInfo.cs" />
     <Compile Include="CmcLibNet.Database\BaseRowSet.cs" />
     <Compile Include="CmcLibNet.Database\CategoryDef.cs" />
@@ -149,6 +149,7 @@
     <Compile Include="CmcLibNet.Database\ICommenceQueryRowSet.cs" />
     <Compile Include="CmcLibNet.Database\ViewDef.cs" />
     <Compile Include="CmcLibNet\CmcOptionFlags.cs" />
+    <Compile Include="CmcLibNet\IRcwReleasePublisher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CmcLibNet.Services\Services.cs" />
     <Compile Include="CmcLibNet\Utils.cs" />

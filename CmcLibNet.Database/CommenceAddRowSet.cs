@@ -17,7 +17,7 @@ namespace Vovin.CmcLibNet.Database
         /// the 'raw' Commence AddRowSet object that this class wraps.
         /// </summary>
         private FormOA.ICommenceAddRowSet _ars = null;
-        private IRCWReleasePublisher _rcwReleasePublisher = null;
+        private IRcwReleasePublisher _rcwReleasePublisher = null;
         bool disposed = true;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nCount">Number of items to add.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">CMC_OPTION flags.</param>
-        internal CommenceAddRowSet(FormOA.ICommenceCursor cur, int nCount, IRCWReleasePublisher rcwpub, CmcOptionFlags flags)
+        internal CommenceAddRowSet(FormOA.ICommenceCursor cur, int nCount, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // addrowset with set number of rows
             _ars = cur.GetAddRowSet(nCount, (int)flags);

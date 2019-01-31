@@ -17,7 +17,7 @@ namespace Vovin.CmcLibNet.Database
         /// the 'raw' Commence QueryRowSet object that this class wraps.
         /// </summary>
         private FormOA.ICommenceQueryRowSet _qrs = null; // COM object!
-        private IRCWReleasePublisher _rcwReleasePublisher = null;
+        private IRcwReleasePublisher _rcwReleasePublisher = null;
         bool disposed = false;
 
         #region Constructors
@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="cur">FormOA.ICommenceCursor reference.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, IRCWReleasePublisher rcwpub,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, IRcwReleasePublisher rcwpub,CmcOptionFlags flags)
         {
             // queryrowset with all rows
             try
@@ -54,7 +54,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nCount">Number of items to query.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, int nCount, IRCWReleasePublisher rcwpub,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, int nCount, IRcwReleasePublisher rcwpub,CmcOptionFlags flags)
         {
             // queryrowset with set number of rows
             _qrs = cur.GetQueryRowSet(nCount, (int)flags);
@@ -73,7 +73,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pRowID">row id.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRCWReleasePublisher rcwpub ,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub ,CmcOptionFlags flags)
         {
             // queryrowset by id
             _qrs = cur.GetQueryRowSetByID(pRowID, (int)flags);

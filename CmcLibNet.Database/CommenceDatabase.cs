@@ -30,7 +30,7 @@ namespace Vovin.CmcLibNet.Database
         // this portion of the class contains the implementation of the ICommenceCursor interface of Commence.
         private FormOA.ICommenceDB _db = null;
         private CommenceApp _app = null; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
-        private IRCWReleasePublisher _rcwReleasePublisher = null;
+        private IRcwReleasePublisher _rcwReleasePublisher = null;
 
         #region Constructors
 
@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Database
              * The down-side of the current approach is that we have to pass the event publisher to all classes that will subscribe to it.
              * There must be a better way?
              */
-            _rcwReleasePublisher = new RCWReleasePublisher();
+            _rcwReleasePublisher = new RcwReleasePublisher();
             _rcwReleasePublisher.RCWRelease += _app.RCWReleaseHandler;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;            
         }

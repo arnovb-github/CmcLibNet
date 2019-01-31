@@ -17,7 +17,7 @@ namespace Vovin.CmcLibNet.Database
         /// the 'raw' Commence EditRowSet object that this class wraps.
         /// </summary>
         private FormOA.ICommenceEditRowSet _ers = null;
-        private IRCWReleasePublisher _rcwReleasePublisher = null;
+        private IRcwReleasePublisher _rcwReleasePublisher = null;
         bool disposed = false;
 
         #region Constructors
@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="cur">FormOA.ICommenceCursor reference.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, IRCWReleasePublisher rcwpub, CmcOptionFlags flags)
+        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // editrowset with all rows
             _ers = cur.GetEditRowSet(cur.RowCount, (int)flags);
@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nCount">Number of items to edit.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, int nCount, IRCWReleasePublisher rcwpub ,CmcOptionFlags flags)
+        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, int nCount, IRcwReleasePublisher rcwpub ,CmcOptionFlags flags)
         {
             // editrowset with set number of rows
             _ers = cur.GetEditRowSet(nCount, (int)flags);
@@ -65,7 +65,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pRowID">row id.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, string pRowID, IRCWReleasePublisher rcwpub, CmcOptionFlags flags)
+        internal CommenceEditRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // editrowset by ID
             _ers = cur.GetEditRowSetByID(pRowID, (int)flags);
