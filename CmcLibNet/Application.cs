@@ -7,8 +7,18 @@ using Vovin.CmcLibNet.Services;
 namespace Vovin.CmcLibNet
 {
     /// <summary>
-    /// References the assembly itself.
+    /// CmcLibNet is a .NET assembly that wraps the Commence API. 
+    /// The primary goal for developing this library was to make it easier to communicate with Commence from Powershell.
+    /// Some convenience methods can only be used from .NET applications, but all functionality as defined in the Commence API is available from COM.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// COM clients can use it by calling it with ProgId <c>'CmcLibNet.Application'</c>.
+    /// </para>
+    /// <para>COM applications such as Commence Item Detail Form scripts that use so-called 'late binding' can call the assembly thus:</para>
+    /// <para>VBscript:</para>
+    /// <code language="vbscript">Dim obj : Set obj = CreateObject("CmcLibNet.Application")</code>
+    /// </remarks>
     [ComVisible(true)]
     [Guid("D49ABB93-8B54-4DDB-AD0E-C531D993C414")]
     [ProgId("CmcLibNet.Application")]
