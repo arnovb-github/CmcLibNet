@@ -98,7 +98,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <remarks>
         /// When set to <c>true</c>, any connected value is an object containing information about the connection,
-        /// when set to <c>false</c>, the values will be just an array.
+        /// when set to <c>false</c>, the values will be just an array. Only applies to <see cref="ExportFormat.Json"/>.
         /// </remarks>
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
@@ -111,7 +111,8 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int NumRows { get; set; }
         /// <summary>
-        /// Maximum number of characters to retrieve from fields. This includes related fields. The default when exporting from the export engine is 500.000, which is rougly five times the Commence default.
+        /// Maximum number of characters to retrieve from fields. This includes related fields.
+        /// The default when exporting from the export engine is 500.000, which is about five times the Commence default.
         /// <see cref="Database.ICommenceCursor.MaxFieldSize"/>
         /// </summary>
         int MaxFieldSize { get; set; }

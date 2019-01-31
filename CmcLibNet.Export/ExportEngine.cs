@@ -74,7 +74,6 @@ namespace Vovin.CmcLibNet.Export
             if (_writer != null) {
                 UnsubscribeToWriterEvents(_writer);
             }
-            _db.Close();
         }
         #endregion
 

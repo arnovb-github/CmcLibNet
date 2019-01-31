@@ -1100,19 +1100,12 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <summary>
-        /// Encodes the DDE arguments so that they will be processed correctly
+        /// Encode array of arguments.
         /// </summary>
-        /// <param name="args"></param>
-        /// <returns>DDE-safe argument string.</returns>
-        /// <remarks>Does not work 100% of the time.</remarks>
+        /// <param name="args">string array.</param>
+        /// <returns>Encoded array of arguments.</returns>
         private IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args)
         {
-            // By default, arguments used in a DDE request will be double quoted
-            // Commence does not require that they are, it is just a little safer
-            // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
-            // however, if the argument contains an embedded 'control' character,
-            // we need to make special arrangements
-
             foreach (string arg in args)
             {
                 string retval = EncodeDdeArgument(arg);
@@ -1120,9 +1113,19 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
+        /// <summary>
+        /// Encodes the DDE arguments so that they will be processed correctly
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns>DDE-safe argument string.</returns>
+        /// <remarks>This method is not exhaustive - some combinations cannot be handled.</remarks>
         private string EncodeDdeArgument(string arg)
         {
-            // by default, put every argument in double-quotes
+            // By default, arguments used in a DDE request will be double quoted
+            // Commence does not require that they are, it is just a little safer
+            // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
+            // however, if the argument contains an embedded 'control' character,
+            // we need to make special arrangements
             string retval = arg.EncloseWithChar('\"');
 
             // when the argument itself is quoted we can get away by adding additional quotes
@@ -1131,20 +1134,17 @@ namespace Vovin.CmcLibNet.Database
 
                 return arg.EncloseWithChar('\"', 2);
             }
-
             // when the argument contains both a double-quote and a comma, we're in trouble
             if (arg.Contains('\"') && arg.Contains(','))
             {
                 // I do not yet know how to deal with this, if at all possible
                 // TODO even while this is very rare, it needs a solution
             }
-
             // when the argument contains a double-quote, forego double-quoting and just return the string
             if (arg.Contains('\"'))
             {
                 return arg;
             }
-
             return retval;
         }
 
