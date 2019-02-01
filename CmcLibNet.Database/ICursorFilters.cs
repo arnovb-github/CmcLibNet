@@ -15,7 +15,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="clauseNumber">clauseNumber is the order of the filter, should be between 1-8.</param>
         /// <param name="filterType">The type of filter to create.</param>
         /// <returns>Derived BaseFilter corresponding with filtertype.</returns>
-        dynamic Create(int clauseNumber, FilterType filterType); // should return only applicable filter type
+        dynamic Add(int clauseNumber, FilterType filterType); // should return only applicable filter type
         /// <summary>
         /// Get filter from collection based on clause number.
         /// </summary>

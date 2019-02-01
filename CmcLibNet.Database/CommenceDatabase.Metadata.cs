@@ -1029,7 +1029,7 @@ namespace Vovin.CmcLibNet.Database
             using (ICommenceCursor cur = this.GetCursor(categoryName))
             {
                 ICursorFilters filters = new CursorFilters(cur);
-                ICursorFilterTypeF f = filters.Create(1, FilterType.Field);
+                ICursorFilterTypeF f = filters.Add(1, FilterType.Field);
                 f.FieldName = fieldName;
                 f.FieldValue = fieldValue;
                 f.Qualifier = FilterQualifier.EqualTo;

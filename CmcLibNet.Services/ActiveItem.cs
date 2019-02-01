@@ -86,7 +86,7 @@ namespace Vovin.CmcLibNet.Services
              * this would be exceedingly complex.
              *  we are going to try one last time and see if the namefield is unique.
              */
-            ICursorFilterTypeF filter = (ICursorFilterTypeF)cur.Filters.Create(1, FilterType.Field);
+            ICursorFilterTypeF filter = (ICursorFilterTypeF)cur.Filters.Add(1, FilterType.Field);
             filter.FieldName = _nameField; // not pretty
             filter.Qualifier = FilterQualifier.EqualTo;
             filter.MatchCase = true;

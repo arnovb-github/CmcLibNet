@@ -6,7 +6,7 @@ namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// CursorFilter is a an abstract base class for the various Commence filters you can create.
-    /// Use CursorFilters.Create to get a derived filter object that exposes properties only applicable to that filtertype.
+    /// Use CursorFilters.Add to get a derived filter object that exposes properties only applicable to that filtertype.
     /// This shields you from having to use the horrible DDE syntax the ViewFilter request takes.
     /// You can still set filters the old-fashioned way via CommenceCursor.SetFilter.
     /// </summary>
