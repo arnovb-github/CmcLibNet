@@ -110,6 +110,10 @@ namespace Vovin.CmcLibNet.Export
                     {
                         _sw.Flush();
                         _sw.Close();
+                    }
+                    catch { }
+                    try
+                    {
                         File.Delete(_tempFile);
                     }
                     catch { }
