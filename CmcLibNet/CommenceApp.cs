@@ -89,15 +89,12 @@ namespace Vovin.CmcLibNet
             switch (ProcessCountInCurrentSession(PROCESS_NAME))
             {
                 case 0:
-                    // showing a messagebox from a DLL is simply a Bad Idea.
-                    // AutoClosingMessageBox.Show("Commence is not running.", "Initialization error", 3000);
                     // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
                     throw new CommenceNotRunningException("Commence is not running.");
                 case 1:
                     _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
                     break;
                 default:
-                    //_cmc = new CommenceDB(); // get whatever Commence reference Windows gives us.
                     throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
             }
             rw = new RcwReleasePublisher();
@@ -130,7 +127,7 @@ namespace Vovin.CmcLibNet
                 switch (retval.Count())
                 {
                     case 0: // no process
-                        return "No process";
+                        return string.Empty;
                     case 1: // running once
                         return retval[0];
                     default: // running multiple times
