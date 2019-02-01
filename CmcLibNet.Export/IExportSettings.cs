@@ -111,17 +111,18 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int NumRows { get; set; }
         /// <summary>
-        /// Maximum number of characters to retrieve from fields. This includes related fields.
+        /// Maximum number of characters to retrieve from fields. This includes connected fields.
         /// The default when exporting from the export engine is 500.000, which is about five times the Commence default.
         /// <see cref="Database.ICommenceCursor.MaxFieldSize"/>
         /// </summary>
+        /// <remarks>Setting this can have severe impact on memory usage. Note that when set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
         int MaxFieldSize { get; set; }
         /// <summary>
         /// Delete and recreate Excel file when exporting. Only applies to <see cref="ExportFormat.Excel"/>. Default is <c>true</c>.
         /// </summary>
         bool DeleteExcelFileBeforeExport { get; set; }
         /// <summary>
-        /// Read Commence data async. In terms of performance this is barely noticable. Set to false in case of debugging. Defaults to <c>true</c>.
+        /// Read Commence data async. In terms of performance this is barely noticable. Set to false for slightly easier debugging. Defaults to <c>true</c>.
         /// </summary>
         bool ReadCommenceDataAsync { get; set; }
     }
