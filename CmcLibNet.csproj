@@ -76,6 +76,7 @@
     <Compile Include="CmcLibNet.Export\ExportFormat.cs" />
     <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\HeaderMode.cs" />
+    <Compile Include="CmcLibNet.Export\IExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\LabelType.cs" />
     <Compile Include="CmcLibNet.Export\OleDbConnections.cs" />
     <Compile Include="CmcLibNet.Export\XmlWriter.cs" />

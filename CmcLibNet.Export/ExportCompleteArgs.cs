@@ -3,21 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Export
 {
-    /// <summary>
-    /// Interface for ExportCompleted, primarily for use with COM Interop.
-    /// </summary>
-    [ComVisible(true)]
-    [Guid("8D262E04-9AE5-4C64-968F-7A7AEAA2B58C")]
-    public interface IExportCompleteArgs
-    {
-        /// <summary>
-        /// Rows processed.
-        /// </summary>
-        int Rows { get; }
-    }
 
     /// <summary>
-    /// Passed when export has completed
+    /// Passed when export has completed.
     /// </summary>
     [ComVisible(true)]
     [Guid("A6BFDD24-1078-419E-9D37-5C338A459758")]
