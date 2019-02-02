@@ -79,6 +79,7 @@
     <Compile Include="CmcLibNet.Export\IExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\LabelType.cs" />
     <Compile Include="CmcLibNet.Export\OleDbConnections.cs" />
+    <Compile Include="CmcLibNet.Export\ValueFormatting.cs" />
     <Compile Include="CmcLibNet.Export\XmlWriter.cs" />
     <Compile Include="CmcLibNet.Extensions\EnumExtensions.cs" />
     <Compile Include="CmcLibNet.Extensions\StringExtensions.cs" />
