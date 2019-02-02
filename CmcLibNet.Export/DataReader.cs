@@ -10,26 +10,6 @@ using System.Collections.Concurrent;
 
 namespace Vovin.CmcLibNet.Export
 {
-    #region Enumerations
-    /// <summary>
-    /// Enum for data output formats.
-    /// </summary>
-    internal enum ValueFormatting
-    {
-        /// <summary>
-        /// No formatting, use data as-is. This means formatted to whatever formatting Commence inherits from the system.
-        /// </summary>
-        None = 0,
-        /// <summary>
-        /// Return canonical format as defined by Commence. Unlike Commence, CmcLibNet returns connected data in the format as well. <seealso cref="CmcOptionFlags.Canonical"/>
-        /// </summary>
-        Canonical = 1,
-        /// <summary>
-        /// Return data compliant with ISO 8601 format. http://www.iso.org/iso/iso8601
-        /// </summary>
-        XSD_ISO8601 = 2,
-    }
-    #endregion
     // Performs the reading of the Commence database and returns the results as event arguments
     internal class DataReader
     {
@@ -44,7 +24,7 @@ namespace Vovin.CmcLibNet.Export
         // fields
         private readonly CommenceCursor cursor = null;
         private readonly IExportSettings settings = null;
-        private readonly int numRows = 1000; // maximum number of rows to read per iteration
+        private readonly int numRows; // maximum number of rows to read per iteration
         private readonly List<ColumnDefinition> columnDefinitions = null;
         private readonly int totalRows = 0;
         private readonly string pattern = "(?<!\r)\n";
@@ -57,7 +37,9 @@ namespace Vovin.CmcLibNet.Export
             this.cursor = (CommenceCursor)cursor;
             totalRows = cursor.RowCount;
             this.settings = settings;
-            numRows = this.settings.NumRows;
+            //numRows = this.settings.NumRows;
+            numRows = (int)Math.Pow(2, BalanceNumRowsAndFieldSize(settings));
+            //numRows = 3;
             this.columnDefinitions = columndefinitions;
             regex = new Regex(pattern);
             if (this.settings.XSDCompliant)
@@ -365,6 +347,26 @@ namespace Vovin.CmcLibNet.Export
                     break;
             } // switch
             return retval;
+        }
+
+        private int BalanceNumRowsAndFieldSize(IExportSettings settings)
+        {
+            /* If the fieldsize is very large, decrease the number of rows being read.
+             * This is largely untested.
+            */
+            int maxpower = 20;
+            int threshold = (int)Math.Pow(2, maxpower);
+            int i = 10;
+            if (threshold < settings.MaxFieldSize)
+            {
+                while (Math.Pow(2, maxpower) < settings.MaxFieldSize)
+                {
+                    i--;
+                    maxpower++;
+                    if (i == 0) { break; }
+                }
+            }
+            return i;
         }
         #endregion
 
