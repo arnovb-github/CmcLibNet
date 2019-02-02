@@ -40,6 +40,7 @@ namespace Vovin.CmcLibNet.Export
             //XmlWriterSettings xws = new XmlWriterSettings();
             //xws.Indent = true;
             _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8);
+            _xtw.Formatting = Formatting.Indented;
             _xtw.WriteStartDocument();
             _xtw.WriteStartElement("dataroot");
         }
