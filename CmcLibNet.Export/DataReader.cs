@@ -37,9 +37,11 @@ namespace Vovin.CmcLibNet.Export
             this.cursor = (CommenceCursor)cursor;
             totalRows = cursor.RowCount;
             this.settings = settings;
-            //numRows = this.settings.NumRows;
             numRows = (int)Math.Pow(2, BalanceNumRowsAndFieldSize(settings));
-            //numRows = 3;
+            if (settings.NumRows < numRows)
+            {
+                numRows = settings.NumRows;
+            }
             this.columnDefinitions = columndefinitions;
             regex = new Regex(pattern);
             if (this.settings.XSDCompliant)
@@ -380,11 +382,54 @@ namespace Vovin.CmcLibNet.Export
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
         internal CancellationTokenSource CTS { get; } = new CancellationTokenSource();
+        //internal void GetDataByAPIAsync()
+        //{
+        //    int rowsProcessed = 0;
+        //    var values = new BlockingCollection<string[][]>();
+        //    var readTask = Task.Run(() =>
+        //    {
+        //        try
+        //        {
+        //            for (int rows = 0; rows < totalRows; rows += numRows)
+        //            {
+        //                string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
+        //                {
+        //                    if (CTS.Token.IsCancellationRequested)
+        //                        break;
+        //                    values.Add(rawdata);
+        //                    rowsProcessed += numRows;
+        //                    rowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed;
+        //                }
+        //            }
+        //        }
+        //        catch { CTS.Cancel(); } // cancel on error
+        //        finally { values.CompleteAdding(); }
+
+        //    });
+
+        //    var processTask = Task.Run(() =>
+        //    {
+        //        foreach (var value in values.GetConsumingEnumerable())
+        //        {
+        //            if (CTS.Token.IsCancellationRequested) { break; }
+
+        //            var data = ProcessDataBatch(value);
+        //            ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
+        //            OnDataProgressChanged(args); // raise event after each batch of rows
+        //        }
+        //    });
+
+        //    Task.WaitAll(readTask, processTask);
+        //    // raise 'done' event
+        //    ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
+        //    OnDataReadCompleted(e); // done with reading data
+        //}
+
         internal void GetDataByAPIAsync()
         {
             int rowsProcessed = 0;
             var values = new BlockingCollection<string[][]>();
-            var readTask = Task.Run(() =>
+            var readTask = Task.Factory.StartNew(() =>
             {
                 try
                 {
@@ -403,9 +448,9 @@ namespace Vovin.CmcLibNet.Export
                 catch { CTS.Cancel(); } // cancel on error
                 finally { values.CompleteAdding(); }
 
-            });
+            }, TaskCreationOptions.LongRunning);
 
-            var processTask = Task.Run(() =>
+            var processTask = Task.Factory.StartNew(() =>
             {
                 foreach (var value in values.GetConsumingEnumerable())
                 {
@@ -415,7 +460,7 @@ namespace Vovin.CmcLibNet.Export
                     ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
 
             Task.WaitAll(readTask, processTask);
             // raise 'done' event
