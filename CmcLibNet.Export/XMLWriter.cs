@@ -35,10 +35,6 @@ namespace Vovin.CmcLibNet.Export
 
         private void PrepareXmlFile(string fileName)
         {
-            // create a new XMLWriterSettings and some starting elements
-            // note that the state of the writer is left open.
-            //XmlWriterSettings xws = new XmlWriterSettings();
-            //xws.Indent = true;
             _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8);
             _xtw.Formatting = Formatting.Indented;
             _xtw.WriteStartDocument();
