@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using Vovin.CmcLibNet;
-
-namespace Vovin.CmcLibNet.Database
+﻿namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// Abstract base class for the various *RowSet Types.
