@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CmcLibNet")]
-[assembly: AssemblyDescription("CmcLibNet, a .NET library for Commence RM")]
+[assembly: AssemblyDescription("CmcLibNet is a .NET library for using the Commence RM API")]
 [assembly: AssemblyConfiguration("Beta release")]
 [assembly: AssemblyCompany("Vovin IT Services")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyProduct("Vovin.CmcLibNet")]
 [assembly: AssemblyCopyright("© 2015-2019 - Vovin IT Services")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
