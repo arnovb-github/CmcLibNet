@@ -36,7 +36,6 @@ namespace Vovin.CmcLibNet
         /// Returns the location of the assembly
         /// </summary>
         public string Path => Assembly.GetExecutingAssembly().Location;
-        /// <returns></returns>
 
         private static string GetTargetFrameworkVersion()
         {
