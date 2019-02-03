@@ -382,11 +382,14 @@ namespace Vovin.CmcLibNet.Export
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
         internal CancellationTokenSource CTS { get; } = new CancellationTokenSource();
+        ///// <summary>
+        ///// This works fine, but when the number of rows per iteration is very small, the rowsProcessed number gets confused
+        ///// </summary>
         //internal void GetDataByAPIAsync()
         //{
         //    int rowsProcessed = 0;
         //    var values = new BlockingCollection<string[][]>();
-        //    var readTask = Task.Run(() =>
+        //    var readTask = Task.Factory.StartNew(() =>
         //    {
         //        try
         //        {
@@ -405,9 +408,9 @@ namespace Vovin.CmcLibNet.Export
         //        catch { CTS.Cancel(); } // cancel on error
         //        finally { values.CompleteAdding(); }
 
-        //    });
+        //    }, TaskCreationOptions.LongRunning);
 
-        //    var processTask = Task.Run(() =>
+        //    var processTask = Task.Factory.StartNew(() =>
         //    {
         //        foreach (var value in values.GetConsumingEnumerable())
         //        {
@@ -417,7 +420,7 @@ namespace Vovin.CmcLibNet.Export
         //            ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
         //            OnDataProgressChanged(args); // raise event after each batch of rows
         //        }
-        //    });
+        //    }, TaskCreationOptions.LongRunning);
 
         //    Task.WaitAll(readTask, processTask);
         //    // raise 'done' event
@@ -425,23 +428,30 @@ namespace Vovin.CmcLibNet.Export
         //    OnDataReadCompleted(e); // done with reading data
         //}
 
+        /// <summary>
+        /// Reads the Commence database in a asynchronous fashion
+        /// The idea is that the reading of Commence data continues as the event consumers do their thing.
+        /// </summary>
         internal void GetDataByAPIAsync()
         {
             int rowsProcessed = 0;
-            var values = new BlockingCollection<string[][]>();
+            var values = new BlockingCollection<CmcData>();
             var readTask = Task.Factory.StartNew(() =>
             {
-                try
+            try
+            {
+                for (int rows = 0; rows < totalRows; rows += numRows)
                 {
-                    for (int rows = 0; rows < totalRows; rows += numRows)
+                    string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
                     {
-                        string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
-                        {
-                            if (CTS.Token.IsCancellationRequested)
-                                break;
-                            values.Add(rawdata);
+                        if (CTS.Token.IsCancellationRequested) { break; }
                             rowsProcessed += numRows;
-                            rowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed;
+                            CmcData rowdata = new CmcData()
+                            {
+                                Data = rawdata,
+                                RowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed
+                            };
+                            values.Add(rowdata);
                         }
                     }
                 }
@@ -456,8 +466,8 @@ namespace Vovin.CmcLibNet.Export
                 {
                     if (CTS.Token.IsCancellationRequested) { break; }
 
-                    var data = ProcessDataBatch(value);
-                    ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
+                    var data = ProcessDataBatch(value.Data);
+                    ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
             }, TaskCreationOptions.LongRunning);
@@ -468,5 +478,15 @@ namespace Vovin.CmcLibNet.Export
             OnDataReadCompleted(e); // done with reading data
         }
         #endregion
+
+        /// <summary>
+        /// Helper class to capture the correct row.
+        /// If we use a variable shared between the tasks, it may not reflect the correct value 
+        /// </summary>
+        private class CmcData
+        {
+            internal string[][] Data { get; set; }
+            internal int RowsProcessed { get; set; }
+        }
     }
 }
