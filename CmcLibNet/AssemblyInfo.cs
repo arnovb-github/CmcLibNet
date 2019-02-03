@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace Vovin.CmcLibNet
 {
@@ -8,7 +9,7 @@ namespace Vovin.CmcLibNet
     public class AssemblyInfo
     {
         /// <summary>
-        /// Returns version.
+        /// Returns assembly version.
         /// </summary>
         public string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString();
         /// <summary>
@@ -19,6 +20,23 @@ namespace Vovin.CmcLibNet
         /// Returns CLR version.
         /// </summary>
         public string ClrVersion => System.Environment.Version.ToString();
+        /// <summary>
+        /// Returns the ImageRuntimeVersion.
+        /// </summary>
+        public string ImageRuntimeVersion => Assembly.GetExecutingAssembly().ImageRuntimeVersion;
+        /// <summary>
+        /// Returns the file version.
+        /// </summary>
+        public string FileVersion => FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        /// <summary>
+        /// Returns the product version.
+        /// </summary>
+        public string ProductVersion => FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+        /// <summary>
+        /// Returns the location of the assembly
+        /// </summary>
+        public string Path => Assembly.GetExecutingAssembly().Location;
+        /// <returns></returns>
 
         private static string GetTargetFrameworkVersion()
         {
