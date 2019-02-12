@@ -26,6 +26,7 @@ namespace Vovin.CmcLibNet
     [ComDefaultInterface(typeof(IApplication))]
     public class Application : IApplication
     {
+        private ICommenceDatabase _db = null;
         /// <inheritdoc />
         public string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString();
         /// <inheritdoc />
@@ -34,7 +35,14 @@ namespace Vovin.CmcLibNet
         /// <inheritdoc />
         public ICommenceApp CommenceApp => new CommenceApp();
         /// <inheritdoc />
-        public ICommenceDatabase Database => new CommenceDatabase();
+        public ICommenceDatabase Database
+        {
+            get
+            {
+                if (_db == null) { _db = new CommenceDatabase(); }
+                return _db;
+            }
+        }
         /// <inheritdoc />
         public IExportEngine Export => new ExportEngine();
         /// <inheritdoc />
