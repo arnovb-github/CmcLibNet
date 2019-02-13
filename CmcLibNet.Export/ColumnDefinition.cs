@@ -22,6 +22,9 @@ namespace Vovin.CmcLibNet.Export
         //    ColumnIndex = colindex;
         //    this.ColumnName = columnName;
         //}
+
+        // passing in the ICommenceDatabase object solved the problem of having to create a new one
+        // for every field we examine. It may also mask a deeper problem
         internal ColumnDefinition(ICommenceDatabase db, int colindex, string columnName)
         {
             _db = db;
@@ -43,6 +46,15 @@ namespace Vovin.CmcLibNet.Export
         internal DbType DbType => Utils.GetDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
         internal OleDbType OleDbType => Utils.GetOleDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
 
+        // creating and closing a ICommenceDatabase creates a problem
+        // when export methods are called in succession
+        // It seems to close the underlying COM objects in a way that is unexpected
+        // You'd think it should only close the one that has just been created
+        // but it also kills the ones in use in other procedures
+        // to reproduce, create a new database reference for every field and
+        // and call ExportView() in the exportengine twice
+        // The second one will fail.
+        // there is something fishy going on...
         internal ICommenceFieldDefinition CommenceFieldDefinition
         {
             get
