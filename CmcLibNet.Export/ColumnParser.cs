@@ -71,7 +71,7 @@ namespace Vovin.CmcLibNet.Export
             // this is a little tricky
             if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                ColumnDefinition cd = new ColumnDefinition(0, "thid");
+                ColumnDefinition cd = new ColumnDefinition(db, 0, "thid");
                 cd.FieldName = "thid";
                 cd.CustomColumnLabel = "thid";
                 cd.ColumnLabel = "thid";
@@ -85,7 +85,7 @@ namespace Vovin.CmcLibNet.Export
                 // create a rowset of 0 items
                 for (int i = 0; i < qrs.ColumnCount; i++)
                 {
-                    ColumnDefinition cd = new ColumnDefinition(_columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
+                    ColumnDefinition cd = new ColumnDefinition(db, _columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
                     _columnDefinitions.Add(cd);
                     cd.ColumnLabel = qrs.GetColumnLabel(i);
                     if (this._customHeaders != null)

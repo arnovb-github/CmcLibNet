@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -26,7 +24,6 @@ namespace Vovin.CmcLibNet.Database
         private CursorColumns _columns = null;
         internal string _viewName = string.Empty;
         internal CommenceViewType _viewType;
-        private readonly CmcOptionFlags _flags = CmcOptionFlags.Default;
         bool disposed = false;
 
         #region Constructors
@@ -65,7 +62,7 @@ namespace Vovin.CmcLibNet.Database
         internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags, string viewType)
         {
             _cursorType = pCursorType;
-            _flags = pCursorFlags;
+            Flags = pCursorFlags;
             if (_cursorType == CmcCursorType.View) 
             {
                 this._viewName = pName;
@@ -86,7 +83,7 @@ namespace Vovin.CmcLibNet.Database
         internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags)
         {
             _cursorType = pCursorType;
-            _flags = pCursorFlags;
+            Flags = pCursorFlags;
             _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;
@@ -202,10 +199,7 @@ namespace Vovin.CmcLibNet.Database
             get { return _viewType; }
         }
 
-        internal CmcOptionFlags Flags
-        {
-            get { return _flags; }
-        }
+        internal CmcOptionFlags Flags { get; } = CmcOptionFlags.Default;
         #endregion
 
         #region Methods
@@ -641,7 +635,7 @@ namespace Vovin.CmcLibNet.Database
                     // SeekRow succeeded, read data
                     string[][] buffer = this.GetRawData(1); // get just 1 row
                     retval = buffer[0].ToList<string>();
-                    if (!this._flags.HasFlag(CmcOptionFlags.UseThids))
+                    if (!this.Flags.HasFlag(CmcOptionFlags.UseThids))
                     {
                         retval.RemoveAt(0);
                     }
@@ -672,7 +666,7 @@ namespace Vovin.CmcLibNet.Database
                         List<string> newlist = buffer[j].ToList<string>();
                         // if cursor has no thids flag, the first element of newlist will always be null
                         // remove it to avoid confusion
-                        if (!this._flags.HasFlag(CmcOptionFlags.UseThids))
+                        if (!this.Flags.HasFlag(CmcOptionFlags.UseThids))
                         {
                             newlist.RemoveAt(0);
                         }
@@ -771,7 +765,7 @@ namespace Vovin.CmcLibNet.Database
                      * We implement our own formatting transformation.
                      */
                     rowvalues[i] = new string[qrs.ColumnCount + 1]; // add extra element for thid
-                    if (this._flags.HasFlag(CmcOptionFlags.UseThids)) // do not make the extra API call unless requested
+                    if (this.Flags.HasFlag(CmcOptionFlags.UseThids)) // do not make the extra API call unless requested
                     {
                         string thid = qrs.GetRowID(i, CmcOptionFlags.Default); // GetRowID does not advance the rowpointer. Note that the flag must be 0.
                         rowvalues[i][0] = thid; // put thid in first column of row

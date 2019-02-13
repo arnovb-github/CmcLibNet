@@ -12,13 +12,19 @@ namespace Vovin.CmcLibNet.Export
     internal class ColumnDefinition
     {
         /* The columndefinition is fetched once for every cursor we read. */
-        //private CommenceFieldType _fieldType = CommenceFieldType.Text;
         private ICommenceFieldDefinition _fieldDefinition = null;
         private bool _fieldDefinitionFetched;
+        ICommenceDatabase _db = null;
 
         #region Constructors
-        internal ColumnDefinition(int colindex, string columnName)
+        //internal ColumnDefinition(int colindex, string columnName)
+        //{
+        //    ColumnIndex = colindex;
+        //    this.ColumnName = columnName;
+        //}
+        internal ColumnDefinition(ICommenceDatabase db, int colindex, string columnName)
         {
+            _db = db;
             ColumnIndex = colindex;
             this.ColumnName = columnName;
         }
@@ -46,15 +52,15 @@ namespace Vovin.CmcLibNet.Export
                 // GetFieldDefinition will return null, leading to many DDE calls.
                 if (!_fieldDefinitionFetched)
                 {
-                    ICommenceDatabase db = new CommenceDatabase();
-                    _fieldDefinition = db.GetFieldDefinition(this.Category, this.FieldName);
+                    //ICommenceDatabase db = new CommenceDatabase();
+                    _fieldDefinition = _db.GetFieldDefinition(this.Category, this.FieldName);
                     if (_fieldDefinition == null)
                     {
                         // an error occurred getting the fielddefinition
                         // return default one
                         _fieldDefinition = new CommenceFieldDefinition();
                     }
-                    db.Close();
+                    //db.Close(); //has unexpected side-effect of killing underlying COM objects even for other CommenceDatabase instances
                     _fieldDefinitionFetched = true;
                 }
                 return _fieldDefinition;
