@@ -18,7 +18,6 @@ namespace Vovin.CmcLibNet.Database
         private FormOA.ICommenceCursor _cur = null; // 'raw' ICommenceCursor object; a COM object
         private IRcwReleasePublisher _rcwReleasePublisher = null;
         private CursorFilters _filters = null;
-        private readonly CmcCursorType _cursorType = CmcCursorType.Category;
         internal bool _directColumnsWereSet = false;
         internal bool _relatedColumnsWereSet = false;
         private CursorColumns _columns = null;
@@ -61,12 +60,12 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="viewType">Viewtype.</param>
         internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags, string viewType)
         {
-            _cursorType = pCursorType;
+            CursorType = pCursorType;
             Flags = pCursorFlags;
-            if (_cursorType == CmcCursorType.View) 
+            if (CursorType == CmcCursorType.View) 
             {
-                this._viewName = pName;
-                this._viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
+                _viewName = pName;
+                _viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
             }
             _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;
@@ -82,7 +81,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pCursorFlags">CmcOptionFlags.</param>
         internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags)
         {
-            _cursorType = pCursorType;
+            CursorType = pCursorType;
             Flags = pCursorFlags;
             _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;
@@ -176,10 +175,7 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Returns the cursortype.
         /// </summary>
-        internal CmcCursorType CursorType
-        {
-            get { return _cursorType; }
-        }
+        internal CmcCursorType CursorType { get; } = CmcCursorType.Category;
 
         /// <inheritdoc />
         public ICursorColumns Columns
