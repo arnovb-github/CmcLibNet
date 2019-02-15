@@ -10,6 +10,7 @@ using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
+    [Obsolete]
     internal class ExcelWriterUsingOleDb : BaseWriter
     {
         private bool disposed = false;

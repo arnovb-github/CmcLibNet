@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Vovin.CmcLibNet.Export
     //"Excel 12.0 Macro"; // For Excel 2007 Macro-enabled (*.xlsm)  
     //"Excel 8.0"; // For Excel 97/2000/2003 (*.xls)  
     //"Excel 5.0"; // For Excel 5.0/95 (*.xls)
-
+    [Obsolete]
     internal class OleDbConnections
     {
         internal bool SheetExists(OleDbConnection cn, string sheetName)
