@@ -125,5 +125,9 @@ namespace Vovin.CmcLibNet.Export
         /// Read Commence data async. In terms of performance this is barely noticable. Set to false for slightly easier debugging. Defaults to <c>true</c>.
         /// </summary>
         bool ReadCommenceDataAsync { get; set; }
+        /// <summary>
+        /// Update options when exporting to Microsoft Excel
+        /// </summary>
+        ExcelUpdateOptions XlUpdateOptions { get; set; }
     }
 }

@@ -115,7 +115,10 @@ namespace Vovin.CmcLibNet.Export
             }
         }
         /// <inheritdoc />
+        [Obsolete]
         public bool DeleteExcelFileBeforeExport { get; set; } = true;
+        /// <inheritdoc />
+        public ExcelUpdateOptions XlUpdateOptions { get; set; } = ExcelUpdateOptions.UpdateWorksheet;
         /// <inheritdoc />
         public bool ReadCommenceDataAsync { get; set; } = true;
     }
