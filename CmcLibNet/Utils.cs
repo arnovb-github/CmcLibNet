@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Extensions;
@@ -164,42 +165,88 @@ namespace Vovin.CmcLibNet
         internal static string EscapeString(string cmcFieldName, string replaceInvalidCharsWith)
         {
             if (string.IsNullOrEmpty(cmcFieldName)) { return cmcFieldName; }
-            string pattern = @"[^.\d\w]";
+            string pattern = @"[^.\d\w]"; // TODO check for multiple occurences
             // returns a string that contains only alfanumeric characters, everything else replaced
             return Regex.Replace(cmcFieldName, pattern, replaceInvalidCharsWith.ToString());
         }
 
-        internal static string MakeListItemUnique(string testString, List<string> list, int appendNumber, int maxIterations, int maxLength)
+        internal static string AddUniqueIdentifier(string testString, List<string> list, uint appendNumber, uint maxIterations, uint maxLength)
         {
             string retval = testString;
-            int append = appendNumber;
+            uint append = appendNumber;
+            // if the list items already contain a trailing number,
+            // all we want to do is increase that number instead of appending one
+            // so let's analyze the list items first
+            // No, let's limit that to  trailing number that contains (1), (2), etc.
+            // first analyze which list items have a trailing '(number)'part
+            string pattern = @"\(\d+\)$";
+            IEnumerable<string> existingThingies = GetStringsWithMatchingRegexPattern(list, pattern);
+            // get the one with the highest numer
+            if (existingThingies.Count() > 0)
+            {
+                // extract the numbers
+                List<uint> numbers = new List<uint>();
+                foreach (string s in existingThingies)
+                {
+                    Regex r = new Regex(@"\d+\)$");
+                    Match match = r.Match(s);
+                    if (match.Success)
+                    {
+                        numbers.Add(Convert.ToUInt32(match.Value.Left(match.Value.Length-1)));
+                    }
+                }
+                append = numbers.Max();
+            }
+
             // prevent eternal loop if specified
-            if (maxIterations != 0)
+            if (maxIterations > 0)
             {
                 if (append > maxIterations) { throw new Exception("Could not get a unique name for column " + testString); }
             }
             if (list.Contains(retval))
             {
-                retval = testString + append.ToString();
+                append++;
+                retval = AppendBracketedString(testString,append.ToString());
                 // need to check for length
                 if (maxLength > 0)
                 {
                     while (retval.Length > maxLength)
                     {
                         testString = testString.Left(testString.Length - 1);
-                        retval = testString + append.ToString();
+                        retval = AppendBracketedString(testString, append.ToString());
                     }
                 }
                 else
                 {
-                    retval = testString + append.ToString();
+                    retval = AppendBracketedString(testString, append.ToString());
                 }
-                append++;
-                return MakeListItemUnique(retval, list, append, maxIterations, maxLength); // recurse
+                
+                return AddUniqueIdentifier(retval, list, append, maxIterations, maxLength); // recurse
             }
             else
             {
                 return retval;
+            }
+        }
+
+        private static string AppendBracketedString(string s, string appendString)
+        {
+            StringBuilder sb = new StringBuilder(s);
+            sb.Append("(");
+            sb.Append(appendString);
+            sb.Append(")");
+            return sb.ToString();
+        }
+
+        private static IEnumerable<string> GetStringsWithMatchingRegexPattern(IEnumerable<string> list, string pattern)
+        {
+            Regex r = new Regex(pattern);
+            foreach (string s in list)
+            {
+                if (r.IsMatch(s))
+                {
+                    yield return s;
+                }
             }
         }
     }
