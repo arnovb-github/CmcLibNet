@@ -220,37 +220,30 @@ namespace Vovin.CmcLibNet.Export
             {
                 case ExportFormat.Text:
                     settings.SplitConnectedItems = false;
-                    _writer = new TextWriter(cursor, settings);
-                    break;
+                    return new TextWriter(cursor, settings);
                 case ExportFormat.Html:
                     settings.SplitConnectedItems = false;
-                    _writer = new HtmlWriter(cursor, settings);
-                    break;
+                    return new HtmlWriter(cursor, settings);
                 case ExportFormat.Xml:
-                    _writer = new XmlWriter(cursor, settings);
-                    break;
+                    return new XmlWriter(cursor, settings);
                 case ExportFormat.Json:
-                    _writer = new JsonWriter(cursor, settings);
-                    break;
+                    return new JsonWriter(cursor, settings);
                 case ExportFormat.Excel:
                     //_writer = new ExcelWriterUsingXml(cursor, settings);
-                    _writer = new ExcelWriterUsingOleDb(cursor, settings);
-                    break;
+                    return new ExcelWriterUsingOpenXml(cursor, settings);
+                    //return new ExcelWriterUsingOleDb(cursor, settings);
                 case ExportFormat.Event:
-                    _writer = new EventWriter(cursor, settings);
-                    break;
+                    return new EventWriter(cursor, settings);
                 case ExportFormat.GoogleSheets:
                     // will probably always be too slow
                     throw new NotImplementedException();
                 default:
-                    _writer = new XmlWriter(cursor, settings);
-                    break;
+                    return  new XmlWriter(cursor, settings);
             }
-            return _writer;
         }
-        #endregion
+#endregion
 
-        #region Event methods
+#region Event methods
         // we need some mechanism to tell consumers about the progress of our export
         // the writer classes are not exposed, so we need to capture the events of those classes,
         // and then raise an event that consumers can subscribe to.
@@ -300,9 +293,9 @@ namespace Vovin.CmcLibNet.Export
                 _db.Close();
             }
         }
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
         /// <inheritdoc />
         public IExportSettings Settings
@@ -318,6 +311,6 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        #endregion
+#endregion
     }
 }
