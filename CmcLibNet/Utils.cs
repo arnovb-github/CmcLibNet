@@ -159,8 +159,9 @@ namespace Vovin.CmcLibNet
             }
         }
 
-        internal static string GetOleDbFieldName(string cmcFieldName, char replaceInvalidCharsWith)
+        internal static string EscapeString(string cmcFieldName, string replaceInvalidCharsWith)
         {
+            if (string.IsNullOrEmpty(cmcFieldName)) { return cmcFieldName; }
             string pattern = @"[^.\d\w]";
             // returns a string that contains only alfanumeric characters, everything else replaced
             return Regex.Replace(cmcFieldName, pattern, replaceInvalidCharsWith.ToString());
