@@ -67,7 +67,7 @@ namespace Vovin.CmcLibNet.Export
             base._settings.Canonical = false;
             base._settings.XSDCompliant = false;
 
-            sheetName = Utils.GetOleDbFieldName(_dataSourceName, '_');
+            sheetName = Utils.EscapeString(_dataSourceName, "_");
             Dictionary<string, string> columnMap = ColumnMap;
             Connection = new OleDbConnections();
             cn = new OleDbConnection { ConnectionString = Connection.HeaderConnectionString(_fileName, 0) };
@@ -231,7 +231,7 @@ namespace Vovin.CmcLibNet.Export
                     foreach (var cd in base.ColumnDefinitions)
                     {
                         // ensure we have unique values or oledb may fail
-                        string f = Utils.GetOleDbFieldName(cd.ColumnName, '_');
+                        string f = Utils.EscapeString(cd.ColumnName, "_");
                         f = MakeListOfUniqueStrings(oleDbFields, f);
                         oleDbFields.Add(f);
                     }
