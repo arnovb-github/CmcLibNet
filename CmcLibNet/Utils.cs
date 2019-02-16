@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet
 {
@@ -165,6 +167,40 @@ namespace Vovin.CmcLibNet
             string pattern = @"[^.\d\w]";
             // returns a string that contains only alfanumeric characters, everything else replaced
             return Regex.Replace(cmcFieldName, pattern, replaceInvalidCharsWith.ToString());
+        }
+
+        internal static string MakeListItemUnique(string testString, List<string> list, int appendNumber, int maxIterations, int maxLength)
+        {
+            string retval = testString;
+            int append = appendNumber;
+            // prevent eternal loop if specified
+            if (maxIterations != 0)
+            {
+                if (append > maxIterations) { throw new Exception("Could not get a unique name for column " + testString); }
+            }
+            if (list.Contains(retval))
+            {
+                retval = testString + append.ToString();
+                // need to check for length
+                if (maxLength > 0)
+                {
+                    while (retval.Length > maxLength)
+                    {
+                        testString = testString.Left(testString.Length - 1);
+                        retval = testString + append.ToString();
+                    }
+                }
+                else
+                {
+                    retval = testString + append.ToString();
+                }
+                append++;
+                return MakeListItemUnique(retval, list, append, maxIterations, maxLength); // recurse
+            }
+            else
+            {
+                return retval;
+            }
         }
     }
 }
