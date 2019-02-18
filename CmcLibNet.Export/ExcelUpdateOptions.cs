@@ -19,8 +19,13 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         CreateNewWorksheet = 1,
         /// <summary>
-        /// Update an existing sheet. Creates new sheet if it does not exist.
+        /// Refresh the worksheet.
         /// </summary>
-        UpdateWorksheet = 2
+        RefreshWorksheet = 2,
+        /// <summary>
+        /// Append data to the worksheet
+        /// </summary>
+        AppendToWorksheet = 3
+
     }
 }
