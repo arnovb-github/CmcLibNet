@@ -212,7 +212,7 @@ namespace Vovin.CmcLibNet
                 {
                     while (retval.Length > maxLength)
                     {
-                        testString = testString.Left(testString.Length - 1);
+                        testString = testString.Left(testString.Length - 1); // TODO do we require a check to prevent Left on on empty string?
                         retval = AppendBracketedString(testString, append.ToString());
                     }
                 }
