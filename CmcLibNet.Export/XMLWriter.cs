@@ -38,7 +38,7 @@ namespace Vovin.CmcLibNet.Export
             _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8);
             _xtw.Formatting = Formatting.Indented;
             _xtw.WriteStartDocument();
-            _xtw.WriteStartElement("dataroot");
+            _xtw.WriteStartElement(string.IsNullOrEmpty(_settings.CustomRootNode) ? "dataroot" : XmlConvert.EncodeLocalName(_settings.CustomRootNode));
         }
 
         protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)

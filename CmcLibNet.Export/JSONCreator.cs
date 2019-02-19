@@ -16,7 +16,7 @@ namespace Vovin.CmcLibNet.Export
         {
             _wr = writer;
             this.Category = _wr._cursor.Category;
-            this.DataSource = _wr._dataSourceName;
+            this.DataSource = string.IsNullOrEmpty(_wr._settings.CustomRootNode) ? _wr._dataSourceName : _wr._settings.CustomRootNode;
             this.DataSourceType = string.IsNullOrEmpty(_wr._cursor.View) ? CmcLibNet.Database.CmcCursorType.Category.ToString() : CmcLibNet.Database.CmcCursorType.View.ToString();
         }
 

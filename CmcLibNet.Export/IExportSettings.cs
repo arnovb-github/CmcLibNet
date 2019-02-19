@@ -130,8 +130,19 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         ExcelUpdateOptions XlUpdateOptions { get; set; }
         /// <summary>
-        /// Cusomt root node for Xml, Json, Excel TODO EXPLAIN
+        /// Custom root node for Xml, Json, Excel.
         /// </summary>
+        /// <remarks>For Text, Html and Event writers this property is ignored
+        /// <list type="table">
+        /// <listheader>Meaning</listheader>
+        /// <item><term><see cref="ExportFormat.Excel"/></term><description>Custom sheetname</description></item>
+        /// <item><term><see cref="ExportFormat.Json"/></term><description>Custom top-level node name</description></item>
+        /// <item><term><see cref="ExportFormat.Xml"/></term><description>Custom root element name</description></item>
+        /// </list>
+        /// <para>If left empty, it defaults to the datasource name.
+        /// For a view, this is the viewname,
+        /// for a category or cursor this is the (primary) category name.</para>
+        /// </remarks>
         string CustomRootNode { get; set; }
     }
 }
