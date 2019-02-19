@@ -121,5 +121,7 @@ namespace Vovin.CmcLibNet.Export
         public ExcelUpdateOptions XlUpdateOptions { get; set; } = ExcelUpdateOptions.RefreshWorksheet;
         /// <inheritdoc />
         public bool ReadCommenceDataAsync { get; set; } = true;
+        /// <inheritdoc />
+        public string CustomRootNode { get; set; }
     }
 }

@@ -50,7 +50,6 @@ namespace Vovin.CmcLibNet.Export
             BubbleUpProgressEvent(e);
         }
 
-        protected internal override void WriteOut(string fileName, string sheetName) { }
         /// <summary>
         /// Starts the export
         /// </summary>

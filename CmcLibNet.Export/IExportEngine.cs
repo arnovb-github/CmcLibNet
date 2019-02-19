@@ -21,28 +21,12 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="settings">ExportSettings.</param>
         void ExportView(string viewName, string fileName, IExportSettings settings = null);
         /// <summary>
-        /// Export a view.
-        /// </summary>
-        /// <param name="viewName">Commence view name (case-sensitive). Pass an empty string to use the active view, if any. Note that not all view types can be exported.</param>
-        /// <param name="fileName">Fully qualified pathname to export file. Will be overwritten if exists.</param>
-        /// <param name="sheetName">Excel sheet name. Only used with <see cref="Export.ExportFormat.Excel"/>.</param>
-        /// <param name="settings">ExportSettings.</param>
-        void ExportView(string viewName, string fileName, string sheetName, IExportSettings settings = null);
-        /// <summary>
         /// Export a category.
         /// </summary>
         /// <param name="categoryName">Commence category name.</param>
         /// <param name="fileName">Fully qualified pathname to export file. Will be overwritten if exists.</param>
         /// <param name="settings">ExportSettings.</param>
         void ExportCategory(string categoryName, string fileName, IExportSettings settings = null);
-        /// <summary>
-        /// Export a category.
-        /// </summary>
-        /// <param name="categoryName">Commence category name.</param>
-        /// <param name="fileName">Fully qualified pathname to export file. Will be overwritten if exists.</param>
-        /// <param name="sheetName">Excel sheet name. Only used with <see cref="Export.ExportFormat.Excel"/>.</param>
-        /// <param name="settings">ExportSettings.</param>
-        void ExportCategory(string categoryName, string fileName, string sheetName, IExportSettings settings = null);
         /// <summary>
         /// Close any references to Commence. The object should be disposed after this.
         /// </summary>

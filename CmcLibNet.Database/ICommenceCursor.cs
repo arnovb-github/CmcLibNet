@@ -276,14 +276,6 @@ namespace Vovin.CmcLibNet.Database
         void ExportToFile(string fileName, Export.IExportSettings settings = null);
 
         /// <summary>
-        /// Exports current cursor to a file. The cursor is disposed after this method.
-        /// </summary>
-        /// <param name="fileName">(Fully qualified) filename. Overwrites existing file.</param>
-        /// <param name="sheetName">Sheet name. Used only when exporting to <see cref="Export.ExportFormat.Excel"/></param>
-        /// <param name="settings">Settings object.</param>
-        void ExportToFile(string fileName, string sheetName, Export.IExportSettings settings = null);
-
-        /// <summary>
         /// Reads specified row from the cursor. Data will be as Commence returns them.
         /// <para>This method is just a convenient way to return data without having to create a QueryRowSet.</para>
         /// <para>If you need to apply formatting, see the <see cref="Export.IExportEngine"/> interface.</para>

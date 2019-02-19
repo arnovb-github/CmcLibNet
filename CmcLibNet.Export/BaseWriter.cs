@@ -100,15 +100,6 @@ namespace Vovin.CmcLibNet.Export
         protected internal abstract void WriteOut(string fileName);
 
         /// <summary>
-        /// Write the export file.
-        /// </summary>
-        /// <param name="fileName">File name.</param>
-        /// <param name="sheetName">Worksheet name. Only used with <see cref="ExportFormat.Excel"/>.</param>
-        /// <exception cref="System.IO.IOException">File in use.</exception>
-        /// <exception cref="System.ArgumentNullException">Argument is null.</exception>
-        protected internal abstract void WriteOut(string fileName, string sheetName);
-
-        /// <summary>
         /// Method that deals with the data as it is being read.
         /// The minimum amount of expected data is a single list of CommenceValue objects representing a single item (row) in Commence,
         /// but it can also be multiple lists representing Commence items.

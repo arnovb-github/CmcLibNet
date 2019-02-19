@@ -20,14 +20,15 @@ namespace Vovin.CmcLibNet.Export
         private readonly int MaxExcelCellSize = (int)Math.Pow(2, 15) - 1; // as per Microsoft documentation
         private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
         private List<ColumnDefinition> columnDefinitions = null;
-        private Dictionary<string, string> existingSheets = null;
+        //private Dictionary<string, string> existingSheets = null;
         private string _filename = string.Empty;
-        private uint _sheetId;
+        //private uint _sheetId;
 
         #region Constructors
         public ExcelWriterUsingOpenXml(ICommenceCursor cursor, IExportSettings settings) : base(cursor, settings)
         {
             columnDefinitions = new List<ColumnDefinition>(_settings.UseThids ? base.ColumnDefinitions.Skip(1) : base.ColumnDefinitions);
+            _sheetName = string.IsNullOrEmpty(settings.CustomRootNode) ? Utils.EscapeString(_dataSourceName, "_").Left(MAX_SHEETNAME_LENGTH) : settings.CustomRootNode;
         }
 
         //~ExcelWriterUsingOpenXml()
@@ -56,8 +57,8 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Methods
-        protected internal override void WriteOut(string fileName) { }
-        protected internal override void WriteOut(string fileName, string sheetName)
+        
+        protected internal override void WriteOut(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -70,11 +71,11 @@ namespace Vovin.CmcLibNet.Export
                 throw new IOException(string.Format("File \"{0}\" cannot be opened because it is already in use.", fileName));
             }
             _filename = fileName;
-            _sheetName = Utils.EscapeString(sheetName, "_").Left(MAX_SHEETNAME_LENGTH);
+            _sheetName = Utils.EscapeString(_sheetName, "_").Left(MAX_SHEETNAME_LENGTH);
             // if workbook does not exist, create one
             if (!File.Exists(fileName) || _settings.XlUpdateOptions == ExcelUpdateOptions.CreateNewWorkbook)
             {
-                CreateSpreadSheetDocument(fileName, sheetName);
+                CreateSpreadSheetDocument(fileName, _sheetName);
             }
             else // if file exists, get a spreadsheet reference
             {
@@ -85,11 +86,11 @@ namespace Vovin.CmcLibNet.Export
                         //existingSheets = GetSheetNames();
                         // we know the sheetname, changes the desired sheetname to create/update
                         //sheetName = Utils.AddUniqueIdentifier(sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MAX_SHEETNAME_LENGTH);
-                        InsertNewSheet(sheetName);
+                        InsertNewSheet(_sheetName);
                         break;
 
                     case ExcelUpdateOptions.RefreshWorksheet:
-                        ClearSheet(sheetName);
+                        ClearSheet(_sheetName);
                         break;
 
                     case ExcelUpdateOptions.AppendToWorksheet:
@@ -152,23 +153,37 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private void ClearSheet(string name)
+        private void ClearSheet(string sheetName)
         {
             using (SpreadsheetDocument doc = SpreadsheetDocument.Open(_filename, true))
             {
-                // get a reference to the existing worksheet.
-                Sheet sheet = doc.WorkbookPart.Workbook.Descendants<Sheet>()
-                            .Where(s => s.Name == name).FirstOrDefault();
+                // get workbook
+                WorkbookPart workbookPart = doc.WorkbookPart;
+                // get sheet
+                Sheet sheet = workbookPart.Workbook.Descendants<Sheet>()
+                    .Where(s => s.Name == sheetName).FirstOrDefault();
                 if (sheet == null) { return; }
 
-                // sheets contain a worksheet object with a sheetData object
-                // all cell data are in there
-                // string values are in a SharedStringTable, other cell-related stuff are in the cells
-                // so we must inspect the cells before deleting them
-                // also will we just delete all cell-values? I think that is best.
-                List<Cell> cells = sheet.Descendants<Cell>().ToList();
+                // sheetdata will be in the worksheetpart
+                WorksheetPart wsp = workbookPart.GetPartById(sheet.Id) as WorksheetPart;
+                // get sheetdata
+                SheetData sd = wsp.Worksheet.GetFirstChild<SheetData>();
+                // get rows
+                IEnumerable<Row> rows = sd.Elements<Row>();
+                Console.WriteLine(rows.Count());
+                foreach (Row r in rows)
+                {
+                    Console.WriteLine("rowindex is {0}", r.RowIndex.ToString());
+                    IEnumerable<Cell> cells = r.Elements<Cell>();
+                    Console.WriteLine("Number of cells in row {0} is {1}", r.RowIndex, cells.Count());
+                    foreach (Cell c in r.Elements<Cell>())
+                    {
+                        c.Remove(); // removes the native cell values but that is not enough!
+                    } // foreach cell
+                } // foreach row
+                wsp.Worksheet.Save(); // screws up the file
 
-            }
+            } // using
         }
 
         ///// <summary>

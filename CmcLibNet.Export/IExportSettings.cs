@@ -129,5 +129,9 @@ namespace Vovin.CmcLibNet.Export
         /// Update options when exporting to Microsoft Excel
         /// </summary>
         ExcelUpdateOptions XlUpdateOptions { get; set; }
+        /// <summary>
+        /// Cusomt root node for Xml, Json, Excel TODO EXPLAIN
+        /// </summary>
+        string CustomRootNode { get; set; }
     }
 }

@@ -85,8 +85,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cur">ICommenceCursor</param>
         /// <param name="fileName">file name</param>
         /// <param name="settings">IExportSettings</param>
-        /// <param name="sheetName">Excel sheet name. Only used with <see cref="ExportFormat.Excel"/>.</param>
-        internal void ExportCursor(ICommenceCursor cur, string fileName, IExportSettings settings, string sheetName = null)
+        internal void ExportCursor(ICommenceCursor cur, string fileName, IExportSettings settings)
         {
             // exporting may take a long time, and the system may go into power saving mode
             // this is annoying, so we tell the system not to go into sleep/hibernation
@@ -118,7 +117,7 @@ namespace Vovin.CmcLibNet.Export
                         switch (settings.ExportFormat)
                         {
                             case ExportFormat.Excel:
-                                _writer.WriteOut(fileName, sheetName);
+                                _writer.WriteOut(fileName);
                                 break;
                             default:
                                 _writer.WriteOut(fileName);
@@ -157,17 +156,6 @@ namespace Vovin.CmcLibNet.Export
         }
 
         /// <inheritdoc />
-        public void ExportView(string viewName, string fileName, string sheetName, IExportSettings settings = null)
-        {
-            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
-            if (settings != null) { this.Settings = settings; } // store custom settings
-            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
-            {
-                ExportCursor(cur, fileName, this.Settings, sheetName);
-            }
-        }
-
-        /// <inheritdoc />
         public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
         {
             if (settings != null) { this.Settings = settings; } // use custom settings if supplied
@@ -189,32 +177,6 @@ namespace Vovin.CmcLibNet.Export
             using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category,flags))
                 {
                     ExportCursor(cur, fileName, this.Settings);
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public void ExportCategory(string categoryName, string fileName, string sheetName, IExportSettings settings = null)
-        {
-            if (settings != null) { this.Settings = settings; } // use custom settings if supplied
-            CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
-            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
-            {
-                // User requested we skip connections.
-                // A default cursor on a category contains all fields including connections.
-                // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
-                // We optimize here by only including direct fields in the cursor
-                using (ICommenceCursor cur = GetCursorWithJustDirectFields(categoryName, flags))
-                {
-                    ExportCursor(cur, fileName, this.Settings, sheetName);
-                }
-            }
-            else
-            {
-                flags = flags | CmcOptionFlags.All; // slap on some more flags
-                using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags))
-                {
-                    ExportCursor(cur, fileName, this.Settings, sheetName);
                 }
             }
         }
