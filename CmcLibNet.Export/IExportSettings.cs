@@ -36,7 +36,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Use custom columnheaders. Make sure they are all unique and match the number of exported fields.
         /// </summary>
-        /// <remarks>You cannot use custom headers in a nested export.</remarks>
+        /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.</remarks>
         /// <remarks>Supply custom headers for all columns, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</remarks>
         /// <remarks>Datatype is object for compatibility with COM.</remarks>
         object[] CustomHeaders { get; set;}
@@ -79,10 +79,10 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         string XSDFile { get; set; }
         /// <summary>
-        /// Adds an id value to every exported item and all it's connection data. Formatting options are ignored.
+        /// Return connection data as distinct items. Formatting options will be ignored.
         /// </summary>
         /// <remarks>
-        /// Only applies to <see cref="ExportFormat.Json"/>.
+        /// Only applies to <see cref="ExportFormat.Json"/>. <see cref="ExportFormat.Xml"/> nests items by default.
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
