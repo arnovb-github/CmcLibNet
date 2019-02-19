@@ -15,7 +15,7 @@ namespace Vovin.CmcLibNet.Export
             : base(cursor, settings) {}
 
         #endregion
-
+        protected internal override void WriteOut(string fileName, string sheetName) { }
         protected internal override void WriteOut(string fileName)
         {
             _ds = base.CreateDataSetFromCursorColumns();

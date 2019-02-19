@@ -619,6 +619,15 @@ namespace Vovin.CmcLibNet.Database
             if (settings != null) { exportEngine.Settings = settings; } // store custom settings
             exportEngine.ExportCursor(this, fileName, exportEngine.Settings);
         }
+
+        /// <inheritdoc />
+        public void ExportToFile(string fileName, string sheetName, Export.IExportSettings settings = null) // tools like PowerShell reference the class, not the interface, so any optional parameters defined in the interface must be optional in the class as well.
+        {
+            Export.ExportEngine exportEngine = new Export.ExportEngine();
+            if (settings != null) { exportEngine.Settings = settings; } // store custom settings
+            exportEngine.ExportCursor(this, fileName, exportEngine.Settings, sheetName);
+        }
+
         /// <inheritdoc />
         public List<string> ReadRow(int lRow)
         {

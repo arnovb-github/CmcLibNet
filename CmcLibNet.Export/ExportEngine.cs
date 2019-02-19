@@ -85,10 +85,9 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="cur">ICommenceCursor</param>
         /// <param name="fileName">file name</param>
         /// <param name="settings">IExportSettings</param>
-        internal void ExportCursor(ICommenceCursor cur, string fileName, IExportSettings settings)
+        /// <param name="sheetName">Excel sheet name. Only used with <see cref="ExportFormat.Excel"/>.</param>
+        internal void ExportCursor(ICommenceCursor cur, string fileName, IExportSettings settings, string sheetName = null)
         {
-            cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
-
             // exporting may take a long time, and the system may go into power saving mode
             // this is annoying, so we tell the system not to go into sleep/hibernation
             // this may or may not be a good idea...
@@ -97,25 +96,14 @@ namespace Vovin.CmcLibNet.Export
             try
             {
                 ps.EnableConstantDisplayAndPower(true, "Performing lengthy Commence export");
-                if (settings.NestConnectedItems)
+
+                cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
+                if (settings.NestConnectedItems && settings.ExportFormat == ExportFormat.Json)
                 {
-                    /* Nested exports only support XML and JSON for now.
+                    /* Nested exports for Json.
                      * Internally, all returned Commence data are first put into a ADO.NET dataset.
-                     * Then that dataset is use to generate the XML or JSON using native ADO.NET or NewtonSoft serialization methods.
-                     * Transforming Commence data to an ADO.NET dataset takes a bit of time and is not 100% fail-safe yet.
-                     * The time to create it however is negligible compared to the reading of Commence cursor.
-                     * In future versions, it may be that all export functions use a dataset.
-                     * However, creating an in-memory dataset on top of the Commence memory stuff impacts RAM usage.
+                     * Then that dataset is serialzed yo the JSON .
                      */
-                    if (settings.ExportFormat == ExportFormat.Json)
-                    {
-                        // we're okay for now but we will not win coding prizes for this ;->
-                    }
-                    else
-                    {
-                        // commence.exe will be released even when this error is thrown when using compiled assembly, not in debugger.
-                        throw new NotSupportedException("The requested export format cannot be nested.");
-                    }
                     using (_writer = new AdoNetWriter(cur, settings))
                     {
                         SubscribeToWriterEvents(_writer);
@@ -127,10 +115,18 @@ namespace Vovin.CmcLibNet.Export
                     using (_writer = this.GetExportWriter(cur, settings))
                     {
                         SubscribeToWriterEvents(_writer);
-                        _writer.WriteOut(fileName);
+                        switch (settings.ExportFormat)
+                        {
+                            case ExportFormat.Excel:
+                                _writer.WriteOut(fileName, sheetName);
+                                break;
+                            default:
+                                _writer.WriteOut(fileName);
+                                break;
+                        }
                     }
                 }
-            } // try
+            }
             finally
             {
                 ps.EnableConstantDisplayAndPower(false);
@@ -152,54 +148,44 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public void ExportView(string viewName, string fileName, IExportSettings settings = null)
         {
-            string _viewName = string.Empty;
-
-            if (!String.IsNullOrEmpty(viewName))
-            {
-                _viewName = viewName;
-            }
-            else
-            {
-                Database.IActiveViewInfo av = _db.GetActiveViewInfo();
-                if (av != null && String.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
-                {
-                    _viewName = av.Name;
-                }
-                else
-                {
-                    throw new CommenceCOMException("No active view could be exported. Either no data view is currently active, or it is an item detail form.");
-                }
-            }
+            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
             if (settings != null) { this.Settings = settings; } // store custom settings
-            ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default);
-            ExportCursor(cur, fileName, this.Settings);
+            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
+            {
+                ExportCursor(cur, fileName, this.Settings);
+            }
+        }
+
+        /// <inheritdoc />
+        public void ExportView(string viewName, string fileName, string sheetName, IExportSettings settings = null)
+        {
+            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
+            if (settings != null) { this.Settings = settings; } // store custom settings
+            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
+            {
+                ExportCursor(cur, fileName, this.Settings, sheetName);
+            }
         }
 
         /// <inheritdoc />
         public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
         {
             if (settings != null) { this.Settings = settings; } // use custom settings if supplied
-            CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default;
-            if (this.Settings.SkipConnectedItems && this.Settings.CustomHeaders == null)
+            CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
             {
                 // User requested we skip connections.
                 // A default cursor on a category contains all fields including connections.
                 // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
                 // We optimize here by only including direct fields in the cursor
-                // WAIT...we cannot do that because of potential custom headers...
-                // okay, we only optimize when no custom headers were passed
-                flags = flags | CmcOptionFlags.IgnoreSyncCondition;
-                using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags))
+                using (ICommenceCursor cur = GetCursorWithJustDirectFields(categoryName, flags))
                 {
-                    string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
-                    cur.Columns.AddDirectColumns(fieldNames);
-                    cur.Columns.Apply();
                     ExportCursor(cur, fileName, this.Settings);
                 }
             }
             else
             {
-            flags = flags | CmcOptionFlags.All | CmcOptionFlags.IgnoreSyncCondition; // slap on some more flags
+            flags = flags | CmcOptionFlags.All; // slap on some more flags
             using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category,flags))
                 {
                     ExportCursor(cur, fileName, this.Settings);
@@ -207,6 +193,55 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
+        /// <inheritdoc />
+        public void ExportCategory(string categoryName, string fileName, string sheetName, IExportSettings settings = null)
+        {
+            if (settings != null) { this.Settings = settings; } // use custom settings if supplied
+            CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
+            {
+                // User requested we skip connections.
+                // A default cursor on a category contains all fields including connections.
+                // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
+                // We optimize here by only including direct fields in the cursor
+                using (ICommenceCursor cur = GetCursorWithJustDirectFields(categoryName, flags))
+                {
+                    ExportCursor(cur, fileName, this.Settings, sheetName);
+                }
+            }
+            else
+            {
+                flags = flags | CmcOptionFlags.All; // slap on some more flags
+                using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags))
+                {
+                    ExportCursor(cur, fileName, this.Settings, sheetName);
+                }
+            }
+        }
+
+        private string GetActiveViewName()
+        {
+            string retval = string.Empty;
+            Database.IActiveViewInfo av = _db.GetActiveViewInfo();
+            if (av != null && String.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
+            {
+                retval = av.Name;
+            }
+            else
+            {
+                throw new CommenceCOMException("Could not determine what view is active in Commence.");
+            }
+            return retval;
+        }
+
+        private ICommenceCursor GetCursorWithJustDirectFields(string categoryName, CmcOptionFlags flags )
+        {
+            ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags);
+            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
+            cur.Columns.AddDirectColumns(fieldNames);
+            cur.Columns.Apply();
+            return cur;
+        }
         /// <summary>
         /// Factory method for creating the required export writer object for a cursor export.
         /// </summary>
@@ -293,9 +328,9 @@ namespace Vovin.CmcLibNet.Export
                 _db.Close();
             }
         }
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
         /// <inheritdoc />
         public IExportSettings Settings

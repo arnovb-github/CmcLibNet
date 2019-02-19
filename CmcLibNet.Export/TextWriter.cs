@@ -21,6 +21,7 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Methods
+        protected internal override void WriteOut(string fileName, string sheetName) { }
         protected internal override void WriteOut(string fileName)
         {
             if (base.IsFileLocked(new FileInfo(fileName)))

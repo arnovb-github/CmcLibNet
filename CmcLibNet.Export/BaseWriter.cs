@@ -60,8 +60,7 @@ namespace Vovin.CmcLibNet.Export
         ///// Used for creating unique labels for columnnames if they contain duplicates.
         ///// </summary>
         //string _label = null;
-        
-    #endregion
+        #endregion
 
         #region Constructors
         /// <summary>
@@ -93,11 +92,21 @@ namespace Vovin.CmcLibNet.Export
 
         #region Methods
         /// <summary>
-        /// Write the export file
+        /// Write the export file.
         /// </summary>
-        /// <param name="fileName">File name</param>
+        /// <param name="fileName">File name.</param>
         /// <exception cref="System.IO.IOException">File in use.</exception>
+        /// <exception cref="System.ArgumentNullException">Argument is null.</exception>
         protected internal abstract void WriteOut(string fileName);
+
+        /// <summary>
+        /// Write the export file.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        /// <param name="sheetName">Worksheet name. Only used with <see cref="ExportFormat.Excel"/>.</param>
+        /// <exception cref="System.IO.IOException">File in use.</exception>
+        /// <exception cref="System.ArgumentNullException">Argument is null.</exception>
+        protected internal abstract void WriteOut(string fileName, string sheetName);
 
         /// <summary>
         /// Method that deals with the data as it is being read.
@@ -151,7 +160,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        protected internal virtual bool IsFileLocked(FileInfo file)
+        protected internal bool IsFileLocked(FileInfo file)
         {
             // file does not exist so it cannot be locked
             if (!File.Exists(file.FullName)) { return false; }
