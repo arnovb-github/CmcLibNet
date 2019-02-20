@@ -19,13 +19,19 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         CreateNewWorksheet = 1,
         /// <summary>
+        /// Replaces the workheet. Overwrites existing worksheet! This is the default.
+        /// </summary>
+        ReplaceWorksheet = 2,
+        /// <summary>
         /// Refresh the worksheet.
         /// </summary>
-        RefreshWorksheet = 2,
+        /// <remarks>Not implemented until I understand OpenXML</remarks>
+        /// <exception cref="NotImplementedException"></exception>
+        RefreshWorksheet = 3,
         /// <summary>
-        /// Append data to the worksheet
+        /// Append data to the worksheet.
         /// </summary>
-        AppendToWorksheet = 3
+        AppendToWorksheet = 4
 
     }
 }
