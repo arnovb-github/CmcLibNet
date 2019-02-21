@@ -106,6 +106,24 @@ namespace Vovin.CmcLibNet
             }
         }
 
+        internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(CommenceFieldType fieldType)
+        {
+            switch (fieldType)
+            {
+                case CommenceFieldType.Number:
+                case CommenceFieldType.Calculation:
+                case CommenceFieldType.Sequence:
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                case CommenceFieldType.Date:
+                case CommenceFieldType.Time:
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
+                case CommenceFieldType.Checkbox:
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
+                default:
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
+            }
+        }
+
         internal static string GetOleDbTypeStringForCommenceField(CommenceFieldType fieldType)
         {
             switch (fieldType)
@@ -162,12 +180,18 @@ namespace Vovin.CmcLibNet
             }
         }
 
-        internal static string EscapeString(string cmcFieldName, string replaceInvalidCharsWith)
+        /// <summary>
+        /// Replace all non-letter and non-digit characters.
+        /// </summary>
+        /// <param name="str">Input string</param>
+        /// <param name="replaceInvalidCharsWith">Replacement string.</param>
+        /// <returns></returns>
+        internal static string EscapeString(string str, string replaceInvalidCharsWith)
         {
-            if (string.IsNullOrEmpty(cmcFieldName)) { return cmcFieldName; }
+            if (string.IsNullOrEmpty(str)) { return str; }
             string pattern = @"[^.\d\w]"; // TODO check for multiple occurences
             // returns a string that contains only alfanumeric characters, everything else replaced
-            return Regex.Replace(cmcFieldName, pattern, replaceInvalidCharsWith.ToString());
+            return Regex.Replace(str, pattern, replaceInvalidCharsWith.ToString());
         }
 
         internal static string AddUniqueIdentifier(string testString, List<string> list, uint appendNumber, uint maxIterations, uint maxLength)
@@ -180,13 +204,13 @@ namespace Vovin.CmcLibNet
             // No, let's limit that to  trailing number that contains (1), (2), etc.
             // first analyze which list items have a trailing '(number)'part
             string pattern = @"\(\d+\)$";
-            IEnumerable<string> existingThingies = GetStringsWithMatchingRegexPattern(list, pattern);
+            IEnumerable<string> existingStrings = GetStringsWithMatchingRegexPattern(list, pattern);
             // get the one with the highest numer
-            if (existingThingies.Count() > 0)
+            if (existingStrings.Count() > 0)
             {
                 // extract the numbers
                 List<uint> numbers = new List<uint>();
-                foreach (string s in existingThingies)
+                foreach (string s in existingStrings)
                 {
                     Regex r = new Regex(@"\d+\)$");
                     Match match = r.Match(s);
