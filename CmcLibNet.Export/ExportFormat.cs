@@ -31,17 +31,15 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         Text = 3,
         /// <summary>
-        /// Export to Microsoft Excel (xslx extension is mandatory).
-        /// <remarks>No checks are performed to see if the Excel sheet can actually hold all rows.
-        /// <para>Excel does not have to be installed on the system. CmcLibNet uses the <c>Microsoft.ACE.OLEDB.12.0</c> driver to create the file.
-        /// This driver is installed with Microsoft Office, but is also available as separate component. There are two flavors (32 and 64 bit), CmcLibNet was only tested with the 32-bit version.</para>
-        /// <para>Because CmcLibNet does not communicate with Excel at all, the export is much faster.
-        /// There is a downside to this: columns cannot be formatted.
-        /// Excel does a pretty good job at guessing the data type, but things like columnwidths remain default.</para>
-        /// <para>The filename has to have the <c>.xslx</c> extension. CmcLibNet cannot export to an open file.
-        /// It can also not write data to a sheet with the same name as the exported Commence category.
-        /// If you want an unattended export, set <seealso cref="IExportSettings.DeleteExcelFileBeforeExport"/> to <c>true</c> and the file will simply be recreated.
-        /// </para></remarks>
+        /// Export to Microsoft Excel (version 2007 or higher, the .xslx extension is mandatory).
+        /// <remarks>Excel does not have to be installed.
+        /// <para>If you choose an existing Excel file, a sheet will be inserted, <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
+        /// <para>If an existing file is specified, CmcLibNet will try to use it's styles for formatting data.</para>
+        /// <para>The recommended way of using Excel exports is to start with a non-existing spreadsheet document,
+        /// to which you can add spreadseets (and references like formulas etc. ) later.</para>
+        /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will recreate the worksheet
+        /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
+        /// </remarks>
         /// </summary>
         Excel = 4,
         /// <summary>
