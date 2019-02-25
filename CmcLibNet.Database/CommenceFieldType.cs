@@ -90,7 +90,7 @@ namespace Vovin.CmcLibNet.Database
         // in Commence it is just a specially formatted number type field
         // However, it could be useful(?)
         // Getting a reliable format may prove tricky,
-        // because the oly way to tell is to see if a numeric value is preceded by a currency sign
+        // because the only way to tell is to see if a numeric value is preceded by a currency sign
         // so you nee a) data and b) it can be any currency
     }
 }
