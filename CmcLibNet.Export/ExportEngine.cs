@@ -228,6 +228,7 @@ namespace Vovin.CmcLibNet.Export
                 case ExportFormat.Excel:
                     //_writer = new ExcelWriterUsingXml(cursor, settings);
                     settings.XSDCompliant = true;
+                    settings.SplitConnectedItems = false;
                     return new ExcelWriterUsingOpenXml(cursor, settings);
                     //return new ExcelWriterUsingOleDb(cursor, settings);
                 case ExportFormat.Event:
