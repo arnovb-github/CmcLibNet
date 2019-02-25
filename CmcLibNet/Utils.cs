@@ -120,7 +120,7 @@ namespace Vovin.CmcLibNet
                 case CommenceFieldType.Checkbox:
                     return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
                 default:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.String;
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.String; // should ideally be SharedString for filesize
             }
         }
 
