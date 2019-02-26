@@ -79,8 +79,6 @@ namespace Vovin.CmcLibNet.Export
                         _sheetName = Utils.AddUniqueIdentifier(_sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MAX_SHEETNAME_LENGTH);
                         InsertNewSheet(_sheetName);
                         break;
-                    case ExcelUpdateOptions.RefreshWorksheet:
-                        throw new NotImplementedException();
                     case ExcelUpdateOptions.ReplaceWorksheet:
                         if (!existingSheets.ContainsValue(_sheetName))
                         {

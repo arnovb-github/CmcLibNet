@@ -11,7 +11,7 @@ namespace Vovin.CmcLibNet.Export
     public enum ExcelUpdateOptions
     {
         /// <summary>
-        /// Create a new workbook. Overwrites existing workbook!
+        /// Create a new workbook. Overwrites existing workbook.
         /// </summary>
         CreateNewWorkbook = 0,
         /// <summary>
@@ -19,19 +19,13 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         CreateNewWorksheet = 1,
         /// <summary>
-        /// Replaces the workheet. Overwrites existing worksheet! This is the default.
+        /// (Default) Replaces the workheet. Overwrites existing worksheet.
         /// </summary>
         ReplaceWorksheet = 2,
         /// <summary>
-        /// Refresh the worksheet.
-        /// </summary>
-        /// <remarks>Not implemented until I understand OpenXML</remarks>
-        /// <exception cref="NotImplementedException"></exception>
-        RefreshWorksheet = 3,
-        /// <summary>
         /// Append data to the worksheet.
         /// </summary>
-        AppendToWorksheet = 4
+        AppendToWorksheet = 3
 
     }
 }
