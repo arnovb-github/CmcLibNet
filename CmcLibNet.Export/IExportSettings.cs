@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -36,9 +37,10 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Use custom columnheaders. Make sure they are all unique and match the number of exported fields.
         /// </summary>
-        /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.</remarks>
-        /// <remarks>Supply custom headers for all columns, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</remarks>
-        /// <remarks>Datatype is object for compatibility with COM.</remarks>
+        /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.
+        /// <para>Supply custom headers for all columns, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</para>
+        /// <para>Type is <c>Object</c> for compatibility with COM.</para>
+        /// </remarks>
         object[] CustomHeaders { get; set;}
         /// <summary>
         /// Data format the export engine should generate. Default is XML.
@@ -67,17 +69,18 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         string TextQualifier { get; set; } // we really want a char, but COM Interop will complain
         /// <summary>
-        /// Use headers on the first row in table-like exports (like Text, HTML). Default is <c>true</c>.
+        /// Use headers on the first row in table-like exports (like Text, HTML, Excel). Default is <c>true</c>.
         /// </summary>
         bool HeadersOnFirstRow { get; set; }
         /// <summary>
-        /// Make values ISO8601-compliant. This allows for use of so-called 'Simple data types' such as "date", "time" and "boolean" in XSD Schemas.
+        /// Make values ISO8601-compliant.
         /// </summary>
         bool XSDCompliant { get; set; }
-        /// <summary>
-        /// XML Schema Definition file associated with XML export. This property is not intended for use in your code. It is exposed publicly to fulfill COM Interop requirements. Setting this property has no effect.
-        /// </summary>
-        string XSDFile { get; set; }
+        ///// <summary>
+        ///// XML Schema Definition file associated with XML export. This property is not intended for use in your code. It is exposed publicly to fulfill COM Interop requirements. Setting this property has no effect.
+        ///// </summary>
+        //[Obsolete]
+        //string XSDFile { get; set; }
         /// <summary>
         /// Return connection data as distinct items. Formatting options will be ignored.
         /// </summary>
@@ -86,7 +89,7 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
-        /// Make Commence use DDE calls to retrieve data. WARNING: extremely slow! I am not kidding!
+        /// Make Commence use DDE calls to retrieve data. <b>WARNING:</b> extremely slow!
         /// </summary>
         /// <remarks>Should only be used as a last resort, as this can take a very long time (up to days!).
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
@@ -113,13 +116,13 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Maximum number of characters to retrieve from fields. This includes connected fields.
         /// The default when exporting from the export engine is 500.000, which is about five times the Commence default.
-        /// <see cref="Database.ICommenceCursor.MaxFieldSize"/>
         /// </summary>
         /// <remarks>Setting this can have severe impact on memory usage. Note that when set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
         int MaxFieldSize { get; set; }
         /// <summary>
         /// Delete and recreate Excel file when exporting. Only applies to <see cref="ExportFormat.Excel"/>. Default is <c>true</c>.
         /// </summary>
+        [Obsolete]
         bool DeleteExcelFileBeforeExport { get; set; }
         /// <summary>
         /// Read Commence data async. In terms of performance this is barely noticable. Set to false for slightly easier debugging. Defaults to <c>true</c>.
@@ -134,7 +137,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <remarks>For Text, Html and Event writers this property is ignored
         /// <list type="table">
-        /// <listheader>Meaning</listheader>
+        /// <listheader><term>Export format</term><description>Notes</description></listheader>
         /// <item><term><see cref="ExportFormat.Excel"/></term><description>Custom sheetname</description></item>
         /// <item><term><see cref="ExportFormat.Json"/></term><description>Custom top-level node name</description></item>
         /// <item><term><see cref="ExportFormat.Xml"/></term><description>Custom root element name</description></item>

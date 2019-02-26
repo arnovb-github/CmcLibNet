@@ -73,8 +73,8 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        /// <inheritdoc />
-        public string XSDFile { get; set; } = null;
+        ///// <inheritdoc />
+        //public string XSDFile { get; set; } = null;
 
         /// <inheritdoc />
         public bool NestConnectedItems { get; set; }
