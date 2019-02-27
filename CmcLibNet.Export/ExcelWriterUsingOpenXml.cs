@@ -10,15 +10,20 @@ using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
+    /// <summary>
+    /// Writes a Microsoft Excel (xlsx) file using OpenXML.
+    /// This class takes the DOM approach (as opposed to the SAX approach).
+    /// This means that when dealing with very large datasets, memory may be an issue.
+    /// </summary>
     internal class ExcelWriterUsingOpenXml : BaseWriter
     {
         #region Fields
         private SpreadsheetDocument _spreadSheetDocument = null;
         private string _sheetName = string.Empty;
-        private readonly int MAX_SHEETNAME_LENGTH = 31;// as per Microsoft documentation
+        private readonly int MaxSheetNameLength = 31;// as per Microsoft documentation
         private readonly int MaxExcelCellSize = (int)Math.Pow(2, 15) - 1; // as per Microsoft documentation
         private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
-        private List<ColumnDefinition> columnDefinitions = null;
+        private readonly List<ColumnDefinition> columnDefinitions = null;
         private Dictionary<string, string> existingSheets = null;
         private string _filename = string.Empty;
         #endregion
@@ -27,7 +32,7 @@ namespace Vovin.CmcLibNet.Export
         public ExcelWriterUsingOpenXml(ICommenceCursor cursor, IExportSettings settings) : base(cursor, settings)
         {
             columnDefinitions = new List<ColumnDefinition>(_settings.UseThids ? base.ColumnDefinitions.Skip(1) : base.ColumnDefinitions);
-            _sheetName = string.IsNullOrEmpty(settings.CustomRootNode) ? Utils.EscapeString(_dataSourceName, "_").Left(MAX_SHEETNAME_LENGTH) : settings.CustomRootNode;
+            _sheetName = string.IsNullOrEmpty(settings.CustomRootNode) ? Utils.EscapeString(_dataSourceName, "_").Left(MaxSheetNameLength) : settings.CustomRootNode;
         }
 
         #endregion
@@ -62,7 +67,7 @@ namespace Vovin.CmcLibNet.Export
             }
 
             _filename = fileName;
-            _sheetName = Utils.EscapeString(_sheetName, "_").Left(MAX_SHEETNAME_LENGTH);
+            _sheetName = Utils.EscapeString(_sheetName, "_").Left(MaxSheetNameLength);
             // if workbook does not exist, create one
             if (!File.Exists(fileName) || _settings.XlUpdateOptions == ExcelUpdateOptions.CreateNewWorkbook)
             {
@@ -76,7 +81,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     case ExcelUpdateOptions.CreateNewWorksheet: // insert new worksheet in existing doc
                         // sheetname must be unique
-                        _sheetName = Utils.AddUniqueIdentifier(_sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MAX_SHEETNAME_LENGTH);
+                        _sheetName = Utils.AddUniqueIdentifier(_sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MaxSheetNameLength);
                         InsertNewSheet(_sheetName);
                         break;
                     case ExcelUpdateOptions.ReplaceWorksheet:
