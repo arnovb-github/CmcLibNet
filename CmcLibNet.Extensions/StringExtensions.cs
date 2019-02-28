@@ -7,21 +7,21 @@ namespace Vovin.CmcLibNet.Extensions
     /// </summary>
     internal static class StringExtensions
     {
-        /// <summary>
-        /// Returns number of occurrences of a character in a string
-        /// </summary>
-        /// <param name="str">String to search in.</param>
-        /// <param name="c">Character to count.</param>
-        /// <returns></returns>
-        internal static int CountChar(this string str, char c)
-        {
-            int counter = 0;
-            foreach (char x in str)
-            {
-                if (x == c) { counter++; }
-            }
-            return counter;
-        }
+        ///// <summary>
+        ///// Returns number of occurrences of a character in a string
+        ///// </summary>
+        ///// <param name="str">String to search in.</param>
+        ///// <param name="c">Character to count.</param>
+        ///// <returns></returns>
+        //internal static int CountChar(this string str, char c)
+        //{
+        //    int counter = 0;
+        //    foreach (char x in str)
+        //    {
+        //        if (x == c) { counter++; }
+        //    }
+        //    return counter;
+        //}
 
         /// <summary>
         /// Returns Nth index of character in a string
@@ -32,7 +32,7 @@ namespace Vovin.CmcLibNet.Extensions
         /// <param name="nth">Nth occurrence</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth)
+        internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth) // TODO this is not doing what I intended it to do
         {
             if (nth < 1)
                 throw new NotSupportedException("Param 'nth' must be greater than 0!");
