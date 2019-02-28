@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Extensions
         ///// <param name="str">String to search in.</param>
         ///// <param name="c">Character to count.</param>
         ///// <returns></returns>
-        //internal static int CountChar(this string str, char c)
+        //internal static int Count(this string str, char c)
         //{
         //    int counter = 0;
         //    foreach (char x in str)
