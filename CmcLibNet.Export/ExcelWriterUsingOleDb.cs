@@ -167,7 +167,7 @@ namespace Vovin.CmcLibNet.Export
                         value = v.DirectFieldValue;
                     }
                     // if we are dealing with large text fields, we may have more than allowed number of newlines
-                    if (value.CountChar('\n') > MaxExcelNewLines)
+                    if (value.Count(c => c.Equals('\n')) > MaxExcelNewLines)
                     {
                         value = value.Substring(0, value.IndexOfNthChar('\n', 0, MaxExcelNewLines));
                     }
@@ -189,7 +189,7 @@ namespace Vovin.CmcLibNet.Export
                             cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues);
                         }
                         // if we are dealing with large text fields, we still may have more than allowed number of newlines
-                        if (cValue.CountChar('\n') > MaxExcelNewLines)
+                        if (cValue.Count(c => c.Equals('\n')) > MaxExcelNewLines)
                         {
                             cValue = cValue.Substring(0, cValue.IndexOfNthChar('\n', 0, MaxExcelNewLines));
                         }
