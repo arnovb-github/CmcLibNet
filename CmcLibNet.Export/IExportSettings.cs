@@ -125,8 +125,12 @@ namespace Vovin.CmcLibNet.Export
         [Obsolete]
         bool DeleteExcelFileBeforeExport { get; set; }
         /// <summary>
-        /// Read Commence data async. In terms of performance this is barely noticable. Set to false for slightly easier debugging. Defaults to <c>true</c>.
+        /// Read Commence data async. Async reads tend to be slightly faster (5-10%), but it depends on a number of things,
+        /// such as <see cref="NumRows"/> and <see cref="MaxFieldSize"/>.
+        /// Default is <c>true</c>.
         /// </summary>
+        /// <remarks>When <c>true</c>, errors are collected in a <see cref="System.AggregateException"/>. They are harder to debug.
+        /// Set this to <c>false</c> if you want the immediate exception.</remarks>
         bool ReadCommenceDataAsync { get; set; }
         /// <summary>
         /// Update options when exporting to Microsoft Excel
