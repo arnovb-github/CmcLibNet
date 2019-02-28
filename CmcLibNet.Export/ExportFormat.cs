@@ -31,26 +31,26 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         Text = 3,
         /// <summary>
-        /// Export to Microsoft Excel (version 2007 or higher, the .xslx extension is mandatory).
+        /// Export to Microsoft Excel xslx format (Excel 2007 or higher).
         /// <remarks>Excel does not have to be installed.
         /// <para>If you choose an existing Excel file, a sheet will be inserted, <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
         /// <para>If an existing file is specified, CmcLibNet will try to use it's styles for formatting data.</para>
-        /// <para>The recommended way of using Excel exports is to start with a non-existing spreadsheet document,
-        /// to which you can add spreadseets (and references like formulas etc. ) later.</para>
         /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will recreate the worksheet
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
+        /// <para>The export engine requires exclusive access to the Excel file.
+        /// You cannot use Excel VBA to export Commence data into the same workbook that you're macro code is running from.</para>
         /// </remarks>
         /// </summary>
         Excel = 4,
         /// <summary>
-        /// Export to Google Sheets. Requires Google account. Not implemented yet, may well be too slow anyway.
+        /// Export to Google Sheets. Requires Google account. Not implemented, may well be too slow anyway.
         /// </summary>
         GoogleSheets = 5,
         /// <summary>
-        /// Does not export to file, but instead reads the data and emits a <see cref="IExportEngineEvents.ExportProgressChanged"/> event that you can subscribe to.
+        /// Just reads the data and emits a <see cref="IExportEngineEvents.ExportProgressChanged"/> event that you can subscribe to.
         /// <para>The <see cref="ExportProgressAsStringChangedArgs.RowValues"/> property will contain the Commence data in a JSON representation.</para>
         /// <para>The number of items contained in the JSON depends on the number of rows you request.</para>
-        /// <para>The filename argument passed to any Export* methods is simply ignored when using this setting.</para>
+        /// <para>The filename argument is ignored when using this setting.</para>
         /// </summary>
         Event = 6,
     }
