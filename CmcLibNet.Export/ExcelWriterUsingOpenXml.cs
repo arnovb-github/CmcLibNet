@@ -175,12 +175,16 @@ namespace Vovin.CmcLibNet.Export
         /// <returns>Valid Excell cell value.</returns>
         private string SanitizeExcellCellValue(string value)
         {
-            if (string.IsNullOrEmpty(value)) { return value; }
+            if (string.IsNullOrEmpty(value) || !value.Contains("\n")) { return value; }
+
+            string cr = "\r\n";
             // normalize line endings
-            string v = value.Replace("\r\n", "\n").Replace("\n", "\r\n");
+            string v = value.Replace(cr, "\n").Replace("\n", cr);
             // see if the number of newlines does't exceed maximum
-            int lastCR = v.IndexOfNthChar('\r', 0, MaxExcelNewLines);
-            if (lastCR != -1) { v = v.Substring(0, lastCR - 1); }
+            if (v.Count(c => c.Equals('\n')) > MaxExcelNewLines)
+            {
+             v = v.Substring(0, v.IndexOfNthChar('\n', 0, MaxExcelNewLines));
+            }
             // see if string doesn't exceed maximum length
             v = v.Length > MaxExcelCellSize ? v.Substring(0, MaxExcelCellSize) : v;
             return v;
