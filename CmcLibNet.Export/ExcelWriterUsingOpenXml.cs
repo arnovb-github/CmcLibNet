@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Extensions;
 
@@ -141,8 +142,8 @@ namespace Vovin.CmcLibNet.Export
                         // Note that we assume that the connected items are not split!
                         if (v.ConnectedFieldValues != null)
                         {
-                            string value = SanitizeExcellCellValue(v.ConnectedFieldValues[0]);
-                            //c.CellValue = new CellValue(string.Join("\n", v.ConnectedFieldValues)); // in case values were split
+                            string value = Utils.RemoveControlCharacters(v.ConnectedFieldValues[0]);
+                            value = FitExcelCellValue(value);
                             c.CellValue = new CellValue(value);
                             // inline strings cannot deal with line breaks
                             c.DataType = CellValues.String; // should we bother putting this in SharedString?
@@ -151,7 +152,8 @@ namespace Vovin.CmcLibNet.Export
                     }
                     else
                     {
-                        string value = SanitizeExcellCellValue(v.DirectFieldValue);
+                        string value = Utils.RemoveControlCharacters(v.DirectFieldValue);
+                        value = FitExcelCellValue(value);
                         c.DataType = Utils.GetTypeForOpenXml(v.ColumnDefinition.CommenceFieldDefinition.Type); // inline strings cannot deal with line breaks
                         if (v.DirectFieldValue.Contains("\r\n"))
                         {
@@ -173,7 +175,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="value">input string.</param>
         /// <returns>Valid Excell cell value.</returns>
-        private string SanitizeExcellCellValue(string value)
+        private string FitExcelCellValue(string value)
         {
             if (string.IsNullOrEmpty(value) || !value.Contains("\n")) { return value; }
 
@@ -686,6 +688,8 @@ namespace Vovin.CmcLibNet.Export
                     return this.CellFormatStyleIndexGeneral;
             }
         }
+
+
         #endregion
 
         #region Properties
