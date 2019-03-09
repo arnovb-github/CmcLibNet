@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vovin.CmcLibNet.Database;
-using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -16,7 +15,7 @@ namespace Vovin.CmcLibNet.Export
         private bool disposed = false;
         private string _fileName;
         private readonly int MaxExcelCellSize = (int)Math.Pow(2, 15) - 1; // as per Microsoft documentation
-        private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
+        //private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
         private OleDbConnections Connection = null;
         private OleDbConnection cn = null;
         private OleDbCommand cmd = null;
@@ -166,11 +165,11 @@ namespace Vovin.CmcLibNet.Export
                     {
                         value = v.DirectFieldValue;
                     }
-                    // if we are dealing with large text fields, we may have more than allowed number of newlines
-                    if (value.Count(c => c.Equals('\n')) > MaxExcelNewLines)
-                    {
-                        value = value.Substring(0, value.IndexOfNthChar('\n', 0, MaxExcelNewLines));
-                    }
+                    //// if we are dealing with large text fields, we may have more than allowed number of newlines
+                    //if (value.Count(c => c.Equals('\n')) > MaxExcelNewLines)
+                    //{
+                    //    value = value.Substring(0, value.IndexOfNthChar('\n', 0, MaxExcelNewLines));
+                    //}
                     cmd.Parameters[paramIdentifier].Value = value;
                 }
                 else
@@ -179,20 +178,23 @@ namespace Vovin.CmcLibNet.Export
                     // there can be many more values in a connection than an Excel cell can hold
                     if (v.ConnectedFieldValues != null)
                     {
-                        // check maximum number of newlines
-                        if (_settings.TextDelimiterConnections == "\n")
-                        {
-                            cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues.Take(MaxExcelNewLines));
-                        }
-                        else
-                        {
-                            cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues);
-                        }
-                        // if we are dealing with large text fields, we still may have more than allowed number of newlines
-                        if (cValue.Count(c => c.Equals('\n')) > MaxExcelNewLines)
-                        {
-                            cValue = cValue.Substring(0, cValue.IndexOfNthChar('\n', 0, MaxExcelNewLines));
-                        }
+                        //// check maximum number of newlines
+                        //if (_settings.TextDelimiterConnections == "\n")
+                        //{
+                        //    cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues.Take(MaxExcelNewLines));
+                        //}
+                        //else
+                        //{
+                        //    cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues);
+                        //}
+
+                        cValue = string.Join(_settings.TextDelimiterConnections, v.ConnectedFieldValues);
+
+                        //// if we are dealing with large text fields, we still may have more than allowed number of newlines
+                        //if (cValue.Count(c => c.Equals('\n')) > MaxExcelNewLines)
+                        //{
+                        //    cValue = cValue.Substring(0, cValue.IndexOfNthChar('\n', 0, MaxExcelNewLines));
+                        //}
 
                         // make sure length doesn't exceed Excel cell limit
                         cValue = cValue.Length > MaxExcelCellSize ? cValue.Substring(0, MaxExcelCellSize) : cValue;

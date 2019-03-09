@@ -23,24 +23,24 @@ namespace Vovin.CmcLibNet.Extensions
         //    return counter;
         //}
 
-        /// <summary>
-        /// Returns Nth index of character in a string
-        /// </summary>
-        /// <param name="input">String to search in</param>
-        /// <param name="value">String to search for</param>
-        /// <param name="startIndex">Start index</param>
-        /// <param name="nth">Nth occurrence</param>
-        /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
-        internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth) // TODO this is not doing what I intended it to do
-        {
-            if (nth < 1)
-                throw new NotSupportedException("Param 'nth' must be greater than 0!");
-            if (nth == 1)
-                return input.IndexOf(value, startIndex);
+        ///// <summary>
+        ///// Returns Nth index of character in a string
+        ///// </summary>
+        ///// <param name="input">String to search in</param>
+        ///// <param name="value">String to search for</param>
+        ///// <param name="startIndex">Start index</param>
+        ///// <param name="nth">Nth occurrence</param>
+        ///// <returns></returns>
+        ///// <exception cref="NotSupportedException"></exception>
+        //internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth) // TODO this is not doing what I intended it to do
+        //{
+        //    if (nth < 1)
+        //        throw new NotSupportedException("Param 'nth' must be greater than 0!");
+        //    if (nth == 1)
+        //        return input.IndexOf(value, startIndex);
 
-            return input.IndexOfNthChar(value, input.IndexOf(value, startIndex) + 1, --nth);
-        }
+        //    return input.IndexOfNthChar(value, input.IndexOf(value, startIndex) + 1, --nth);
+        //}
 
         /// <summary>
         /// Surround string with character.

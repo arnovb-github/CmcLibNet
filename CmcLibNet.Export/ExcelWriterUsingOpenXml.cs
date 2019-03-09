@@ -23,7 +23,7 @@ namespace Vovin.CmcLibNet.Export
         private string _sheetName = string.Empty;
         private readonly int MaxSheetNameLength = 31;// as per Microsoft documentation
         private readonly int MaxExcelCellSize = (int)Math.Pow(2, 15) - 1; // as per Microsoft documentation
-        private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
+        //private readonly int MaxExcelNewLines = 253; // as per Microsoft documentation
         private readonly List<ColumnDefinition> columnDefinitions = null;
         private Dictionary<string, string> existingSheets = null;
         private string _filename = string.Empty;
@@ -182,12 +182,19 @@ namespace Vovin.CmcLibNet.Export
             string cr = "\r\n";
             // normalize line endings
             string v = value.Replace(cr, "\n").Replace("\n", cr);
-            // see if the number of newlines does't exceed maximum
-            if (v.Count(c => c.Equals('\n')) > MaxExcelNewLines)
-            {
-             v = v.Substring(0, v.IndexOfNthChar('\n', 0, MaxExcelNewLines));
-            }
+            // Check if the number of newlines does't exceed maximum
+            // It seems that while documentation says the maximum number is 253,
+            // control characters are not counted at all?
+            // See: https://support.office.com/en-us/article/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3
+            //if (v.Count(c => c.Equals('\n')) > MaxExcelNewLines)
+            //{
+            // v = v.Substring(0, v.IndexOfNthChar('\n', 0, MaxExcelNewLines)); 
+            //}
             // see if string doesn't exceed maximum length
+            // Excel doesn't seem to count control characters,
+            // but string.Length takes them into account
+            // This means that this can return slightly fewer data than the Excel cell will actually accept
+            //string controlChars = new string(v.Where(c => char.IsControl(c)).ToArray());
             v = v.Length > MaxExcelCellSize ? v.Substring(0, MaxExcelCellSize) : v;
             return v;
         }
