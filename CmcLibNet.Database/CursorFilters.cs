@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
+using System.Text;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -188,7 +187,7 @@ namespace Vovin.CmcLibNet.Database
                 if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
                 {
                     // throwing an error exits a foreach loop
-                    throw new CmcLibNet.CommenceCOMException("Failed to clear filter '" + s + "' on cursor.\n\nYou should recreate the cursor.");
+                    throw new CommenceCOMException("Failed to clear filter '" + s + "' on cursor.\n\nYou should recreate the cursor.");
                 }
             }
             _filters.Clear();
@@ -200,7 +199,7 @@ namespace Vovin.CmcLibNet.Database
             string s = "[ViewFilter(" + cf.ClauseNumber.ToString() + ",\"Clear\")]";
             if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
             {
-                throw new CmcLibNet.CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
+                throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
             }
             _filters.Remove(cf);
             return true;
@@ -218,7 +217,7 @@ namespace Vovin.CmcLibNet.Database
                     string s = "[ViewFilter(" + clauseNumber.ToString() + ",\"Clear\")]";
                     if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
                     {   // throwing an error exits a foreach loop
-                        throw new CmcLibNet.CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
+                        throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
                     }
                     _filters.Remove(f);
                     retval = true;
@@ -260,7 +259,7 @@ namespace Vovin.CmcLibNet.Database
                      * The actual error occurs in CommenceCursor.SetFilter
                      */
                     // throwing an error exits a foreach loop
-                    throw new CmcLibNet.CommenceCOMException("CommenceCursor method SetFilter failed on filter request:\n\n'" + f.ToString() + "'");
+                    throw new CommenceCOMException("CommenceCursor method SetFilter failed on filter request:\n\n'" + f.ToString() + "'");
                 } // if
 
                 // add logic string.
@@ -271,11 +270,11 @@ namespace Vovin.CmcLibNet.Database
             // not very elegant, could do with refactoring? TODO
             if (sb != null)
             {
-                sb.Append(String.Join(",",logic));
+                sb.Append(string.Join(",",logic));
                 sb.Append(")]");
                 if (_cur.SetLogic(sb.ToString(), CmcOptionFlags.Default) == false)
                 {
-                    throw new CmcLibNet.CommenceCOMException("CommenceCursor method SetLogic failed on logic request:\n\n'" + sb.ToString() + "'");
+                    throw new CommenceCOMException("CommenceCursor method SetLogic failed on logic request:\n\n'" + sb.ToString() + "'");
                 }
             }
             return _cur.RowCount; // return number of filtered rows

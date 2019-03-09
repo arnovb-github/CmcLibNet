@@ -110,11 +110,11 @@ namespace Vovin.CmcLibNet.Database
             IViewDef vd = null;
             if (pCursorType == CmcCursorType.View)
             {
-                List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" }); // TODO: create a more manageable list
+                List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" });
                 vd = GetViewDefinition(pName);
                 if (vd != null && unsupported.Contains(vd.TypeDescription))
                 {
-                    throw new NotSupportedException("View is of type: " + vd.TypeDescription + "\nNo cursor can be created on views of the following types:\n\n" + String.Join(", ", unsupported) + ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
+                    throw new NotSupportedException("View is of type: " + vd.TypeDescription + "\nNo cursor can be created on views of the following types:\n\n" + string.Join(", ", unsupported) + ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
                 }
                 try
                 {

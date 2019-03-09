@@ -59,7 +59,7 @@ namespace Vovin.CmcLibNet
         public static T GetValueFromEnumDescription<T>(string description)
         {
             var type = typeof(T);
-            if (!type.IsEnum) throw new InvalidOperationException();
+            if (!type.IsEnum) throw new InvalidOperationException("Type is not an Enum");
             foreach (var field in type.GetFields())
             {
                 var attribute = Attribute.GetCustomAttribute(field,
@@ -75,8 +75,7 @@ namespace Vovin.CmcLibNet
                         return (T)field.GetValue(null);
                 }
             }
-            //throw new ArgumentException("Not found.", "description");
-            return default(T); // returns the default value. May be hard to debug! TODO
+            return default(T); // returns the default value. May be hard to debug!
         }
 
         /// <summary>
@@ -93,7 +92,7 @@ namespace Vovin.CmcLibNet
             {
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
-                    return typeof(double); // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                    return typeof(double);
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return typeof(DateTime);
@@ -113,7 +112,7 @@ namespace Vovin.CmcLibNet
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
                 case CommenceFieldType.Sequence:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number;
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
@@ -131,7 +130,7 @@ namespace Vovin.CmcLibNet
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
                 case CommenceFieldType.Sequence:
-                    return "double"; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                    return "double";
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return "datetime";
@@ -151,7 +150,7 @@ namespace Vovin.CmcLibNet
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
                 case CommenceFieldType.Sequence:
-                    return DbType.Double; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                    return DbType.Double;
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return DbType.DateTime;
@@ -169,7 +168,7 @@ namespace Vovin.CmcLibNet
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
                 case CommenceFieldType.Sequence:
-                    return OleDbType.Double; // TODO is this precise enough? Commence takes what? 8 significant numbers? Decimal is probably overkill
+                    return OleDbType.Double;
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return OleDbType.Date;
@@ -189,7 +188,7 @@ namespace Vovin.CmcLibNet
         internal static string EscapeString(string str, string replaceInvalidCharsWith)
         {
             if (string.IsNullOrEmpty(str)) { return str; }
-            string pattern = @"[^.\d\w]"; // TODO check for multiple occurences
+            string pattern = @"[^.\d\w]";
             // returns a string that contains only alfanumeric characters, everything else replaced
             return Regex.Replace(str, pattern, replaceInvalidCharsWith.ToString());
         }
@@ -263,7 +262,7 @@ namespace Vovin.CmcLibNet
                 {
                     while (retval.Length > maxLength)
                     {
-                        testString = testString.Left(testString.Length - 1); // TODO do we require a check to prevent Left on on empty string?
+                        testString = testString.Left(testString.Length - 1);
                         retval = AppendBracketedString(testString, append.ToString());
                     }
                 }
