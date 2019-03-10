@@ -390,51 +390,6 @@ namespace Vovin.CmcLibNet.Export
                 return _cts;
             }
         }
-        ///// <summary>
-        ///// This works fine, but when the number of rows per iteration is very small, the rowsProcessed number gets confused
-        ///// </summary>
-        //internal void GetDataByAPIAsync()
-        //{
-        //    int rowsProcessed = 0;
-        //    var values = new BlockingCollection<string[][]>();
-        //    var readTask = Task.Factory.StartNew(() =>
-        //    {
-        //        try
-        //        {
-        //            for (int rows = 0; rows < totalRows; rows += numRows)
-        //            {
-        //                string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
-        //                {
-        //                    if (CTS.Token.IsCancellationRequested)
-        //                        break;
-        //                    values.Add(rawdata);
-        //                    rowsProcessed += numRows;
-        //                    rowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed;
-        //                }
-        //            }
-        //        }
-        //        catch { CTS.Cancel(); } // cancel on error
-        //        finally { values.CompleteAdding(); }
-
-        //    }, TaskCreationOptions.LongRunning);
-
-        //    var processTask = Task.Factory.StartNew(() =>
-        //    {
-        //        foreach (var value in values.GetConsumingEnumerable())
-        //        {
-        //            if (CTS.Token.IsCancellationRequested) { break; }
-
-        //            var data = ProcessDataBatch(value);
-        //            ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed, totalRows);
-        //            OnDataProgressChanged(args); // raise event after each batch of rows
-        //        }
-        //    }, TaskCreationOptions.LongRunning);
-
-        //    Task.WaitAll(readTask, processTask);
-        //    // raise 'done' event
-        //    ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
-        //    OnDataReadCompleted(e); // done with reading data
-        //}
 
         /// <summary>
         /// Reads the Commence database in a asynchronous fashion
