@@ -381,7 +381,15 @@ namespace Vovin.CmcLibNet.Export
         #region Experimental stuff
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
-        internal CancellationTokenSource CTS { get; } = new CancellationTokenSource();
+        CancellationTokenSource _cts;
+        internal CancellationTokenSource CTS
+        {
+            get
+            {
+                if (_cts == null) { _cts = new CancellationTokenSource(); }
+                return _cts;
+            }
+        }
         ///// <summary>
         ///// This works fine, but when the number of rows per iteration is very small, the rowsProcessed number gets confused
         ///// </summary>
@@ -455,7 +463,10 @@ namespace Vovin.CmcLibNet.Export
                         }
                     }
                 }
-                catch { CTS.Cancel(); } // cancel on error
+                catch {
+                    CTS.Cancel(); // cancel data read
+                    throw; // rethrow the event. If we didn't do this, all errors would be swallowed
+                }
                 finally { values.CompleteAdding(); }
 
             }, TaskCreationOptions.LongRunning);
