@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -10,8 +9,8 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("B2B03D51-74A6-4D98-A1C0-A4B6FB0997D3")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceEditRowSet))]
-    public sealed class CommenceEditRowSet : BaseRowSet, Vovin.CmcLibNet.Database.ICommenceEditRowSet
+    [ComDefaultInterface(typeof(ICommenceEditRowSet))]
+    public sealed class CommenceEditRowSet : BaseRowSet, ICommenceEditRowSet
     {
         /// <summary>
         /// the 'raw' Commence EditRowSet object that this class wraps.

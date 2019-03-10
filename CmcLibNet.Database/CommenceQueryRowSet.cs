@@ -1,5 +1,4 @@
 ﻿using System;
-using Vovin.CmcLibNet;
 using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
@@ -10,8 +9,8 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("A1EF7CED-7305-4371-AAD0-73EC91A22AD4")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceQueryRowSet))]
-    public sealed class CommenceQueryRowSet : BaseRowSet, Vovin.CmcLibNet.Database.ICommenceQueryRowSet
+    [ComDefaultInterface(typeof(ICommenceQueryRowSet))]
+    public sealed class CommenceQueryRowSet : BaseRowSet, ICommenceQueryRowSet
     {
         /// <summary>
         /// the 'raw' Commence QueryRowSet object that this class wraps.

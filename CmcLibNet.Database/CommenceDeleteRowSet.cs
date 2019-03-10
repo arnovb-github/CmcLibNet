@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -10,8 +9,8 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("613CBDBF-C2EB-46F1-8743-BB4E512B00A3")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(Vovin.CmcLibNet.Database.ICommenceDeleteRowSet))]
-    public sealed class CommenceDeleteRowSet : BaseRowSet,Vovin.CmcLibNet.Database.ICommenceDeleteRowSet
+    [ComDefaultInterface(typeof(ICommenceDeleteRowSet))]
+    public sealed class CommenceDeleteRowSet : BaseRowSet, ICommenceDeleteRowSet
     {
         /// <summary>
         /// the 'raw' Commence DeleteRowSet object that this class wraps.
