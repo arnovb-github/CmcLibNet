@@ -5,6 +5,7 @@
     /// </summary>
     public abstract class BaseRowSet : IBaseRowSet
     {
+        #region Fields
         /// <summary>
         /// Delimiters used in Commence DDE conversations
         /// By defining them here, consumers do not have to supply them with every DDE call that uses them.
@@ -24,6 +25,7 @@
         protected internal readonly string[] _splitter2 = new string[] { CMC_DELIM2 };
         // Flag: Has Dispose already been called?
         bool disposed = false;
+        #endregion
 
         #region Constructors
         /// <summary>
