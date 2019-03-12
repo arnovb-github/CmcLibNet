@@ -65,16 +65,6 @@ namespace Vovin.CmcLibNet.Export
         {
             _db = new CommenceDatabase(); // CommenceDatabase takes care of getting the reference to Commence
         }
-        /// <summary>
-        /// Destructor
-        /// </summary>
-        ~ExportEngine()
-        {
-            // is unsubscribing needed or even useful?
-            if (_writer != null) {
-                UnsubscribeToWriterEvents(_writer);
-            }
-        }
         #endregion
 
         #region Export methods
@@ -129,6 +119,7 @@ namespace Vovin.CmcLibNet.Export
             finally
             {
                 ps.EnableConstantDisplayAndPower(false);
+                UnsubscribeToWriterEvents(_writer);
             }
         }
 
