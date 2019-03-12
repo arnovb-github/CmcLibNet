@@ -79,6 +79,7 @@
     <Compile Include="CmcLibNet.Database\ICommenceFieldDefinition.cs" />
     <Compile Include="CmcLibNet.Database\ICursorColumns.cs" />
     <Compile Include="CmcLibNet.Database\IRelatedColumn.cs" />
+    <Compile Include="CmcLibNet.Database\IViewDef.cs" />
     <Compile Include="CmcLibNet.Database\RelatedColumnType.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
     <Compile Include="CmcLibNet.Export\ExcelUpdateOptions.cs" />

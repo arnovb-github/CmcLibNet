@@ -10,11 +10,11 @@ namespace Vovin.CmcLibNet.Database
         #region Constructors
         internal RelatedColumn(string connection, string category, string field, RelatedColumnType type, string delimiter)
         {
-            this.Connection = connection;
-            this.Category = category;
-            this.Field = field;
-            this.ColumnType = type;
-            this.Delimiter = delimiter;
+            Connection = connection;
+            Category = category;
+            Field = field;
+            ColumnType = type;
+            Delimiter = delimiter;
         }
         #endregion
 
@@ -36,17 +36,17 @@ namespace Vovin.CmcLibNet.Database
         {
 
             // Check whether the compared object is null.
-            if (Object.ReferenceEquals(other, null)) return false;
+            if (ReferenceEquals(other, null)) return false;
 
             // Check whether the compared object references the same data.
-            if (Object.ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(this, other)) return true;
 
             // Check whether the objects’ properties are equal.
             return Connection.Equals(other.Connection) &&
                    Category.Equals(other.Category) && Field.Equals(other.Field);
         }
 
-        public override bool Equals(Object obj)
+        public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
