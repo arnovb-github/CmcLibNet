@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(IActiveViewInfo))]
     public class ActiveViewInfo : IActiveViewInfo
     {
-        internal ActiveViewInfo() { }
+        internal ActiveViewInfo() { } // prevent .Net consumers newing this up directly
         /// <inheritdoc />
         public string Name { get; internal set; }
         /// <inheritdoc />
