@@ -65,7 +65,7 @@ namespace Vovin.CmcLibNet.Database
                 // set the columns, ignoring duplicates
                 _cur.SetColumns(_columns.Distinct().ToArray());
             }
-            catch (Vovin.CmcLibNet.CommenceCOMException)
+            catch (CommenceCOMException)
             {
                 throw;
             }
@@ -74,9 +74,8 @@ namespace Vovin.CmcLibNet.Database
             {
                 // set the related columns, ignoring duplicates
                  _cur.SetRelatedColumns(_relatedcolumns.Distinct().ToList());
-                // System.Console.WriteLine(_relatedcolumns.Distinct().ToList().Count);
             }
-            catch (Vovin.CmcLibNet.CommenceCOMException)
+            catch (CommenceCOMException)
             {
                 throw;
             }
