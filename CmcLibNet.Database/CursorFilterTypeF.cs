@@ -17,7 +17,7 @@ namespace Vovin.CmcLibNet.Database
     {
         private const string _filterType = "F"; 
         private bool? _Shared;
-        private string _filterQualifierString = String.Empty;
+        private string _filterQualifierString = string.Empty;
 
         /// <summary>
         /// constructor.
@@ -60,13 +60,16 @@ namespace Vovin.CmcLibNet.Database
                 _filterQualifierString = string.Empty;
                 foreach (FilterQualifier fq in Enum.GetValues(typeof(FilterQualifier)))
                 {
-                    if (String.Compare(value, fq.GetEnumDescription(), true) == 0)
+                    if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
                     {
                         _filterQualifierString = fq.GetEnumDescription();
                         break;
                     }
                 }
-                if (_filterQualifierString == string.Empty) { _filterQualifierString = "<INVALID QUALIFIER: '" + value + "'>"; }
+                if (string.IsNullOrEmpty(_filterQualifierString))
+                {
+                    _filterQualifierString = "<INVALID QUALIFIER: '" + value + "'>";
+                }
             }
         }
 

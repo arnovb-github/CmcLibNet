@@ -17,8 +17,8 @@ namespace Vovin.CmcLibNet.Database
     public sealed class CursorFilterTypeCTCF : CursorFilter, ICursorFilterTypeCTCF
     {
         private const string _filterType = "CTCF"; 
-        private bool? _Shared; // nullable field??
-        private string _filterQualifierString = String.Empty;
+        private bool? _shared; // nullable field??
+        private string _filterQualifierString = string.Empty;
 
         /// <summary>
         /// constructor.
@@ -45,11 +45,11 @@ namespace Vovin.CmcLibNet.Database
         {
             get
             {
-                return (bool)_Shared;
+                return (bool)_shared;
             }
             set
             {
-                _Shared = value;
+                _shared = value;
             }
         }
 
@@ -65,13 +65,16 @@ namespace Vovin.CmcLibNet.Database
                 _filterQualifierString = string.Empty;
                 foreach (FilterQualifier fq in Enum.GetValues(typeof(FilterQualifier)))
                 {
-                    if (String.Compare(value, fq.GetEnumDescription(), true) == 0)
+                    if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
                     {
                         _filterQualifierString = fq.GetEnumDescription();
                         break;
                     }
                 }
-                if (_filterQualifierString == string.Empty) { _filterQualifierString = "<INVALID QUALIFIER: '" + value + "'>"; }
+                if (string.IsNullOrEmpty(_filterQualifierString))
+                {
+                    _filterQualifierString = "<INVALID QUALIFIER: '" + value + "'>";
+                }
             }
         }
 
@@ -90,7 +93,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="sb">StringBuilder</param>
         private void SetFilterValue(StringBuilder sb)
         {
-            if (String.Compare(this.QualifierString, FilterQualifier.Between.GetEnumDescription(), true) == 0)
+            if (string.Compare(this.QualifierString, FilterQualifier.Between.GetEnumDescription(), true) == 0)
             {
                 sb.Append(Utils.dq(this.FilterBetweenStartValue) + ',' + Utils.dq(this.FilterBetweenEndValue) + ',');
             }
@@ -111,7 +114,7 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(base.Except ? "NOT," : ",");
             sb.Append(Utils.dq(this.Connection) + ',');
             sb.Append(Utils.dq(this.Category) + ',');
-            if (_Shared.HasValue)
+            if (_shared.HasValue)
             {
                 sb.Append("," + Utils.dq((this.Shared) ? "Shared" : "Local") + ",,");
             }
@@ -126,5 +129,4 @@ namespace Vovin.CmcLibNet.Database
             return sb.ToString();
         }
     }
-
 }

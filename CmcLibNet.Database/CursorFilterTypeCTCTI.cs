@@ -1,6 +1,5 @@
-﻿using System.Text;
-using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -48,7 +47,7 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        // Notice the padding, this is required when filtering on clarified categories
+        // Notice the padding; this is required by Commence for CTI and CTCTI filters on clarified categories.
         public string ClarifyValue
         {
             get

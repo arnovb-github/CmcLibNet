@@ -30,7 +30,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ClarifySeparator { get; set; }
         /// <inheritdoc />
-        // Notice the padding; this is required for CTI and CTCTI filters on clarified categories.
+        // Notice the padding; this is required by Commence for CTI and CTCTI filters on clarified categories.
         public string Item
         {
             get
