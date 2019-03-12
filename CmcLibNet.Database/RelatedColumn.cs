@@ -2,45 +2,6 @@
 
 namespace Vovin.CmcLibNet.Database
 {
-    #region Enumerations
-    /// <summary>
-    /// Keep track of the underlying fieldtype. Needed because different fieldtypes are returned with a different separator by Commence.
-    /// </summary>
-    internal enum RelatedColumnType
-    {
-        Connection = 0,
-        ConnectedField = 1
-    }
-    #endregion
-
-    /// <summary>
-    /// Interface for RelatedColumn
-    /// </summary>
-    internal interface IRelatedColumn
-    {
-        /// <summary>
-        /// Commence Connection name (case-sensitive!).
-        /// </summary>
-        string Connection { get; set; }
-        /// <summary>
-        /// Connected Commence category name.
-        /// </summary>
-        string Category { get; set; }
-        /// <summary>
-        /// Connected Commence field name.
-        /// </summary>
-        string Field { get; set; }
-        /// <summary>
-        /// Columntype.
-        /// </summary>
-        RelatedColumnType ColumnType { get; set; }
-        /// <summary>
-        /// Item delimiter. This is dependent on the way a related column is defined 
-        /// AND dependent on the type of view if the cursor was created on a view. Sigh.
-        /// </summary>
-        string Delimiter { get; set; }
-    }
-
     /// <summary>
     /// POCO class for holding related columns. Created in <c>CommenceCursor.Columns.AddRelatedColum</c>.
     /// </summary>
