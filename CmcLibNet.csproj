@@ -75,6 +75,7 @@
     <Compile Include="CmcLibNet.Database\CommenceViewType.cs" />
     <Compile Include="CmcLibNet.Database\FilterQualifier.cs" />
     <Compile Include="CmcLibNet.Database\FilterType.cs" />
+    <Compile Include="CmcLibNet.Database\IActiveViewInfo.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceFieldDefinition.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
     <Compile Include="CmcLibNet.Export\ExcelUpdateOptions.cs" />
