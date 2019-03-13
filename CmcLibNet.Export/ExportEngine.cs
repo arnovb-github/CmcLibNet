@@ -165,7 +165,7 @@ namespace Vovin.CmcLibNet.Export
             else
             {
             flags = flags | CmcOptionFlags.All; // slap on some more flags
-            using (ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category,flags))
+            using (ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category,flags))
                 {
                     ExportCursor(cur, fileName, this.Settings);
                 }
@@ -175,8 +175,8 @@ namespace Vovin.CmcLibNet.Export
         private string GetActiveViewName()
         {
             string retval = string.Empty;
-            Database.IActiveViewInfo av = _db.GetActiveViewInfo();
-            if (av != null && String.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
+            IActiveViewInfo av = _db.GetActiveViewInfo();
+            if (av != null && string.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
             {
                 retval = av.Name;
             }
@@ -189,7 +189,7 @@ namespace Vovin.CmcLibNet.Export
 
         private ICommenceCursor GetCursorWithJustDirectFields(string categoryName, CmcOptionFlags flags )
         {
-            ICommenceCursor cur = _db.GetCursor(categoryName, Database.CmcCursorType.Category, flags);
+            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
             string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
             cur.Columns.AddDirectColumns(fieldNames);
             cur.Columns.Apply();
@@ -218,8 +218,6 @@ namespace Vovin.CmcLibNet.Export
                     return new JsonWriter(cursor, settings);
                 case ExportFormat.Excel:
                     //_writer = new ExcelWriterUsingXml(cursor, settings);
-                    settings.XSDCompliant = true;
-                    settings.SplitConnectedItems = false;
                     return new ExcelWriterUsingOpenXml(cursor, settings);
                     //return new ExcelWriterUsingOleDb(cursor, settings);
                 case ExportFormat.Event:

@@ -34,6 +34,8 @@ namespace Vovin.CmcLibNet.Export
         {
             columnDefinitions = new List<ColumnDefinition>(_settings.UseThids ? base.ColumnDefinitions.Skip(1) : base.ColumnDefinitions);
             _sheetName = string.IsNullOrEmpty(settings.CustomRootNode) ? Utils.EscapeString(_dataSourceName, "_").Left(MaxSheetNameLength) : settings.CustomRootNode;
+            settings.XSDCompliant = true; // override custom setting(s)
+            settings.SplitConnectedItems = false; // override custom setting(s)
         }
 
         #endregion
