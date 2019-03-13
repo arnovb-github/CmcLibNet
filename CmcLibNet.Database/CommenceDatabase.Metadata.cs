@@ -1225,8 +1225,7 @@ namespace Vovin.CmcLibNet.Database
             catch (CommenceDDEException e)
             {
                 this.LastError = e.Message; // store the last error
-                //retval = null; // if null, we know an exception occurred without having to (re)throw it
-                throw; // it is better to rethrow than to swallow
+                retval = null; // if null, we know an exception occurred, we will not (re)throw it! TODO reevaluate this
             }
             return retval;
         }
