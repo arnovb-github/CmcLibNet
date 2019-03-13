@@ -27,9 +27,9 @@ namespace Vovin.CmcLibNet.Database
     public partial class CommenceDatabase : ICommenceDatabase
     {
         // this portion of the class contains the implementation of the ICommenceCursor interface of Commence.
-        private FormOA.ICommenceDB _db = null;
-        private CommenceApp _app = null; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
-        private IRcwReleasePublisher _rcwReleasePublisher = null;
+        private FormOA.ICommenceDB _db;
+        private CommenceApp _app; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
+        private IRcwReleasePublisher _rcwReleasePublisher;
 
         #region Constructors
 
@@ -73,7 +73,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>CommenceCursor wrapping Commence ICommenceCursor with default settings</returns>
         public Database.ICommenceCursor GetCursor(string categoryName)
         {
-            CommenceCursor _cur = null; // our own cursor object
+            CommenceCursor _cur; // our own cursor object
             /* 
             * Contrary to what Commence documentation says,
             * GetCursor() does not return null on error,
@@ -100,7 +100,7 @@ namespace Vovin.CmcLibNet.Database
         /// <exception cref="CommenceCOMException">Commence could not create a cursor.</exception>
         public Database.ICommenceCursor GetCursor(string pName, CmcCursorType pCursorType, CmcOptionFlags pCursorFlags)
         {
-            CommenceCursor cur = null; // our own cursor object
+            CommenceCursor cur; // our own cursor object
             /* 
             * Contrary to what Commence documentation says,
             * GetCursor() does not return null on error,
@@ -142,7 +142,7 @@ namespace Vovin.CmcLibNet.Database
         {
             if (_db != null)
             {
-                Marshal.FinalReleaseComObject(_db);
+                Marshal.ReleaseComObject(_db);
             }
         }
 

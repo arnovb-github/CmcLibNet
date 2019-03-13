@@ -108,27 +108,19 @@ namespace Vovin.CmcLibNet.Database
         /// <exception cref="CommenceDDEException"></exception>
         internal string DDERequest(string dde)
         {
-            string retval = null;
             try
             {
-                retval = this.Conversation.Request(dde);
-                //in order to be able to check for a returned null from this method
-                //we will include an extra check for that
-                if (String.IsNullOrEmpty(retval))
-                {
-                    return null; // wise?
-                }
+                string retval = Conversation.Request(dde);
                 return retval;
             }
-
             catch (COMException e)
             {
-                //a generic COM exception occurred,
-                //so we'll throw our own custom error here to provide some more info
+                // A generic COM exception occurred,
+                // We'll try to throw our own custom error here to provide some more info
                 string DDEError = string.Empty;
                 try
                 {
-                    DDEError = _nativeConv.Request("[GetLastError]");
+                    DDEError = _nativeConv.Request("[GetLastError]"); // may throw it's own exception
                     if (DDEError.Length > 0)
                     {
                         throw new CommenceDDEException("Commence DDE request returned error: " + DDEError, e);
@@ -138,12 +130,7 @@ namespace Vovin.CmcLibNet.Database
                         throw new CommenceDDEException("Commence failed to process DDE request. That's all we know.", e);
                     }
                 }
-
-                catch (CommenceDDEException)
-                {
-                    throw;
-                }
-                catch (COMException) //useful??
+                catch (COMException) // we got another exception
                 {
                     throw;
                 }
@@ -161,10 +148,8 @@ namespace Vovin.CmcLibNet.Database
         {
             try
             {
-                return this.Conversation.Execute(dde);
-                //return _nativeConv.Execute(dde);
+                return Conversation.Execute(dde);
             }
-
             catch (COMException e)
             {
                 // a generic COM exception occurred,
@@ -172,7 +157,7 @@ namespace Vovin.CmcLibNet.Database
                 string DDEError = string.Empty;
                 try
                 {
-                    DDEError = _nativeConv.Request("[GetLastError]");
+                    DDEError = _nativeConv.Request("[GetLastError]"); // may throw it's own exception
                     if (DDEError.Length > 0)
                     {
                         throw new CommenceDDEException("Commence DDE execute returned error: " + DDEError, e);
@@ -182,13 +167,7 @@ namespace Vovin.CmcLibNet.Database
                         throw new CommenceDDEException("Commence failed to process DDE execute.", e);
                     }
                 }
-                // for some reason, we have to catch and rethrow to make it catchable in another method
-                // it has something to do with preserving the stack trace. THis is probably wrong. TODO: fix 
-                catch (CommenceDDEException)
-                {
-                    throw;
-                }
-                catch (COMException) // useful if GetLastError failed?
+                catch (Exception)
                 {
                     throw;
                 }
@@ -210,9 +189,8 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="disposing">disposing</param>
         private void Dispose(bool disposing)
         {
-            if (disposed) // PowerShell and VBA upon running >1 times regards this as disposed so no cleanup is done until it is closed. Strange.
+            if (disposed) // [weird comment] PowerShell and VBA upon running >1 times regard this as disposed so no cleanup is done until it is closed. Strange.
             {
-                //System.Windows.Forms.MessageBox.Show("CommenceConversation was already disposed");
                 return;
             }
 
@@ -226,9 +204,7 @@ namespace Vovin.CmcLibNet.Database
             //
             if (_nativeConv != null)
             {
-                //System.Windows.Forms.MessageBox.Show("Trying to ReleaseComObject from CommenceConversation2");
                 Marshal.ReleaseComObject(_nativeConv); // closes conversation or so it should
-                _nativeConv = null; // explicitly make _nativeConv eligible for garbage collection
             }
             disposed = true;
         }

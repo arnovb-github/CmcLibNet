@@ -66,11 +66,11 @@ namespace Vovin.CmcLibNet.Database
         {
             if (bStatus == null)
             {
-                return DDERequest(buildDDERequestCommand(new string[] { "ClarifyItemNames" }));
+                return DDERequest(BuildDDERequestCommand(new string[] { "ClarifyItemNames" }));
             }
             else
             {
-                return DDERequest(buildDDERequestCommand(new string[] { "ClarifyItemNames", bStatus }));
+                return DDERequest(BuildDDERequestCommand(new string[] { "ClarifyItemNames", bStatus }));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Vovin.CmcLibNet.Database
         public IActiveViewInfo GetActiveViewInfo()
         {
             ActiveViewInfo avi = null;
-            string dde = buildDDERequestCommand(new string[] { "GetActiveViewInfo", CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetActiveViewInfo", CMC_DELIM });
             string viewInfo = DDERequest(dde);
             if (viewInfo != null) // null means no view was active
             {
@@ -130,11 +130,13 @@ namespace Vovin.CmcLibNet.Database
         public ICategoryDef GetCategoryDefinition(string categoryName)
         {
             CategoryDef cd = null;
-            string dde = buildDDERequestCommand(new string[] { "GetCategoryDefinition", EncodeDdeArgument(categoryName), CMC_DELIM });
-            string[] buffer =  DDERequest(dde).Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-            if (buffer != null)
+            string dde = BuildDDERequestCommand(new string[] { "GetCategoryDefinition", EncodeDdeArgument(categoryName), CMC_DELIM });
+            string categoryInfo = DDERequest(dde);
+
+            if (categoryInfo != null)
             {
                 cd = new CategoryDef();
+                string[] buffer = categoryInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 cd.MaxItems = Convert.ToInt32(buffer[0]);
                 string s = buffer[1];
                 cd.Shared = (s.Substring(6, 1) == "1") ? true : false;
@@ -151,8 +153,8 @@ namespace Vovin.CmcLibNet.Database
                     cd.ClarifySeparator = string.Empty;
                     cd.ClarifyField = string.Empty;
                 }
+                cd.CategoryID = this.GetCategoryID(categoryName);
             }
-            cd.CategoryID = this.GetCategoryID(categoryName);
             return cd;
         }
 
@@ -307,7 +309,7 @@ namespace Vovin.CmcLibNet.Database
         public IDBDef GetDatabaseDefinition()
         {
             DBDef db = null;
-            string dde = buildDDERequestCommand(new string[] { "GetDatabaseDefinition", CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetDatabaseDefinition", CMC_DELIM });
             string dbInfo = DDERequest(dde);
             if (dbInfo != null)
             {
@@ -369,14 +371,13 @@ namespace Vovin.CmcLibNet.Database
         public ICommenceFieldDefinition GetFieldDefinition(string categoryName, string fieldName)
         {
             CommenceFieldDefinition fd = null;
-            string dde = buildDDERequestCommand(new string[] { "GetFieldDefinition", EncodeDdeArgument(categoryName), EncodeDdeArgument(fieldName), CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetFieldDefinition", EncodeDdeArgument(categoryName), EncodeDdeArgument(fieldName), CMC_DELIM });
             string fieldInfo = DDERequest(dde);
             if (fieldInfo != null)
             {
                 string[] buffer = fieldInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 fd = new CommenceFieldDefinition();
                 fd.Type = (CommenceFieldType)int.Parse(buffer[0]); // is this dangerous? If all goes well, buffer always contains a number represented as string.
-                //fd.TypeDescription = fd.Type.GetEnumDescription();
                 string s = buffer[1];
                 fd.Combobox = (s.Substring(6,1) == "1") ? true : false;
                 fd.Shared = (s.Substring(7, 1) == "1") ? true : false;
@@ -449,7 +450,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool GetFieldToFile(string categoryName, string itemName, string fieldName, string fileName)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] {"GetFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] {"GetFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -505,7 +506,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool GetImageFieldToFile(string categoryName, string itemName, string fieldName, string fileName)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "GetImageFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "GetImageFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -549,7 +550,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool GetMarkItem(string categoryNameOrKeyword, string itemName = "", string clarifyValue = "")  // expects subsequent requests
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "GetMarkItem", categoryNameOrKeyword, itemName, clarifyValue }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "GetMarkItem", categoryNameOrKeyword, itemName, clarifyValue }));
             return (retval == null) ? false : true;
         }
 
@@ -587,7 +588,7 @@ namespace Vovin.CmcLibNet.Database
         public string GetPreference(string preferenceSetting)
         {
             Preferences pref = new Preferences();
-            string dde = buildDDERequestCommand(new string[] { "GetPreference", "Me", CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetPreference", "Me", CMC_DELIM });
             string[] me = DDERequest(dde).Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
             if (me != null)
             {
@@ -654,7 +655,7 @@ namespace Vovin.CmcLibNet.Database
         {
             ViewDef vd = null;
             // note that this request is undocumented by Commence!
-            string dde = buildDDERequestCommand(new string[] { "GetViewDefinition", viewName, CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetViewDefinition", viewName, CMC_DELIM });
             string viewInfo = DDERequest(dde);
             if (viewInfo != null)
             {
@@ -691,7 +692,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool GetViewToFile(string viewName, string fileName, CmcLinkMode linkMode = CmcLinkMode.None, string param1 = null, string param2 = null)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "GetViewToFile", viewName, ((int)linkMode).ToString(), param1, param2, fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "GetViewToFile", viewName, ((int)linkMode).ToString(), param1, param2, fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -702,11 +703,11 @@ namespace Vovin.CmcLibNet.Database
             // consumers should always check for null!
             if (delim != null)
             {
-                return DDERequest(buildDDERequestCommand(new string[] { "MarkActiveItem", delim }));
+                return DDERequest(BuildDDERequestCommand(new string[] { "MarkActiveItem", delim }));
             }
             else
             {
-                return DDERequest(buildDDERequestCommand(new string[] { "MarkActiveItem"}));
+                return DDERequest(BuildDDERequestCommand(new string[] { "MarkActiveItem"}));
             }
         }
 
@@ -784,7 +785,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public void ViewDeleteAllItems()
         {
-            DDERequest(buildDDERequestCommand(new string[] { "ViewDeleteAllItems" }));
+            DDERequest(BuildDDERequestCommand(new string[] { "ViewDeleteAllItems" }));
         }
 
         /// <inheritdoc />
@@ -826,7 +827,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewFieldToFile(int index, string fieldName, string fileName)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -835,14 +836,14 @@ namespace Vovin.CmcLibNet.Database
         {
             string[] fltParams = ToStringArray(args);
             //object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join("\",\"", fltParams) }));
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join(",", EncodeDdeArguments(fltParams)) }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join(",", EncodeDdeArguments(fltParams)) }));
             return (retval == null) ? false : true;
         }
 
         /// <inheritdoc />
         public bool ViewImageFieldToFile(int index, string fieldName, string fileName)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewImageFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewImageFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -867,7 +868,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewMarkItem(int index)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewMarkItem", index.ToString() }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewMarkItem", index.ToString() }));
             return (retval == null) ? false : true;
         }
 
@@ -880,21 +881,21 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewSaveView(string newViewName, bool shared)
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewSaveView", newViewName, (shared)?"yes":"no" }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewSaveView", newViewName, (shared)?"yes":"no" }));
             return (retval == null) ? false : true;
         }
 
         /// <inheritdoc />
         public bool ViewSort(string fieldName1, string sortOrder1, string fieldName2 = "", string sortOrder2 = "", string fieldName3 = "", string sortOrder3 = "", string fieldName4 = "", string sortOrder4 = "")
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewSort", fieldName1, sortOrder1, fieldName2, sortOrder2, fieldName3, sortOrder3, fieldName4, sortOrder4 }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewSort", fieldName1, sortOrder1, fieldName2, sortOrder2, fieldName3, sortOrder3, fieldName4, sortOrder4 }));
             return (retval == null) ? false : true;
         }
 
         /// <inheritdoc />
         public bool ViewView(string viewName = "")
         {
-            object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewView", viewName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewView", viewName }));
             return (retval == null) ? false : true;
         }
 
@@ -905,55 +906,55 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool AddItem(string categoryName, string itemName, string clarifyValue = "")
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "AddItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AddItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
         }
 
         /// <inheritdoc />
         public bool AddSharedItem(string categoryName, string itemName, string clarifyValue = "")
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "AddSharedItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AddSharedItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
         }
 
         /// <inheritdoc />
         public bool AppendText(string categoryName, string itemName, string fieldName, string text)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "AppendText", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), text }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AppendText", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), text }));
         }
 
         /// <inheritdoc />
         public bool AssignConnection(string categoryName, string itemName, string connectionName, string connCategory, string connItem)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "AssignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AssignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
         }
 
         /// <inheritdoc />
         public bool CheckInFormScript(string categoryName, string formName, string fileName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "CheckInFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckInFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
         }
 
         /// <inheritdoc />
         public bool CheckOutFormScript(string categoryName, string formName, string fileName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "CheckOutFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckOutFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
         }
 
         /// <inheritdoc />
         public bool DeleteItem(string categoryName, string itemName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "DeleteItem", EncodeDdeArgument(categoryName), itemName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "DeleteItem", EncodeDdeArgument(categoryName), itemName }));
         }
 
         /// <inheritdoc />
         public bool DeleteView(string viewName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "DeleteView", viewName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "DeleteView", viewName }));
         }
 
         /// <inheritdoc />
         public bool EditItem(string categoryName, string itemName, string fieldName, string fieldValue)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "EditItem", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fieldValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "EditItem", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fieldValue }));
         }
 
         /// <inheritdoc />
@@ -966,7 +967,7 @@ namespace Vovin.CmcLibNet.Database
                 return false;
             }
             //return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join("\",\"", trgParams) }));
-            return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join(",", EncodeDdeArguments(trgParams)) }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join(",", EncodeDdeArguments(trgParams)) }));
         }
 
         /// <inheritdoc />
@@ -974,19 +975,19 @@ namespace Vovin.CmcLibNet.Database
         {
             string[] ciPairs = ToStringArray(args);
             //return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", string.Join("\",\"", ciPairs) }));
-            return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", string.Join(",", EncodeDdeArguments(ciPairs)) }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "LogPhoneCall", string.Join(",", EncodeDdeArguments(ciPairs)) }));
         }
 
         /// <inheritdoc />
         public bool PromoteItemToShared(string categoryName, string itemName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "PromoteItemToShared", EncodeDdeArgument(categoryName), itemName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "PromoteItemToShared", EncodeDdeArgument(categoryName), itemName }));
         }
 
         /// <inheritdoc />
         public bool ShowDesktop(string desktopName)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "ShowDesktop", desktopName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "ShowDesktop", desktopName }));
         }
 
         /// <inheritdoc />
@@ -994,24 +995,24 @@ namespace Vovin.CmcLibNet.Database
         {
             if (formName == null)
             {
-                return DDEExecute(buildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName}));
+                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName}));
             }
             else
             {
-                return DDEExecute(buildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName, formName }));
+                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName, formName }));
             }
         }
 
         /// <inheritdoc />
         public bool ShowView(string viewName, bool newCopy)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "ShowView", viewName, (newCopy) ? "1" : "0" }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "ShowView", viewName, (newCopy) ? "1" : "0" }));
         }
 
         /// <inheritdoc />
         public bool UnassignConnection(string categoryName, string itemName, string connectionName, string connCategory, string connItem)
         {
-            return DDEExecute(buildDDERequestCommand(new string[] { "UnassignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "UnassignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
         }
 
         /// <inheritdoc />
@@ -1043,7 +1044,7 @@ namespace Vovin.CmcLibNet.Database
         #region helper methods
         private List<string> GetDDEValuesAsList(string[] args)
         {
-            string values = DDERequest(buildDDERequestCommand(args));
+            string values = DDERequest(BuildDDERequestCommand(args));
             if (values == null) // an error occurred, return error value
             {
                 List<string> retval = new List<string>();
@@ -1058,7 +1059,7 @@ namespace Vovin.CmcLibNet.Database
         private string GetDDEValues(string[] args)
         {
             string retval = string.Empty;
-            retval = DDERequest(buildDDERequestCommand(args));
+            retval = DDERequest(BuildDDERequestCommand(args));
             if (retval == null) // an error occurred, return error value
             {
                 retval = this.GetLastError();
@@ -1073,7 +1074,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Count, -1 on error.</returns>
         private int GetDDECount(string[] args)
         {
-            string result = DDERequest(buildDDERequestCommand(args));
+            string result = DDERequest(BuildDDERequestCommand(args));
             return (result == null) ? -1 : Convert.ToInt32(result);
         }
 
@@ -1082,7 +1083,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>.
         /// <param name="args">Request item plus optional parameters. The request item string must always be the first element.</param>
         /// <returns>string in format "[Request command(param1, param2, paramN)]".</returns>
-        private string buildDDERequestCommand(string[] args)
+        private string BuildDDERequestCommand(string[] args)
         {
             StringBuilder sb = null;
             sb = new StringBuilder("[" + args[0]);
@@ -1224,7 +1225,8 @@ namespace Vovin.CmcLibNet.Database
             catch (CommenceDDEException e)
             {
                 this.LastError = e.Message; // store the last error
-                retval = null; // if null, we know an exception occurred without having to (re)throw it
+                //retval = null; // if null, we know an exception occurred without having to (re)throw it
+                throw; // it is better to rethrow than to swallow
             }
             return retval;
         }
