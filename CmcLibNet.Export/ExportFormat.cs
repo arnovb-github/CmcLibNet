@@ -39,7 +39,8 @@ namespace Vovin.CmcLibNet.Export
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
         /// <para>The export engine requires exclusive access to the Excel file.
         /// You cannot use Excel VBA to export Commence data into the same workbook that you're macro code is running from.</para>
-        /// <para>Exporting to Excel is memory-expensive.</para>
+        /// <para>Exporting to Excel requires a lot of memory because it uses the DOM (as opposed to SAX) approach.
+        /// This export format is not suitable for use with very large datasets (like -say- 200K rows with 100 fields).</para>
         /// </remarks>
         /// </summary>
         Excel = 4,

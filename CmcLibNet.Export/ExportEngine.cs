@@ -34,6 +34,8 @@ namespace Vovin.CmcLibNet.Export
     /// Set export = Nothing</code>
     /// <para>When used fom a Commence Item Detail Form or Office VBA, be sure to read up on the <see cref="Close()"/> method.</para>
     /// </remarks>
+    /// <para>The Commence API by nature is slow. Exporting hundreds of thousands of items will take many hours.
+    /// If you need to export data faster, use the Commence built-in export options.</para>
     /// </summary>
     [ComVisible(true)]
     [Guid("298DA1F6-9A8D-4BB2-A7EC-F776013F440A")]
