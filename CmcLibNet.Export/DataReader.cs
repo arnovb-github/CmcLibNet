@@ -381,16 +381,7 @@ namespace Vovin.CmcLibNet.Export
         #region Experimental stuff
         // based on SO feedback
         // this actually works but gains us nothing in terms of performance
-        CancellationTokenSource _cts;
-        internal CancellationTokenSource CTS
-        {
-            get
-            {
-                if (_cts == null) { _cts = new CancellationTokenSource(); }
-                return _cts;
-            }
-        }
-
+        internal CancellationTokenSource CTS = new CancellationTokenSource();
         /// <summary>
         /// Reads the Commence database in a asynchronous fashion
         /// The idea is that the reading of Commence data continues as the event consumers do their thing.
