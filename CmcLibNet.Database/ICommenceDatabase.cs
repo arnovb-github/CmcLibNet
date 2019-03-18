@@ -20,7 +20,7 @@ namespace Vovin.CmcLibNet.Database
     /// <remarks>A lot of the documentation on this interface comes 'verbatim' from the Commence help files.</remarks>
     [ComVisible(true)]
     [Guid("34A2D34C-8C7E-4fae-86CC-A7F75BBC8B45")]
-    public interface ICommenceDatabase
+    public interface ICommenceDatabase : IDisposable
     {
         /// <summary>
         /// Create a cursor.

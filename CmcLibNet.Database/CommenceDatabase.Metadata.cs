@@ -9,7 +9,6 @@ using Vovin.CmcLibNet.Extensions;
 namespace Vovin.CmcLibNet.Database
 {
 
-    // TODO: it may be a good idea to implement IDisposable?
     // This portion of the class contains the implementation of the properties and methods exposed by Commence's ICommenceGetconversation interface.
     // That is a difficult way of saying all DDE stuff is in here.
     public partial class CommenceDatabase : ICommenceDatabase
@@ -1346,6 +1345,8 @@ namespace Vovin.CmcLibNet.Database
         /// Last DDE error received from Commence.
         /// </summary>
         private string LastError { get; set; }
+
+
 
         #endregion
     }

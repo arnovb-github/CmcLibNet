@@ -52,15 +52,6 @@ namespace Vovin.CmcLibNet.Database
             _rcwReleasePublisher.RCWRelease += _app.RCWReleaseHandler;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;            
         }
-
-        ///// <summary>
-        ///// Destructor.
-        ///// </summary>
-        //~CommenceDatabase()
-        //{
-        //    Dispose(false);
-        //}
-
         #endregion
 
         #region Methods
@@ -150,9 +141,15 @@ namespace Vovin.CmcLibNet.Database
         public void Close()
         {
             _rcwReleasePublisher.ReleaseRCWReferences(); // notify subscribers to release COM references.
-            GC.Collect(); // force garbage collection
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+
+            Dispose();
+
+            // If we don't force garbage collection,
+            // the commence.exe will remain open at least when the devenv is running
+            // AVB 2019-03-18 seems we can get away with it after implementing IDisposable
+            //GC.Collect(); // force garbage collection
+            //GC.WaitForPendingFinalizers();
+            //GC.Collect();
         }
 
         #endregion
@@ -175,6 +172,58 @@ namespace Vovin.CmcLibNet.Database
                 return _app.Name;
             }
 
+        }
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    _conv.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                if (_db != null)
+                {
+                    Marshal.ReleaseComObject(_db);
+                }
+
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~CommenceDatabase() // overriding finalizer
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            GC.SuppressFinalize(this);
         }
         #endregion
     }
