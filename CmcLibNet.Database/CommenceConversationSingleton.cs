@@ -91,8 +91,8 @@ namespace Vovin.CmcLibNet.Database
                 // There is no way to request the System topic (yet).
                 if (_nativeConv == null)
                 {
-                    // This should be in a try/catch block.
-                    _nativeConv = CommenceApp.DB.GetConversation(this.Application, this.Topic);
+                    CommenceApp _app = new CommenceApp();
+                   _nativeConv = _app.Db.GetConversation(this.Application, this.Topic);
                 }
                 return _nativeConv;
             }
@@ -204,7 +204,8 @@ namespace Vovin.CmcLibNet.Database
             //
             if (_nativeConv != null)
             {
-                Marshal.ReleaseComObject(_nativeConv); // closes conversation or so it should
+                while (Marshal.ReleaseComObject(_nativeConv) > 0) { }; // closes conversation or so it should
+                _nativeConv = null; // explicitly set to null
             }
             disposed = true;
         }
@@ -220,15 +221,20 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="sender">sender.</param>
         /// <param name="e">ElapsedEventArgs.</param>
-        internal void HandleTimerElapsed(Object sender, System.Timers.ElapsedEventArgs e)
+        internal void HandleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            CloseConversation();
+            //Dispose(); // there is no need for this since we released the ComObject which was the whole point.
+            // we could get rid of IDisposable altogether.
+        }
+
+        internal void CloseConversation()
         {
             if (_nativeConv != null)
             {
-                Marshal.ReleaseComObject(_nativeConv); // closes the actual conversation
+                while (Marshal.ReleaseComObject(_nativeConv) > 0) { }; // closes the actual conversation
                 _nativeConv = null; // explicitly make _nativeConv eligible for garbage collection. Not needed.
             }
-            Dispose(); // there is no need for this since we released the ComObject which was the whole point.
-            // we could get rid of IDisposable altogether.
         }
         #endregion
     }

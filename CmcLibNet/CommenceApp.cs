@@ -49,7 +49,9 @@ namespace Vovin.CmcLibNet
          which never makes sense unless Commence ever makes it possible to talk to multiple instances 
          and in which case this whole assembly needs redesigning.
          */
-        private static ICommenceDB _cmc = null;
+        //private static ICommenceDB _cmc = null;
+        // 20190319
+        private FormOA.ICommenceDB _cmc = null; // non-static
 
         #region Constructors
 
@@ -72,31 +74,31 @@ namespace Vovin.CmcLibNet
         public CommenceApp()
         {
             /* Commence does not register itself in the ROT (Remote Object Table)
-             * Therefore, we can not tell which database to talk to from COM
-             * This is a serious problem that Commence refuses to fix.
-             * Most of the third-party utilities built for Commence do not take this into account,
-             * they will happily try to talk to the first instance they encounter.
-             * Calling CommenceDB when no commence.exe instance is running will fire up commence.exe and an arbitrary database, usually the last one opened.
-             * This can be very much unwanted, especially in TS-like environments, so I tried to eliminate that possibility as much as possible
-             * This assembly will simply not run if commence.exe is not running
-             * The downside of this is that COM users will get an unintelligible error when no or multiple instances are running.
-             * It will also not run if multiple commence.exe processes were started by the same user
-             * It *should* run when different users started the commence.exe process
-             * In that case, it *should* talk to the instance fired by the same user who calls the assembly
-             * This behaviour may be subject to errors when Commence.DB has a non-standard DCOM settings defined.
-             * This has yet to be tested.
-             */
-            switch (ProcessCountInCurrentSession(PROCESS_NAME))
-            {
-                case 0:
-                    // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
-                    throw new CommenceNotRunningException("Commence is not running.");
-                case 1:
-                    _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
-                    break;
-                default:
-                    throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
-            }
+            // * Therefore, we can not tell which database to talk to from COM
+            // * This is a serious problem that Commence refuses to fix.
+            // * Most of the third-party utilities built for Commence do not take this into account,
+            // * they will happily try to talk to the first instance they encounter.
+            // * Calling CommenceDB when no commence.exe instance is running will fire up commence.exe and an arbitrary database, usually the last one opened.
+            // * This can be very much unwanted, especially in TS-like environments, so I tried to eliminate that possibility as much as possible
+            // * This assembly will simply not run if commence.exe is not running
+            // * The downside of this is that COM users will get an unintelligible error when no or multiple instances are running.
+            // * It will also not run if multiple commence.exe processes were started by the same user
+            // * It *should* run when different users started the commence.exe process
+            // * In that case, it *should* talk to the instance fired by the same user who calls the assembly
+            // * This behaviour may be subject to errors when Commence.DB has a non-standard DCOM settings defined.
+            // * This has yet to be tested.
+            // */
+            //switch (ProcessCountInCurrentSession(PROCESS_NAME))
+            //{
+            //    case 0:
+            //        // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
+            //        throw new CommenceNotRunningException("Commence is not running.");
+            //    case 1:
+            //        _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
+            //        break;
+            //    default:
+            //        throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
+            //}
             rw = new RcwReleasePublisher();
             rw.RCWRelease += RCWReleaseHandler;
         }
@@ -104,15 +106,38 @@ namespace Vovin.CmcLibNet
 
         #region Properties
 
-        /// <summary>
-        /// Exposes the 'raw' Commence database (FormOA.ICommenceDB) object.
-        /// For internal use only.
-        /// </summary>
-        internal static FormOA.ICommenceDB DB
+        ///// <summary>
+        ///// Exposes the 'raw' Commence database (FormOA.ICommenceDB) object.
+        ///// For internal use only.
+        ///// </summary>
+        //internal static FormOA.ICommenceDB DB
+        //{
+        //    get
+        //    {
+        //        return _cmc;
+        //    }
+        //}
+
+        internal FormOA.ICommenceDB Db
         {
             get
             {
-                return _cmc;
+                if (_cmc != null) { return _cmc; }
+                else
+                {
+                    switch (ProcessCountInCurrentSession(PROCESS_NAME))
+                    {
+                        case 0:
+                            // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
+                            throw new CommenceNotRunningException("Commence is not running.");
+                        case 1:
+                            _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
+                            break;
+                        default:
+                            throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
+                    }
+                    return _cmc;
+                }
             }
         }
 
@@ -225,7 +250,9 @@ namespace Vovin.CmcLibNet
         {
             if (_cmc != null)
             {
-                Marshal.FinalReleaseComObject(_cmc); // kill all COM references to Commence.DB. No calls to Commence can be made after this.
+                //Marshal.FinalReleaseComObject(_cmc); // kill all COM references to Commence.DB. No calls to Commence can be made after this.
+                while (Marshal.ReleaseComObject(_cmc) > 0) { }; // kill current references to Commence.DB. No calls to Commence can be made after this.
+                _cmc = null;
             }
         }
         #endregion

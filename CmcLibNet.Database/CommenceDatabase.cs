@@ -22,7 +22,7 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("028E932E-4B00-49eb-BBD6-C1C7F2C0B834")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ProgIdAttribute("CmcLibNet.Database")]
+    [ProgId("CmcLibNet.Database")]
     [ComDefaultInterface(typeof(ICommenceDatabase))]
     public partial class CommenceDatabase : ICommenceDatabase
     {
@@ -40,7 +40,7 @@ namespace Vovin.CmcLibNet.Database
         {
             _app = new CommenceApp(); // when we call this first, the next line does not fail when called from COM.
             // we also want this call to CommenceApp because it contains the check to see if commence.exe is running.
-            _db = CommenceApp.DB; // THIS FAILS WHEN CALLED FROM COM WHEN NO INSTANCE OF CommenceApp EXISTS. CommenceApp isn't instantiated. Works from .NET without a CommenceApp instance.
+            _db = _app.Db; // THIS FAILS WHEN CALLED FROM COM WHEN NO INSTANCE OF CommenceApp EXISTS. CommenceApp isn't instantiated. Works from .NET without a CommenceApp instance.
             /* We create a publisher object so any classes created from this instance can use it.
              * The idea is that this way, COM clients can create and close the several COM-visible components (CommenceApp, Export) safely.
              * It would be easier to use a static event notifying all classes that consume a COM resource to release it.
@@ -72,7 +72,7 @@ namespace Vovin.CmcLibNet.Database
             */
             try
             {
-                _cur = new CommenceCursor(categoryName, _rcwReleasePublisher); // should not need dependency injection, or should it?
+                _cur = new CommenceCursor(_db, categoryName, _rcwReleasePublisher); // should not need dependency injection, or should it?
                 return _cur;
             }
             catch (COMException e)
@@ -108,7 +108,7 @@ namespace Vovin.CmcLibNet.Database
                 }
                 try
                 {
-                    cur = new CommenceCursor(pCursorType, pName, _rcwReleasePublisher, pCursorFlags, vd.TypeDescription);
+                    cur = new CommenceCursor(_db, pCursorType, pName, _rcwReleasePublisher, pCursorFlags, vd.TypeDescription);
                 }
                 catch (COMException e)
                 {
@@ -119,7 +119,7 @@ namespace Vovin.CmcLibNet.Database
             {
                 try
                 {
-                    cur = new CommenceCursor(pCursorType, pName, _rcwReleasePublisher, pCursorFlags);
+                    cur = new CommenceCursor(_db, pCursorType, pName, _rcwReleasePublisher, pCursorFlags);
                 }
                 catch (COMException e)
                 {
@@ -133,7 +133,8 @@ namespace Vovin.CmcLibNet.Database
         {
             if (_db != null)
             {
-                Marshal.ReleaseComObject(_db);
+                while (Marshal.ReleaseComObject(_db) > 0) { };
+                _db = null;
             }
         }
 
@@ -142,14 +143,15 @@ namespace Vovin.CmcLibNet.Database
         {
             _rcwReleasePublisher.ReleaseRCWReferences(); // notify subscribers to release COM references.
 
-            Dispose();
-
             // If we don't force garbage collection,
             // the commence.exe will remain open at least when the devenv is running
             // AVB 2019-03-18 seems we can get away with it after implementing IDisposable
-            //GC.Collect(); // force garbage collection
-            //GC.WaitForPendingFinalizers();
-            //GC.Collect();
+#if DEBUG
+            GC.Collect(); // force garbage collection
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+#endif
         }
 
         #endregion
@@ -188,14 +190,21 @@ namespace Vovin.CmcLibNet.Database
             {
                 if (disposing)
                 {
+                    Close();
                     // TODO: dispose managed state (managed objects).
-                    _conv.Dispose();
+                    if (DDETimer != null)
+                    {
+                        DDETimer.Stop();
+                        _conv.CloseConversation();
+                    }
+                    _conv = null;
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 if (_db != null)
                 {
-                    Marshal.ReleaseComObject(_db);
+                    while (Marshal.ReleaseComObject(_db) > 0) { };
+                    _db = null;
                 }
 
                 // TODO: set large fields to null.

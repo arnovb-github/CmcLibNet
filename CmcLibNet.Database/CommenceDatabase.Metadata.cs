@@ -21,9 +21,9 @@ namespace Vovin.CmcLibNet.Database
         private const string CMC_DELIM2 = @"|@##~~&|";
         private readonly string[] _splitter = new string[] { CMC_DELIM };
         private readonly string[] _splitter2 = new string[] { CMC_DELIM2 };
-        private static Timer DDETimer = null; // static because we only use 1 timer
+        private Timer DDETimer;
         private readonly int DDETimeout = 5000; // milliseconds after which a DDE conversation is closed.
-        private CommenceConversation _conv = null;
+        private CommenceConversation _conv;
 
         #region DDE Request methods
         /// <inheritdoc />
@@ -1214,7 +1214,7 @@ namespace Vovin.CmcLibNet.Database
                 DDETimer.Elapsed += _conv.HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout;
-            DDETimer.Enabled = true; // (re)start timer
+            DDETimer.Start(); // (re)start timer
 
             try
             {
@@ -1249,7 +1249,7 @@ namespace Vovin.CmcLibNet.Database
                 DDETimer.Elapsed += _conv.HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout; // (re)set interval
-            DDETimer.Enabled = true; // (re)start timer
+            DDETimer.Start(); // (re)start timer
 
             try
             {

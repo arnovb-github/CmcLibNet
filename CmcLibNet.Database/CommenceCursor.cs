@@ -41,24 +41,26 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Creates default cursor type on category with default options.
         /// </summary>
+        /// <param name="cmc">Native FormOA (Commence) reference.</param>
         /// <param name="pName">Commence category name.</param>
         /// <param name="rcwReleasePublisher">RCWReleasePublisher object used for COM Interop object cleanup.</param>
-        internal CommenceCursor(string pName, IRcwReleasePublisher rcwReleasePublisher)
+        internal CommenceCursor(FormOA.ICommenceDB cmc, string pName, IRcwReleasePublisher rcwReleasePublisher)
         {
             // default cursor type, on category, default flag
-             _cur = CommenceApp.DB.GetCursor(0, pName, 0);
+             _cur = cmc.GetCursor(0, pName, 0);
             _rcwReleasePublisher = rcwReleasePublisher;
              _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;
         }
         /// <summary>
         /// Creates custom View cursor.
         /// </summary>
+        /// <param name="cmc">Native FormOA (Commence) reference.</param>
         /// <param name="pCursorType">CmcCursorType.</param>
         /// <param name="pName">Commence category or view name.</param>
         /// <param name="rcwReleasePublisher">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="pCursorFlags">CmcOptionFlags.</param>
         /// <param name="viewType">Viewtype.</param>
-        internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags, string viewType)
+        internal CommenceCursor(FormOA.ICommenceDB cmc, CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags, string viewType)
         {
             CursorType = pCursorType;
             Flags = pCursorFlags;
@@ -67,7 +69,7 @@ namespace Vovin.CmcLibNet.Database
                 _viewName = pName;
                 _viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
             }
-            _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
+            _cur = cmc.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;
         }
@@ -75,15 +77,16 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Creates custom Category cursor.
         /// </summary>
+        /// <param name="cmc">Native FormOA (Commence) reference.</param>
         /// <param name="pCursorType">CmcCursorType.</param>
         /// <param name="pName">Commence category or view name.</param>
         /// <param name="rcwReleasePublisher">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="pCursorFlags">CmcOptionFlags.</param>
-        internal CommenceCursor(CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags)
+        internal CommenceCursor(FormOA.ICommenceDB cmc, CmcCursorType pCursorType, string pName, IRcwReleasePublisher rcwReleasePublisher, CmcOptionFlags pCursorFlags)
         {
             CursorType = pCursorType;
             Flags = pCursorFlags;
-            _cur = CommenceApp.DB.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
+            _cur = cmc.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;
         }
