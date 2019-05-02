@@ -73,7 +73,7 @@ namespace Vovin.CmcLibNet
         /// </remarks>
         public CommenceApp()
         {
-            /* Commence does not register itself in the ROT (Remote Object Table)
+            /* Commence does not register itself in the ROT (Running Object Table)
             // * Therefore, we can not tell which database to talk to from COM
             // * This is a serious problem that Commence refuses to fix.
             // * Most of the third-party utilities built for Commence do not take this into account,
@@ -88,17 +88,6 @@ namespace Vovin.CmcLibNet
             // * This behaviour may be subject to errors when Commence.DB has a non-standard DCOM settings defined.
             // * This has yet to be tested.
             // */
-            //switch (ProcessCountInCurrentSession(PROCESS_NAME))
-            //{
-            //    case 0:
-            //        // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
-            //        throw new CommenceNotRunningException("Commence is not running.");
-            //    case 1:
-            //        _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
-            //        break;
-            //    default:
-            //        throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
-            //}
             rw = new RcwReleasePublisher();
             rw.RCWRelease += RCWReleaseHandler;
         }
