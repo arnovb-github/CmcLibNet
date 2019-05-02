@@ -11,6 +11,23 @@ namespace Vovin.CmcLibNet.Database
     public enum FilterQualifier
     {
         /// <summary>
+        /// "Contains" filter. Applies to: Name, E-mail, URL, Telephone, Text fields.
+        /// </summary>
+        Contains,
+        /// <summary>
+        /// "Does Not Contain" filter. Applies to: Name, E-mail, URL, Telephone, Text fields.
+        /// </summary>
+        [Description("Does not Contain")]
+        DoesNotContain,
+        /// <summary>
+        /// "On" filter. Applies to: Date fields.
+        /// </summary>
+        On,
+        /// <summary>
+        /// "At" filter. Applies to: Time fields.
+        /// </summary>
+        At,
+        /// <summary>
         /// "Equal To" filter. Applies to: Name, Calculation, E-mail, URL, Number, Selection, Sequence, Telephone, Text fields.
         /// </summary>
         [Description("Equal To")]
@@ -64,14 +81,6 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         Before,
         /// <summary>
-        /// "On" filter. Applies to: Date fields.
-        /// </summary>
-        On,
-        /// <summary>
-        /// "At" filter. Applies to: Time fields.
-        /// </summary>
-        At,
-        /// <summary>
         /// "After" filter. Applies to: Date, Time fields.
         /// </summary>
         After,
@@ -79,15 +88,6 @@ namespace Vovin.CmcLibNet.Database
         /// "Blank" filter. Applies to Name fields, Date fields, E-mail fields, Telephone fields, URL fields, Time fields.
         /// </summary>
         Blank,
-        /// <summary>
-        /// "Contains" filter. Applies to: Name, E-mail, URL, Telephone, Text fields.
-        /// </summary>
-        Contains,
-        /// <summary>
-        /// "Does Not Contain" filter. Applies to: Name, E-mail, URL, Telephone, Text fields.
-        /// </summary>
-        [Description("Doesn't Contain")]
-        DoesNotContain,
         /// <summary>
         /// "Shared" filter. Applies to: N/A when used with fields.
         /// </summary>
