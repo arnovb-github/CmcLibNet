@@ -3,7 +3,7 @@
     /// <summary>
     /// Describes a Commence connection.
     /// </summary>
-    public class CommenceConnection
+    public class CommenceConnection : ICommenceConnection
     {
         /// <inheritdoc />
         public string Name { get; set; }
