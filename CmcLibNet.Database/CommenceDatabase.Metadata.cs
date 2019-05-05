@@ -297,6 +297,7 @@ namespace Vovin.CmcLibNet.Database
         //}
 
         /// <inheritdoc />
+        [ComVisible(false)]
         public List<CommenceConnection> GetConnectionNames(string categoryName)
         {
             List<CommenceConnection> retval = null;
