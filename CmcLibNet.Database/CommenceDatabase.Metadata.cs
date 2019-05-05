@@ -277,20 +277,43 @@ namespace Vovin.CmcLibNet.Database
             return retval;
         }
 
+        ///// <inheritdoc />
+        //public List<Tuple<string, string>> GetConnectionNames(string categoryName)
+        //{
+        //    List<Tuple<string, string>> retval = null;
+        //    string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
+        //    if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
+        //    {
+        //        string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
+        //        //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
+        //        retval = new List<Tuple<string, string>>();
+        //        foreach (string s in pairs)
+        //        {
+        //            string[] pair = s.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
+        //            retval.Add(Tuple.Create(pair[0], pair[1]));
+        //        }
+        //    }
+        //    return retval;
+        //}
+
         /// <inheritdoc />
-        public List<Tuple<string, string>> GetConnectionNames(string categoryName)
+        public List<CommenceConnection> GetConnectionNames(string categoryName)
         {
-            List<Tuple<string, string>> retval = null;
+            List<CommenceConnection> retval = null;
             string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
             if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
             {
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
-                retval = new List<Tuple<string, string>>();
+                retval = new List<CommenceConnection>();
                 foreach (string s in pairs)
                 {
                     string[] pair = s.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
-                    retval.Add(Tuple.Create(pair[0], pair[1]));
+                    retval.Add(new CommenceConnection()
+                    {
+                        Name = pair[0],
+                        ToCategory = pair[1]
+                    });
                 }
             }
             return retval;

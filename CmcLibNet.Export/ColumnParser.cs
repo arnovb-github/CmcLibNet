@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Holds connection information of the category.
         /// </summary>
-        private List<Tuple<string, string>> _connNames = null;
+        private List<CommenceConnection> _connNames = null;
         /// <summary>
         /// Captures incoming list of custom headers, if any.
         /// </summary>
@@ -135,18 +135,18 @@ namespace Vovin.CmcLibNet.Export
             }
             else // we *may* have a connection, but if so, which one?
             {
-                return ColumnNameMatchesConnectionName(fieldName, this._connNames);
+                return ColumnNameMatchesConnectionName(fieldName, _connNames);
             }
         }
 
-        private bool ColumnNameMatchesConnectionName(string fieldName, List<Tuple<string, string>> connNames)
+        private bool ColumnNameMatchesConnectionName(string fieldName, List<CommenceConnection> connNames)
         {
             if (_connNames == null) { return false; }
 
-            foreach (Tuple<string, string> t in connNames)
+            foreach (ICommenceConnection t in connNames)
             {
-                if (fieldName.StartsWith(t.Item1) && fieldName.EndsWith(t.Item2)
-                    && fieldName.Length == t.Item1.Length + t.Item2.Length + 1)
+                if (fieldName.StartsWith(t.Name) && fieldName.EndsWith(t.ToCategory)
+                    && fieldName.Length == t.Name.Length + t.ToCategory.Length + 1)
                 {
                     return true; // return true on first match. 
                 }
@@ -154,18 +154,18 @@ namespace Vovin.CmcLibNet.Export
             return false;
         }
 
-        private Dictionary<string, string> GetNameFieldsFromConnectedCategories(List<Tuple<string, string>> connNames)
+        private Dictionary<string, string> GetNameFieldsFromConnectedCategories(List<CommenceConnection> connNames)
         {
             Dictionary<string, string> retval = null;
             if (connNames == null) { return retval; }
 
-            Database.ICommenceDatabase db = new Database.CommenceDatabase();
+            ICommenceDatabase db = new Database.CommenceDatabase();
             retval = new Dictionary<string, string>();
             // collect list of connected category names
             List<string> cats = new List<string>();
-            foreach (Tuple<string, string> t in connNames)
+            foreach (CommenceConnection t in connNames)
             {
-                cats.Add(t.Item2);
+                cats.Add(t.ToCategory);
             }
             // process only unique category names
             cats = cats.Distinct().ToList<string>();
@@ -195,13 +195,13 @@ namespace Vovin.CmcLibNet.Export
                 retval = new RelatedColumn(s[0], s[1], s[2], RelatedColumnType.ConnectedField, delim);
             }
             if (connectedColumn.Contains(' ')) // this can be shorter
-                foreach (Tuple<string, string> t in this._connNames)
+                foreach (CommenceConnection c in this._connNames)
                 {
-                    if (connectedColumn.StartsWith(t.Item1) && connectedColumn.EndsWith(t.Item2)
-                        && connectedColumn.Length == t.Item1.Length + t.Item2.Length + 1)
+                    if (connectedColumn.StartsWith(c.Name) && connectedColumn.EndsWith(c.ToCategory)
+                        && connectedColumn.Length == c.Name.Length + c.ToCategory.Length + 1)
                     {
                         delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.Connection);
-                        retval = new RelatedColumn(t.Item1, t.Item2, this._connectedNameFields[t.Item2], RelatedColumnType.Connection, delim);
+                        retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
                     }
                 }
             return retval;

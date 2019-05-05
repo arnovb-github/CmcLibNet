@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {

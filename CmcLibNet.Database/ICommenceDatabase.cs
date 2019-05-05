@@ -203,14 +203,24 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Strings containing the connection/category pairs delimited by delim2, pairs delimited by delim1, delims defaults to CR/LF.</returns>
 		string GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null);
 
+        ///// <summary>
+        ///// Gets a list of connection names to the specified category.
+        ///// </summary>
+        ///// <param name="categoryName">Commence category name.</param>
+        ///// <returns>List with pairs of connection/connCategory names as a Tuple.</returns>
+        ///// <remarks>This method is only available to .Net consumers.</remarks>
+        //[Obsolete("Use the overload that returns ICommenceConnection.")]
+        //[ComVisible(false)]
+        //List<Tuple<string, string>> GetConnectionNames(string categoryName);
+
         /// <summary>
         /// Gets a list of connection names to the specified category.
         /// </summary>
         /// <param name="categoryName">Commence category name.</param>
-        /// <returns>List with pairs of connection/connCategory names as a Tuple.</returns>
+        /// <returns>List of CommenceConnection objects.</returns>
         /// <remarks>This method is only available to .Net consumers.</remarks>
         [ComVisible(false)]
-        List<Tuple<string, string>> GetConnectionNames(string categoryName);
+        List<CommenceConnection> GetConnectionNames(string categoryName);
 
         /// <summary>
         /// (Not implemented) Get the active Commence database name and path as delimited string. See <see cref="CommenceApp.Name"/> and/or <see cref="CommenceApp.Path"/>.
@@ -218,7 +228,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>NotImplementedException</returns>
         /// <seealso cref="CommenceApp.Name"/>
         /// <seealso cref="CommenceApp.Path"/>
-        [ObsoleteAttribute("Use CmcLibNet.CommenceApp.Name and/or CmcLibNet.CommenceApp.Path")]
+        [Obsolete("Use CmcLibNet.CommenceApp.Name and/or CmcLibNet.CommenceApp.Path")]
 		string GetDatabase();
 
         /// <summary>
