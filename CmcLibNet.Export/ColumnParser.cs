@@ -163,9 +163,9 @@ namespace Vovin.CmcLibNet.Export
             retval = new Dictionary<string, string>();
             // collect list of connected category names
             List<string> cats = new List<string>();
-            foreach (CommenceConnection t in connNames)
+            foreach (CommenceConnection c in connNames)
             {
-                cats.Add(t.ToCategory);
+                cats.Add(c.ToCategory);
             }
             // process only unique category names
             cats = cats.Distinct().ToList<string>();
@@ -195,7 +195,7 @@ namespace Vovin.CmcLibNet.Export
                 retval = new RelatedColumn(s[0], s[1], s[2], RelatedColumnType.ConnectedField, delim);
             }
             if (connectedColumn.Contains(' ')) // this can be shorter
-                foreach (CommenceConnection c in this._connNames)
+                foreach (CommenceConnection c in _connNames)
                 {
                     if (connectedColumn.StartsWith(c.Name) && connectedColumn.EndsWith(c.ToCategory)
                         && connectedColumn.Length == c.Name.Length + c.ToCategory.Length + 1)

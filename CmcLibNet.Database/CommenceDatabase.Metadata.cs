@@ -82,7 +82,7 @@ namespace Vovin.CmcLibNet.Database
             if (viewInfo != null) // null means no view was active
             {
                 // commence will return {ViewName}Delim {ViewType}Delim {CategoryName}Delim {ItemName}Delim {FieldName}
-                string[] buffer = viewInfo.Split(new string[] { CMC_DELIM },StringSplitOptions.None);
+                string[] buffer = viewInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 avi = new ActiveViewInfo();
                 avi.Name = buffer[0];
                 avi.Type = (buffer[1] == "Add Item") ? "Item Detail Form" : buffer[1]; // translate. This is a discrepancy in Commence documentation.
@@ -162,7 +162,7 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetCategoryNames"});
+                return GetDDEValues(new string[] { "GetCategoryNames" });
             }
             else
             {
@@ -255,47 +255,35 @@ namespace Vovin.CmcLibNet.Database
             return GetDDECount(new string[] { "GetConnectionCount", EncodeDdeArgument(categoryName) });
         }
 
-        /// <inheritdoc />
-        [Obsolete("Use GetConnectionNames(categoryName) to get an IEnumerable of ICommenceConnection")]
-        public string GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
-        {
-            string retval = string.Empty;
-            // both delim1 and delim2 are optional, but they must be supplied if specified
-            List<string> list = new List<string>();
-            list.Add("GetConnectionNames");
-            list.Add(categoryName);
-            if (delim1 != null)
-            {
-                list.Add(delim1);
-            }
-            if (delim2 != null)
-            {
-                list.Add(delim2);
-            }
-            retval = GetDDEValues(list.ToArray<string>());
-            return retval;
-        }
-
         ///// <inheritdoc />
-        //public List<Tuple<string, string>> GetConnectionNames(string categoryName)
+        //[Obsolete("Use GetConnectionNames(categoryName) to get an IEnumerable of ICommenceConnection")]
+        //public string GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
         //{
-        //    List<Tuple<string, string>> retval = null;
-        //    string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
-        //    if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
+        //    string retval = string.Empty;
+        //    // both delim1 and delim2 are optional, but they must be supplied if specified
+        //    List<string> list = new List<string>();
+        //    list.Add("GetConnectionNames");
+        //    list.Add(categoryName);
+        //    if (delim1 != null)
         //    {
-        //        string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-        //        //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
-        //        retval = new List<Tuple<string, string>>();
-        //        foreach (string s in pairs)
-        //        {
-        //            string[] pair = s.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
-        //            retval.Add(Tuple.Create(pair[0], pair[1]));
-        //        }
+        //        list.Add(delim1);
         //    }
+        //    if (delim2 != null)
+        //    {
+        //        list.Add(delim2);
+        //    }
+        //    retval = GetDDEValues(list.ToArray<string>());
         //    return retval;
         //}
 
         /// <inheritdoc />
+        public object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
+        {
+            return GetConnectionNames(categoryName).Cast<ICommenceConnection>().ToArray();
+        }
+
+        /// <inheritdoc />
+        [ComVisible(false)]
         public IEnumerable<ICommenceConnection> GetConnectionNames(string categoryName)
         {
             List<ICommenceConnection> retval = null;
@@ -305,9 +293,9 @@ namespace Vovin.CmcLibNet.Database
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
                 retval = new List<ICommenceConnection>();
-                foreach (string s in pairs)
+                foreach (string p in pairs)
                 {
-                    string[] pair = s.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
+                    string[] pair = p.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
                     retval.Add(new CommenceConnection()
                     {
                         Name = pair[0],

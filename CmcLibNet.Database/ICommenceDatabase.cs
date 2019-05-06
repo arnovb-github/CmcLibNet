@@ -200,18 +200,9 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="categoryName">Commence category name.</param>
         /// <param name="delim1">First delimiter, up to 8 chars.</param>
         /// <param name="delim2">Second delimiter, up to 8 chars.</param>
-        /// <returns>Strings containing the connection/category pairs delimited by delim2, pairs delimited by delim1, delims defaults to CR/LF.</returns>
-		string GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null);
-
-        ///// <summary>
-        ///// Gets a list of connection names to the specified category.
-        ///// </summary>
-        ///// <param name="categoryName">Commence category name.</param>
-        ///// <returns>List with pairs of connection/connCategory names as a Tuple.</returns>
-        ///// <remarks>This method is only available to .Net consumers.</remarks>
-        //[Obsolete("Use the overload that returns ICommenceConnection.")]
-        //[ComVisible(false)]
-        //List<Tuple<string, string>> GetConnectionNames(string categoryName);
+        /// <returns>Array of <see cref="ICommenceConnection"/> objects</returns>
+        //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)] // not needed
+        object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null); // TODO move to interface so we can have 'overloads' of same signature
 
         /// <summary>
         /// Gets a list of connection names to the specified category.

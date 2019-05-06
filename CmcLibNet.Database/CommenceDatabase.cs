@@ -5,10 +5,7 @@ using System.Runtime.InteropServices;
 namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
-    /// Wrapper around the Commence database API functionality, including all functionality provided by its DDE interface (ICommenceConversation).
-    /// There is no need to use ICommenceConversation with its DDE syntax with CmcLibNet.
-    /// All functionality provided by the ICommenceConversation interface are implemented as native functions of this class. All underlying DDE plumbing is handled internally.
-    /// <para>In fact, you cannot even get a reference to FormOA.ICommenceConversation from CmcLibNet.</para>
+    /// .Net Wrapper around the Commence database API.
     /// <para>COM clients can instantiate this by using the ProgId <c>CmcLibNet.Database</c>.</para>
     /// So from VBScript you would do:
     /// <code language="vbscript">
