@@ -114,13 +114,12 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public dynamic Add(int clauseNumber, FilterType filterType) // should we overload this somehow? What's the best way? Remember that methods with the same parameter signature cannot be overloaded!
         {
-            // Note return type. COM Interop requires an object;
+            // Note the dynamic return type. COM Interop requires an object;
             // it cannot be the base class, because in that case COM Interop only exposes the base interface.
             // and then .NET users have to use an explicit cast to get the type right, which is counterintuitive.
             // There is no way to solve this using MarshalAs as far as I know
-            // However, we can get away with using the 'dynamic' keyword.
-            // In that case a cast may still be advisable as checking mechanism, but not strictly needed.
-            // It defeats the purpose of co/contravariance, though....
+            // However, we can sort of get away with using the 'dynamic' keyword.
+            // .Net consumers will still need to cast the type, but at least it should be 'visible'(?)
 
             if (_filters.Count() == _MAX_FILTERS)
             {
@@ -153,16 +152,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public object GetFilterByClauseNumber(int clauseNumber)
         {
-            CursorFilter cf = null;
-            foreach (CursorFilter f in _filters)
-            {
-                if (f.ClauseNumber == clauseNumber)
-                {
-                    cf = f;
-                    break;
-                }
-            }
-            return cf;
+            return _filters.SingleOrDefault(w => w.ClauseNumber == clauseNumber);
         }
 
         /// <inheritdoc />
@@ -208,23 +198,13 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool RemoveFilterByClauseNumber(int clauseNumber)
         {
-            bool retval = false;
-
-            foreach (CursorFilter f in _filters)
-            {
-                if (f.ClauseNumber == clauseNumber)
-                {
-                    string s = "[ViewFilter(" + clauseNumber.ToString() + ",\"Clear\")]";
-                    if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
-                    {   // throwing an error exits a foreach loop
-                        throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
-                    }
-                    _filters.Remove(f);
-                    retval = true;
-                    break;
-                }
+            var f = _filters.SingleOrDefault(w => w.ClauseNumber == clauseNumber);
+            string s = "[ViewFilter(" + f.ClauseNumber.ToString() + ",\"Clear\")]";
+            if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
+            {   
+                throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
             }
-            return retval;
+            return _filters.Remove(f);
         }
 
         /// <inheritdoc />
@@ -299,14 +279,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns><c>true</c> if clausenumber in use, otherwise <c>false</c>.</returns>
         private bool ClauseInUse(List<CursorFilter> filters, int clauseNumber)
         {
-            foreach (CursorFilter f in filters)
-            {
-                if (f.ClauseNumber == clauseNumber)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return filters.Any(a => a.ClauseNumber == clauseNumber);
         }
 
         /// <summary>

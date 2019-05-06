@@ -12,9 +12,11 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         ///  Create new filter and add it to the collection.
         /// </summary>
-        /// <param name="clauseNumber">clauseNumber is the order of the filter, should be between 1-8.</param>
+        /// <param name="clauseNumber">Order of the filter, should be between 1-8.</param>
         /// <param name="filterType">The type of filter to create.</param>
-        /// <returns>Derived BaseFilter corresponding with filtertype.</returns>
+        /// <returns>Derived BaseFilter corresponding to either of
+        /// <see cref="ICursorFilterTypeF"/>, <see cref="ICursorFilterTypeCTI"/>, 
+        /// <see cref="ICursorFilterTypeCTCF"/>, <see cref="ICursorFilterTypeCTCTI"/>.</returns>
         dynamic Add(int clauseNumber, FilterType filterType); // should return only applicable filter type
         /// <summary>
         /// Get filter from collection based on clause number.
