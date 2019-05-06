@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Holds connection information of the category.
         /// </summary>
-        private List<CommenceConnection> _connNames = null;
+        private IEnumerable<ICommenceConnection> _connNames = null;
         /// <summary>
         /// Captures incoming list of custom headers, if any.
         /// </summary>
@@ -139,7 +139,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private bool ColumnNameMatchesConnectionName(string fieldName, List<CommenceConnection> connNames)
+        private bool ColumnNameMatchesConnectionName(string fieldName, IEnumerable<ICommenceConnection> connNames)
         {
             if (_connNames == null) { return false; }
 
@@ -154,7 +154,7 @@ namespace Vovin.CmcLibNet.Export
             return false;
         }
 
-        private Dictionary<string, string> GetNameFieldsFromConnectedCategories(List<CommenceConnection> connNames)
+        private Dictionary<string, string> GetNameFieldsFromConnectedCategories(IEnumerable<ICommenceConnection> connNames)
         {
             Dictionary<string, string> retval = null;
             if (connNames == null) { return retval; }

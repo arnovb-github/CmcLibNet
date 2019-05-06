@@ -256,12 +256,11 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        public string GetConnectionNames(string categoryName, string delim1 =  null, string delim2 = null)
+        [Obsolete("Use GetConnectionNames(categoryName) to get an IEnumerable of ICommenceConnection")]
+        public string GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
         {
             string retval = string.Empty;
-            // both delim1 and delim2 are optional, but they must be supplied if sepcified
-            // we'll create a DDERequest command directly and perform the request,
-            // it is simpler that repeatedly creating and unboxing arrays.
+            // both delim1 and delim2 are optional, but they must be supplied if specified
             List<string> list = new List<string>();
             list.Add("GetConnectionNames");
             list.Add(categoryName);
@@ -297,16 +296,15 @@ namespace Vovin.CmcLibNet.Database
         //}
 
         /// <inheritdoc />
-        [ComVisible(false)]
-        public List<CommenceConnection> GetConnectionNames(string categoryName)
+        public IEnumerable<ICommenceConnection> GetConnectionNames(string categoryName)
         {
-            List<CommenceConnection> retval = null;
+            List<ICommenceConnection> retval = null;
             string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
             if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
             {
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
-                retval = new List<CommenceConnection>();
+                retval = new List<ICommenceConnection>();
                 foreach (string s in pairs)
                 {
                     string[] pair = s.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
@@ -317,11 +315,11 @@ namespace Vovin.CmcLibNet.Database
                     });
                 }
             }
-            return retval;
+            return retval.ToArray();
         }
 
         /// <inheritdoc />
-        [ObsoleteAttribute("Use CmcLibNet.CommenceApp.Name and/or CmcLibNet.CommenceApp.Path")]
+        [Obsolete("Use CmcLibNet.CommenceApp.Name and/or CmcLibNet.CommenceApp.Path.")]
         public string GetDatabase()
         {
             return GetDDEValues(new string[] { "GetDatabase" }); // works, but superfluous.

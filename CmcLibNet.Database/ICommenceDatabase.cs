@@ -220,7 +220,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>List of CommenceConnection objects.</returns>
         /// <remarks>This method is only available to .Net consumers.</remarks>
         [ComVisible(false)]
-        List<CommenceConnection> GetConnectionNames(string categoryName);
+        IEnumerable<ICommenceConnection> GetConnectionNames(string categoryName);
 
         /// <summary>
         /// (Not implemented) Get the active Commence database name and path as delimited string. See <see cref="CommenceApp.Name"/> and/or <see cref="CommenceApp.Path"/>.
