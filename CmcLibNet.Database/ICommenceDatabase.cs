@@ -201,7 +201,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="delim1">First delimiter, up to 8 chars.</param>
         /// <param name="delim2">Second delimiter, up to 8 chars.</param>
         /// <returns>Array of <see cref="ICommenceConnection"/> objects</returns>
-        //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)] // not needed
+        //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)]
         object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null); // TODO move to interface so we can have 'overloads' of same signature
 
         /// <summary>
