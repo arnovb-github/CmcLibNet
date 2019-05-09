@@ -76,6 +76,7 @@
     <Compile Include="CmcLibNet.Database\CommenceViewType.cs" />
     <Compile Include="CmcLibNet.Database\FilterQualifier.cs" />
     <Compile Include="CmcLibNet.Database\FilterType.cs" />
+    <Compile Include="CmcLibNet.Database\FilterValuesAttribute.cs" />
     <Compile Include="CmcLibNet.Database\IActiveViewInfo.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceConnection.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceFieldDefinition.cs" />
