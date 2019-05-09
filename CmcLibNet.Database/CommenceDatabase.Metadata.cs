@@ -280,7 +280,7 @@ namespace Vovin.CmcLibNet.Database
         //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)]
         public object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
         {
-            return GetConnectionNames(categoryName).Cast<object>().ToArray();
+            return GetConnectionNames(categoryName)?.Cast<object>().ToArray();
         }
 
         /// <inheritdoc />
@@ -304,7 +304,7 @@ namespace Vovin.CmcLibNet.Database
                     });
                 }
             }
-            return retval.ToArray();
+            return retval?.ToArray();
         }
 
         /// <inheritdoc />
