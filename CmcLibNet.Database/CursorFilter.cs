@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// The clause number is a 1-based int specifying the filter order. There can be up to 8 filters.
         /// </summary>
-        private readonly int _clauseNumber;
+        private int _clauseNumber;
 
         /// <summary>
         /// Constructor checks and sets the clausenumber.
@@ -35,21 +35,14 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="clauseNumber">Clause number, should be between 1 and 8.</param>
         protected internal CursorFilter(int clauseNumber)
         {
-            if (clauseNumber >= 1 && clauseNumber <= 8)
-            {
-                _clauseNumber = clauseNumber;
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException("Clause number must be between 1 and 8");
-            }
+            ClauseNumber = clauseNumber;
         }
 
         #region Properties
         /// <inheritdoc />
-        public virtual bool OrFilter { get; set; }
+        public bool OrFilter { get; set; }
         /// <inheritdoc />
-        public virtual bool Except { get; set; }
+        public bool Except { get; set; }
 
         #endregion
 
@@ -59,9 +52,20 @@ namespace Vovin.CmcLibNet.Database
         /// (Read-only) Returns ClauseNumber for use in derived classes.
         /// Should be a value between 1 and 8.
         /// </summary>
-        protected internal int ClauseNumber
+        public int ClauseNumber
         {
             get { return _clauseNumber; }
+            set
+            {
+                if (value >= 1 && value <= 8)
+                {
+                    _clauseNumber = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Clause number must be between 1 and 8");
+                }
+            }
         }
 
         /// <inheritdoc />

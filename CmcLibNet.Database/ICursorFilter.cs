@@ -25,5 +25,9 @@ namespace Vovin.CmcLibNet.Database
         /// <remarks>If you use CmcLibNet through COM Interop, for instance in Commence Form Script, you may have no way of inspecting the filter in an IDE. This method returns the string representation of the filter.</remarks>
         /// <returns>ViewFilter string.</returns>
         string GetViewFilterString();
+        /// <summary>
+        /// Filter clause number. Should be a number between 1 and 8.
+        /// </summary>
+        int ClauseNumber { get; set; }
     }
 }
