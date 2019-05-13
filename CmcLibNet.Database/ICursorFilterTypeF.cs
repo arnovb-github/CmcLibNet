@@ -63,7 +63,7 @@ namespace Vovin.CmcLibNet.Database
         /// Convenience property for the qualifier for in .NET applications. This property takes precedence over <see cref=" QualifierString"/>.
         /// </summary>
         [ComVisible(false)]
-        FilterQualifier Qualifier { set; }
+        FilterQualifier Qualifier { get; set; }
         /// <summary>
         /// Field to evaluate.
         /// </summary>

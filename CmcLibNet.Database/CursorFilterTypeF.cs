@@ -18,6 +18,7 @@ namespace Vovin.CmcLibNet.Database
         private const string _filterType = "F"; 
         private bool? _Shared;
         private string _filterQualifierString = string.Empty;
+        private FilterQualifier _filterQualifier;
 
         /// <summary>
         /// constructor.
@@ -76,8 +77,10 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public FilterQualifier Qualifier
         {
+            get { return _filterQualifier; }
             set
             {
+                _filterQualifier = value;
                 this.QualifierString = value.GetEnumDescription();
             }
         }

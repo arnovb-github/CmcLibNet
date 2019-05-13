@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Database
         #region Methods
 
         /// <summary>
-        /// (Read-only) Returns ClauseNumber for use in derived classes.
+        /// Returns ClauseNumber for use in derived classes.
         /// Should be a value between 1 and 8.
         /// </summary>
         public int ClauseNumber

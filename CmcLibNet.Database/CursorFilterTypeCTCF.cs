@@ -19,6 +19,7 @@ namespace Vovin.CmcLibNet.Database
         private const string _filterType = "CTCF"; 
         private bool? _shared; // nullable field??
         private string _filterQualifierString = string.Empty;
+        private FilterQualifier _filterQualifier;
 
         /// <summary>
         /// constructor.
@@ -81,8 +82,10 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public FilterQualifier Qualifier
         {
+            get { return _filterQualifier; }
             set
             {
+                _filterQualifier = value;
                 this.QualifierString = value.GetEnumDescription();
             }
         }
