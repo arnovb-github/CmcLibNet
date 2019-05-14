@@ -299,5 +299,15 @@ namespace Vovin.CmcLibNet
                 }
             }
         }
+
+        internal static string GetClarifiedItemName(string itemName, string clarifySeparator, string clarifyValue)
+        {
+            if (string.IsNullOrEmpty(itemName)) { return string.Empty; }
+            if (!string.IsNullOrEmpty(clarifySeparator))
+            {
+                return itemName.PadRight(50) + clarifySeparator + clarifyValue.PadRight(40);
+            }
+            return string.Empty;
+        }
     }
 }

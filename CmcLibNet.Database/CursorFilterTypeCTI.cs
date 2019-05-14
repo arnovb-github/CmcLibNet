@@ -1,8 +1,7 @@
-﻿using System.Text;
-using Vovin.CmcLibNet;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 
-namespace Vovin.CmcLibNet.Database 
+namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// Represents a filter of type 'Item Connected To Item' (CTI).
@@ -39,7 +38,10 @@ namespace Vovin.CmcLibNet.Database
             }
             set
             {
-                _itemName = value.ToString().PadRight(50, ' ');
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _itemName = value.PadRight(50);
+                }
             }
         }
 
@@ -53,7 +55,10 @@ namespace Vovin.CmcLibNet.Database
             }
             set
             {
-                _clarifyValue = value.ToString().PadRight(40, ' ');
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _clarifyValue = value.PadRight(40);
+                }
             }
         }
 
@@ -69,7 +74,8 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(base.Except ? "NOT," : ",");
             sb.Append(Utils.dq(this.Connection) + ',');
             sb.Append(Utils.dq(this.Category) + ',');
-            sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
+            //sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
+            sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
             sb.Append(")]");
             return sb.ToString();
         }

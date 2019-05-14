@@ -180,7 +180,8 @@ namespace Vovin.CmcLibNet.Database
         // this method is not a Commence method
         public string GetClarifiedItemName(string itemName, string clarifySeparator, string clarifyValue)
         {
-            return itemName.PadRight(50) + clarifySeparator + clarifyValue.PadRight(40);
+            //return itemName.PadRight(50) + clarifySeparator + clarifyValue.PadRight(40);
+            return Utils.GetClarifiedItemName(itemName, clarifySeparator, clarifyValue);
         }
 
         /// <inheritdoc />

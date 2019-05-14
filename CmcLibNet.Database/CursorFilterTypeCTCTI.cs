@@ -42,7 +42,10 @@ namespace Vovin.CmcLibNet.Database
             }
             set
             {
-                _itemName = value.ToString().PadRight(50, ' ');
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _itemName = value.PadRight(50);
+                }
             }
         }
 
@@ -56,7 +59,10 @@ namespace Vovin.CmcLibNet.Database
             }
             set
             {
-                _clarifyValue = value.ToString().PadRight(40, ' ');
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _clarifyValue = value.PadRight(40);
+                }
             }
         }
         /// <summary>
@@ -73,10 +79,10 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(Utils.dq(this.Category) + ',');
             sb.Append(Utils.dq(this.Connection2) + ',');
             sb.Append(Utils.dq(this.Category2) + ',');
-            sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
+            //sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
+            sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
             sb.Append(")]");
             return sb.ToString();
         }
     }
-
 }
