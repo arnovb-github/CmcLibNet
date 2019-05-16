@@ -281,20 +281,19 @@ namespace Vovin.CmcLibNet.Database
         //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)]
         public object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null)
         {
-            return GetConnectionNames(categoryName)?.Cast<object>().ToArray();
+            return GetConnectionNames(categoryName).Cast<object>().ToArray();
         }
 
         /// <inheritdoc />
         [ComVisible(false)]
         public IEnumerable<ICommenceConnection> GetConnectionNames(string categoryName)
         {
-            List<ICommenceConnection> retval = null;
+            IList<ICommenceConnection> retval = new List<ICommenceConnection>();
             string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
             if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
             {
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                //if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
-                retval = new List<ICommenceConnection>();
+                if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
                 foreach (string p in pairs)
                 {
                     string[] pair = p.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
