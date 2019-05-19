@@ -26,7 +26,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="cur">FormOA.ICommenceCursor reference.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, IRcwReleasePublisher rcwpub,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // queryrowset with all rows
             try
@@ -53,7 +53,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nCount">Number of items to query.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, int nCount, IRcwReleasePublisher rcwpub,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, int nCount, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // queryrowset with set number of rows
             _qrs = cur.GetQueryRowSet(nCount, (int)flags);
@@ -69,10 +69,10 @@ namespace Vovin.CmcLibNet.Database
         /// Constructor that creates QueryRowSet for particular row identified by RowID.
         /// </summary>
         /// <param name="cur">FormOA.ICommenceCursor reference.</param>
-        /// <param name="pRowID">row id.</param>
+        /// <param name="pRowID">row or thid  id.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub ,CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
         {
             // queryrowset by id
             _qrs = cur.GetQueryRowSetByID(pRowID, (int)flags);
@@ -83,6 +83,7 @@ namespace Vovin.CmcLibNet.Database
             _rcwReleasePublisher = rcwpub;
             _rcwReleasePublisher.RCWRelease += this.RCWReleaseHandler;
         }
+
         /// <summary>
         /// Destructor.
         /// </summary>

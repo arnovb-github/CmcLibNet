@@ -352,6 +352,14 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
+        // does not seem to work on shared databases
+        // on local databases, the thid is the same as the 
+        public ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.UseThids)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public int SeekRow(CmcCursorBookmark bkOrigin, int nRows)
         {
             return _cur.SeekRow((int)bkOrigin, nRows);

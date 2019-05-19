@@ -229,10 +229,20 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Create a rowset object with a particular row loaded.
         /// </summary>
-        /// <param name="pRowID">Unique ID string obtained from GetRowID().</param>
+        /// <param name="pRowID">Unique ID string obtained from <see cref="ICommenceQueryRowSet.GetRowID"/>.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <returns>ICommenceQueryRowSet on success.</returns>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByID(string pRowID, CmcOptionFlags flags = CmcOptionFlags.Default);
+
+        /// <summary>
+        /// Create a rowset object with a particular thid loaded.
+        /// </summary>
+        /// <param name="pThid">Unique ID string obtained from <see cref="ICommenceQueryRowSet.GetRowID"/>.</param>
+        /// <param name="flags">Unused at present, must be 0.</param>
+        /// <returns><see cref="NotImplementedException"/></returns>
+        /// <remarks>Undocumented by Commence. Does not seem to work on shared databases, on local databases the this is equal to the row id.
+        /// </remarks>
+        CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
         /// Create a rowset of existing items for deletion. Use with care!
