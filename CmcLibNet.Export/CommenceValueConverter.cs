@@ -34,7 +34,7 @@ namespace Vovin.CmcLibNet.Export
             // because that is the format Commence will display and return them.
             // We take advantage of that in TryParse to the proper .NET data type,
             // then we deconstruct that data type to return a string in canonical format.
-            if (String.IsNullOrEmpty(regularCommenceValue)) { return regularCommenceValue; }
+            if (string.IsNullOrEmpty(regularCommenceValue)) { return regularCommenceValue; }
 
             string retval = regularCommenceValue;
             bool isCurrency = false;
@@ -107,12 +107,11 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="canonicalValue">canonical Commence value.</param>
         /// <param name="fieldType">Commence fieldtype.</param>
-        /// <returns>string.</returns>
+        /// <returns></returns>
         internal static string toIso8601(string canonicalValue, CommenceFieldType fieldType)
         {
             // assumes Commence data in value are already in canonical format!
-
-            if (String.IsNullOrEmpty(canonicalValue)) { return canonicalValue; }
+            if (string.IsNullOrEmpty(canonicalValue)) { return canonicalValue; }
 
             string retval = canonicalValue;
             string currencySymbol = CanonicalCurrencySymbol; // when canonical, Commence always uses '$' regardless of regional settings
@@ -135,6 +134,7 @@ namespace Vovin.CmcLibNet.Export
                 case CommenceFieldType.Time: // expects "hh:mm"
                     string[] s = canonicalValue.Split(':');
                     retval = s[0] + ":" + s[1] + ":00";
+                    //retval = "1970-01-01T" + s[0] + ":" + s[1];
                     break;
                 case CommenceFieldType.Checkbox: // expects "TRUE" or "FALSE" (case-insensitive)
                     retval = canonicalValue.ToLower();
@@ -144,16 +144,16 @@ namespace Vovin.CmcLibNet.Export
         }
 
         /// <summary>
-        /// Converts canonical value to string representation that ADO.NET understands.
+        /// Converts canonical value to object that ADO.NET understands.
         /// </summary>
-        /// <param name="canonicalValue">canonical Commence value.</param>
+        /// <param name="canonicalValue">Canonical Commence value.</param>
         /// <param name="fieldType">Commence fieldtype.</param>
-        /// <returns>string.</returns>
-        internal static string ToAdoNet(string canonicalValue, CommenceFieldType fieldType)
+        /// <returns>Object of type that Ado understands, DBNull.Value on empty.</returns>
+        internal static object ToAdoNet(string canonicalValue, CommenceFieldType fieldType)
         {
-            if (string.IsNullOrEmpty(canonicalValue)) { return canonicalValue; }
+            if (string.IsNullOrEmpty(canonicalValue)) { return DBNull.Value; }
 
-            string retval = null;
+            object retval = DBNull.Value;
 
             switch (fieldType)
             {
@@ -161,20 +161,20 @@ namespace Vovin.CmcLibNet.Export
                     int yearPart = Convert.ToInt32(canonicalValue.Substring(0, 4));
                     int monthPart = Convert.ToInt32(canonicalValue.Substring(4, 2));
                     int dayPart = Convert.ToInt32(canonicalValue.Substring(6, 2));
-                    retval = new DateTime(yearPart, monthPart, dayPart).ToString();
+                    retval = new DateTime(yearPart, monthPart, dayPart);
                     break;
                 case CommenceFieldType.Time:
                     int hourPart = Convert.ToInt32(canonicalValue.Substring(0, 2));
                     int minutePart = Convert.ToInt32(canonicalValue.Substring(3, 2));
-                    retval = new DateTime(1970, 1, 1, hourPart, minutePart, 0).ToString();
+                    retval = new DateTime(1971, 12, 23, hourPart, minutePart, 0);
                     break;
                 case CommenceFieldType.Sequence:
-                    retval = Convert.ToDecimal(canonicalValue).ToString();
+                    retval = Convert.ToDecimal(canonicalValue);
                     break;
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
-                    retval = CommenceValueConverter.RemoveCurrencySymbol(canonicalValue);
-                    retval = Convert.ToDecimal(retval).ToString();
+                    retval = RemoveCurrencySymbol(canonicalValue);
+                    retval = Convert.ToDecimal(retval);
                     break;
                 default:
                     retval = canonicalValue;

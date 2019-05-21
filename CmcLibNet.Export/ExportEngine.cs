@@ -220,8 +220,9 @@ namespace Vovin.CmcLibNet.Export
                     return new JsonWriter(cursor, settings);
                 case ExportFormat.Excel:
                     //_writer = new ExcelWriterUsingXml(cursor, settings);
-                    return new ExcelWriterUsingOpenXml(cursor, settings);
                     //return new ExcelWriterUsingOleDb(cursor, settings);
+                    //return new ExcelWriterUsingOpenXml(cursor, settings);
+                    return new ExcelWriterUsingEPPlus(cursor, settings);
                 case ExportFormat.Event:
                     return new EventWriter(cursor, settings);
                 case ExportFormat.GoogleSheets:

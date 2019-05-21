@@ -11,7 +11,7 @@ namespace Vovin.CmcLibNet.Export
     public enum ExcelUpdateOptions
     {
         /// <summary>
-        /// Create a new workbook. Overwrites existing workbook.
+        /// Create a new workbook. Overwrites existing workbook with same name!
         /// </summary>
         CreateNewWorkbook = 0,
         /// <summary>
@@ -26,6 +26,5 @@ namespace Vovin.CmcLibNet.Export
         /// Append data to the worksheet.
         /// </summary>
         AppendToWorksheet = 3
-
     }
 }

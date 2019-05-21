@@ -92,12 +92,11 @@ namespace Vovin.CmcLibNet
             {
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
+                case CommenceFieldType.Sequence: // when a sequence is gotten canonical it will contain decimals
                     return typeof(double);
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
                     return typeof(DateTime);
-                case CommenceFieldType.Sequence:
-                    return typeof(int);
                 case CommenceFieldType.Checkbox:
                     return typeof(bool);
                 default:
@@ -105,6 +104,7 @@ namespace Vovin.CmcLibNet
             }
         }
 
+        [Obsolete]
         internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(CommenceFieldType fieldType)
         {
             switch (fieldType)

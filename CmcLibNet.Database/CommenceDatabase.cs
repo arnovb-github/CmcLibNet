@@ -101,7 +101,10 @@ namespace Vovin.CmcLibNet.Database
                 vd = GetViewDefinition(pName);
                 if (vd != null && unsupported.Contains(vd.TypeDescription))
                 {
-                    throw new NotSupportedException("View is of type: " + vd.TypeDescription + "\nNo cursor can be created on views of the following types:\n\n" + string.Join(", ", unsupported) + ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
+                    throw new NotSupportedException("View is of type: " + vd.TypeDescription + 
+                        "\nNo cursor can be created on views of the following types:\n\n" + 
+                        string.Join(", ", unsupported) + 
+                        ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
                 }
                 try
                 {

@@ -31,14 +31,14 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool UseThids { get; set; }
         /// <summary>
-        /// Headermode, i.e. what to use for columnames (text, html) or nodenames (xml, json). Default is <see cref="Export.HeaderMode.Fieldname"/>.
+        /// Headermode, i.e. what to use for columnames (text, html, excel) or nodenames (xml, json). Default is <see cref="Export.HeaderMode.Fieldname"/>.
         /// </summary>
         HeaderMode HeaderMode { get; set;}
         /// <summary>
-        /// Use custom columnheaders. Make sure they are all unique and match the number of exported fields.
+        /// Use custom columnheaders. They must be unique and match the number of fields in the cursor.
         /// </summary>
         /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.
-        /// <para>Supply custom headers for all columns, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</para>
+        /// <para>You must supply custom headers for all columns in the cursor, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</para>
         /// <para>Type is <c>Object</c> for compatibility with COM.</para>
         /// </remarks>
         object[] CustomHeaders { get; set;}
@@ -49,7 +49,9 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Ignore connected items.
         /// </summary>
-        /// <remarks>Note that they will still be read from the database, just ignored in the output.</remarks>
+        /// <remarks>Note that they may still be read from the database (e.g. when exporting views), just ignored in the output.
+        /// <para>Not all exports respect this setting.</para>
+        /// <para>The recommended way to ignore connected items is simply to create a custom cursor or view that does not include them.</para></remarks>
         bool SkipConnectedItems { get; set; }
         /// <summary>
         /// CSS file to be associated with an HTML export.

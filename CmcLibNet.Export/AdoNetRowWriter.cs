@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Export
                     string value = cv.DirectFieldValue;
                     try
                     {
-                        dr[cv.ColumnDefinition.FieldName] = (String.IsNullOrEmpty(cv.DirectFieldValue)) ? DBNull.Value : (object)CommenceValueConverter.ToAdoNet(value, cv.ColumnDefinition.CommenceFieldDefinition.Type);
+                        dr[cv.ColumnDefinition.FieldName] = CommenceValueConverter.ToAdoNet(value, cv.ColumnDefinition.CommenceFieldDefinition.Type);
                     }
                     catch (Exception e)
                     {
@@ -133,10 +133,9 @@ namespace Vovin.CmcLibNet.Export
                     for (int i = 0; i < v.ConnectedFieldValues.Length; i++) // process connected items
                     {
                         string value = v.ConnectedFieldValues[i];
-                        // note the importance of entering DBNull value to keep connected item integrity.
                         try
                         {
-                            newrowbuffer[i][v.ColumnDefinition.FieldName] = (string.IsNullOrEmpty(value)) ? DBNull.Value : (object)CommenceValueConverter.ToAdoNet(value, v.ColumnDefinition.CommenceFieldDefinition.Type); //cast to object is needed to make DBNull.Value and the string value equatable.
+                            newrowbuffer[i][v.ColumnDefinition.FieldName] = CommenceValueConverter.ToAdoNet(value, v.ColumnDefinition.CommenceFieldDefinition.Type);
                         }
                         catch (Exception e)
                         {

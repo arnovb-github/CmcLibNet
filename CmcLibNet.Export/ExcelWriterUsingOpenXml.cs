@@ -15,6 +15,7 @@ namespace Vovin.CmcLibNet.Export
     /// This class takes the DOM approach (as opposed to the SAX approach).
     /// This means that when dealing with very large datasets, memory may be an issue.
     /// </summary>
+    [Obsolete("Replaced with EPPlus implementation")]
     internal class ExcelWriterUsingOpenXml : BaseWriter
     {
         #region Fields
