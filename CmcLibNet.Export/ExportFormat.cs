@@ -33,7 +33,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Export to Microsoft Excel xslx format (Excel 2007 or higher).
         /// <remarks>Excel does not have to be installed.
-        /// <para>If you choose an existing Excel file, a sheet will be inserted, <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
+        /// <para>If you choose an existing Excel file, a sheet will be inserted. <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
         /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will clear the worksheet
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
         /// <para>The export engine requires exclusive access to the Excel file.
