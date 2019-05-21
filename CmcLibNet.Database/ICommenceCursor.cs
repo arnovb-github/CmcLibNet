@@ -235,17 +235,16 @@ namespace Vovin.CmcLibNet.Database
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByID(string pRowID, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
-        /// Create a rowset object with a particular thid loaded.
+        /// Create a rowset object with a particular thid loaded. Only applies to shared items. Cursor must have the thids <see cref="CmcOptionFlags.UseThids">thids</see> flag.
         /// </summary>
-        /// <param name="pThid">Unique ID string obtained from <see cref="ICommenceQueryRowSet.GetRowID"/>.</param>
+        /// <param name="pThid">THID parts "thidid : thidsequence" (i.e., omit the leading category part).</param>
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <returns><see cref="NotImplementedException"/></returns>
-        /// <remarks>Undocumented by Commence. Does not seem to work on shared databases, on local databases the this is equal to the row id.
-        /// </remarks>
+        /// <remarks>Undocumented by Commence.</remarks>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
-        /// Create a rowset of existing items for deletion. Use with care!
+        /// Create a rowset of n items for deletion.
         /// </summary>
         /// <param name="nRows">Number of rows to retrieve.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
@@ -253,7 +252,7 @@ namespace Vovin.CmcLibNet.Database
         CmcLibNet.Database.ICommenceDeleteRowSet GetDeleteRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
-        /// Create a rowset of ALL existing items for deletion. Use with extreme care!
+        /// Create a rowset of ALL existing items for deletion. Use with care!
         /// </summary>
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <returns>ICommenceDeleteRowSet on success.</returns>

@@ -352,11 +352,21 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        // does not seem to work on shared databases
-        // on local databases, the thid is the same as the 
+        // only works on shared databases; local databases have no thids
+        // you cannot just pass a thid value you retrieved by GetRowID(), you must strip off the category (=first) sequence
+        // e.g. if GetRowID returns 0C:80006901:94BD3402, you must strip off the leading 0C: part
         public ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.UseThids)
         {
-            throw new NotImplementedException();
+            ICommenceQueryRowSet qrs = null;
+            try
+            {
+                qrs = new CommenceQueryRowSet(_cur, pThid, _rcwReleasePublisher, flags, RowSetIdentifier.Thid);
+            }
+            catch (COMException e)
+            {
+                throw new CommenceCOMException("Unable to get a QueryRowSet object from Commence", e);
+            }
+            return qrs;
         }
 
         /// <inheritdoc />

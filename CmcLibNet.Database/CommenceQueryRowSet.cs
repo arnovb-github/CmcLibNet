@@ -72,10 +72,25 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pRowID">row or thid  id.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
-        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub, CmcOptionFlags flags)
+        internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub, CmcOptionFlags flags = CmcOptionFlags.Default, RowSetIdentifier identifier = RowSetIdentifier.RowId)
         {
-            // queryrowset by id
-            _qrs = cur.GetQueryRowSetByID(pRowID, (int)flags);
+            try
+            {
+                switch (identifier)
+                {
+                    case RowSetIdentifier.RowId:
+                        _qrs = cur.GetQueryRowSetByID(pRowID, (int)flags);
+                        break;
+                    case RowSetIdentifier.Thid:
+                        _qrs = cur.GetQueryRowSetByThid(pRowID, (int)flags);
+                        break;
+                }
+            }
+            catch (COMException ex)
+            {
+                throw new CommenceCOMException("Unable to obtain a QueryRowSet from Commence.", ex);
+            }
+
             if (_qrs == null)
             {
                 throw new CommenceCOMException("Unable to obtain a QueryRowSet from Commence.");
