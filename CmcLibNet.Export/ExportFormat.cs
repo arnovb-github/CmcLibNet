@@ -34,13 +34,10 @@ namespace Vovin.CmcLibNet.Export
         /// Export to Microsoft Excel xslx format (Excel 2007 or higher).
         /// <remarks>Excel does not have to be installed.
         /// <para>If you choose an existing Excel file, a sheet will be inserted, <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
-        /// <para>If an existing file is specified, CmcLibNet will try to use it's styles for formatting data.</para>
-        /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will recreate the worksheet
+        /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will clear the worksheet
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
         /// <para>The export engine requires exclusive access to the Excel file.
-        /// You cannot use Excel VBA to export Commence data into the same workbook that you're macro code is running from.</para>
-        /// <para>Exporting to Excel requires a lot of memory because it uses the DOM (as opposed to SAX) approach.
-        /// This export format is not suitable for use with very large datasets (like -say- 200K rows with 100 fields).</para>
+        /// You cannot therefore use Excel VBA to export Commence data into the same workbook that you're macro code is running from.</para>
         /// </remarks>
         /// </summary>
         Excel = 4,
