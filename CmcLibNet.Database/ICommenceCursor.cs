@@ -239,7 +239,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="pThid">THID parts "thidid : thidsequence" (i.e., omit the leading category part).</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns><see cref="NotImplementedException"/></returns>
+        /// <returns>ICommenceQueryRowSet on success</returns>
         /// <remarks>Undocumented by Commence.</remarks>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.Default);
 
