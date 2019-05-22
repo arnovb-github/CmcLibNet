@@ -76,7 +76,11 @@ namespace Vovin.CmcLibNet.Export
                 }
                 int firstDataRow = _settings.HeadersOnFirstRow ? 2 : 1;
                 SetNumberFormatStyles(ws, firstDataRow);
-                ws.Cells.AutoFitColumns();
+                try
+                {
+                    ws.Cells.AutoFitColumns(10, 32000); 
+                }
+                catch (Exception) { } //throws an error in EPPLus on long strings. https://github.com/JanKallman/EPPlus/issues/445
                 xl.Save();
             }
             base.BubbleUpProgressEvent(e);
