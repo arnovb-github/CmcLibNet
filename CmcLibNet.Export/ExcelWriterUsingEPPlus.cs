@@ -78,7 +78,7 @@ namespace Vovin.CmcLibNet.Export
                 SetNumberFormatStyles(ws, firstDataRow);
                 try
                 {
-                    ws.Cells.AutoFitColumns(10, 32000); 
+                    ws.Cells.AutoFitColumns(10, 50); 
                 }
                 catch (Exception) { } //throws an error in EPPLus on long strings. https://github.com/JanKallman/EPPlus/issues/445
                 xl.Save();
