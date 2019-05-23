@@ -1,8 +1,7 @@
-﻿using Vovin.CmcLibNet.Database;
-using System.Xml;
-using System.Xml.Schema;
+﻿using System.Data;
 using System.Data.OleDb;
-using System.Data;
+using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Database.Metadata;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -46,33 +45,13 @@ namespace Vovin.CmcLibNet.Export
         internal DbType DbType => Utils.GetDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
         internal OleDbType OleDbType => Utils.GetOleDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
 
-        // creating and closing a ICommenceDatabase creates a problem
-        // when export methods are called in succession
-        // It seems to close the underlying COM objects in a way that is unexpected
-        // You'd think it should only close the one that has just been created
-        // but it also kills the ones in use in other procedures
-        // to reproduce, create a new database reference for every field and
-        // and call ExportView() in the exportengine twice
-        // The second one will fail.
-        // there is something fishy going on...
         internal ICommenceFieldDefinition CommenceFieldDefinition
         {
             get
             {
-                // do not use null-check on _fieldDefinition
-                // because with very odd fieldnames (like ones that contain a double quote)
-                // GetFieldDefinition will return null, leading to many DDE calls.
                 if (!_fieldDefinitionFetched)
                 {
-                    //ICommenceDatabase db = new CommenceDatabase();
                     _fieldDefinition = _db.GetFieldDefinition(this.Category, this.FieldName);
-                    if (_fieldDefinition == null)
-                    {
-                        // an error occurred getting the fielddefinition
-                        // return default one
-                        _fieldDefinition = new CommenceFieldDefinition();
-                    }
-                    //db.Close(); //has unexpected side-effect of killing underlying COM objects even for other CommenceDatabase instances
                     _fieldDefinitionFetched = true;
                 }
                 return _fieldDefinition;

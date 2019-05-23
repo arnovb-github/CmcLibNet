@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Database.Metadata;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -41,7 +42,7 @@ namespace Vovin.CmcLibNet.Database
          * e.g. returning string[] getSomething() will not work in VBScript!
          * There is the MarshalAsAttribute, but I can't get it to work like I want to :/
          */
-        #region Request commands
+        #region Commence DDE Request commands
         /// <summary>
         /// Specifies whether Commence should return clarified item names, or leave bStatus empty to get the current status.
         /// </summary>
@@ -876,7 +877,7 @@ namespace Vovin.CmcLibNet.Database
 		bool ViewView(string viewName);
         #endregion
 
-        #region Execute commands
+        #region Commence DDE Execute commands
         /// <summary>
         /// Adds the indicated Item to the Category. Fields other than the Name field are set to their default values. (Default values for date fields must not specify date ranges, e.g., "every day"). By default, the new item is local (i.e., non-shared)
         /// CAUTION: If the Category has mandatory fields, those fields must be filled in with subsequent EditItem commands. Use the GetFieldDefinition request to determine which fields are mandatory. Unpredictable results may follow if mandatory fields are left unfilled.
@@ -1106,8 +1107,24 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="caseSensitive">Compare case-sensitive. Defaults to <c>true</c>.</param>
         /// <returns><c>true</c> if value exists.</returns>
         bool FieldValueExists(string categoryName, string fieldName, string fieldValue, bool caseSensitive = true);
+
         #endregion
         #region Methods
+
+        /// <summary>
+        /// Gets a serializable object containnig the Commence schema definition.
+        /// </summary>
+        /// <returns></returns>
+        [ComVisible(false)]
+        IDatabaseSchema GetDatabaseSchema(MetaDataOptions options);
+
+        /// <summary>
+        /// Exports the schema information to file.
+        /// </summary>
+        /// <param name="fileName">Fully qualified filename.</param>
+        /// <param name="options"><see cref="MetaDataOptions"/></param>
+        void ExportDatabaseSchema(string fileName, MetaDataOptions options);
+
         /// <summary>
         /// Close any references to Commence. The object should be disposed after this.
         /// </summary>
@@ -1117,6 +1134,7 @@ namespace Vovin.CmcLibNet.Database
         /// </remarks>
         void Close();
         #endregion
+
         #region Properties
         /// <summary>
         /// Path of currently open Commence database.

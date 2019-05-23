@@ -1,9 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Timers;
+using System.Xml;
+using System.Xml.Serialization;
+using Vovin.CmcLibNet.Database.Metadata;
 using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
@@ -25,7 +30,7 @@ namespace Vovin.CmcLibNet.Database
         private readonly int DDETimeout = 5000; // milliseconds after which a DDE conversation is closed.
         private CommenceConversation _conv;
 
-        #region DDE Request methods
+        #region Commence DDE Request methods
         /// <inheritdoc />
         public string GetActiveCategory()
         {
@@ -128,13 +133,12 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public ICategoryDef GetCategoryDefinition(string categoryName)
         {
-            CategoryDef cd = null;
+            CategoryDef cd = new CategoryDef();
             string dde = BuildDDERequestCommand(new string[] { "GetCategoryDefinition", EncodeDdeArgument(categoryName), CMC_DELIM });
             string categoryInfo = DDERequest(dde);
 
             if (categoryInfo != null)
             {
-                cd = new CategoryDef();
                 string[] buffer = categoryInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 cd.MaxItems = Convert.ToInt32(buffer[0]);
                 string s = buffer[1];
@@ -311,14 +315,13 @@ namespace Vovin.CmcLibNet.Database
         [Obsolete("Use CmcLibNet.CommenceApp.Name and/or CmcLibNet.CommenceApp.Path.")]
         public string GetDatabase()
         {
-            return GetDDEValues(new string[] { "GetDatabase" }); // works, but superfluous.
-            //throw new NotImplementedException();
+            return GetDDEValues(new string[] { "GetDatabase" }); 
         }
 
         /// <inheritdoc />
         public IDBDef GetDatabaseDefinition()
         {
-            DBDef db = null;
+            DBDef db = new DBDef();
             string dde = BuildDDERequestCommand(new string[] { "GetDatabaseDefinition", CMC_DELIM });
             string dbInfo = DDERequest(dde);
             if (dbInfo != null)
@@ -326,7 +329,6 @@ namespace Vovin.CmcLibNet.Database
                 string[] buffer = dbInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
                 // Commence will return:
                 // {DatabaseName}Delim {DatabasePath}Delim 000000{A}{X}{S}{C}Delim {UserName}Delim {SpoolPath}
-                db = new DBDef();
                 db.Name = buffer[0];
                 db.Path = buffer[1];
                 string s = buffer[2];
@@ -380,13 +382,12 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public ICommenceFieldDefinition GetFieldDefinition(string categoryName, string fieldName)
         {
-            CommenceFieldDefinition fd = null;
+            CommenceFieldDefinition fd = new CommenceFieldDefinition();
             string dde = BuildDDERequestCommand(new string[] { "GetFieldDefinition", EncodeDdeArgument(categoryName), EncodeDdeArgument(fieldName), CMC_DELIM });
             string fieldInfo = DDERequest(dde);
             if (fieldInfo != null)
             {
                 string[] buffer = fieldInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                fd = new CommenceFieldDefinition();
                 fd.Type = (CommenceFieldType)int.Parse(buffer[0]); // is this dangerous? If all goes well, buffer always contains a number represented as string.
                 string s = buffer[1];
                 fd.Combobox = (s.Substring(6,1) == "1") ? true : false;
@@ -440,12 +441,10 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                //return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
                 return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                //return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join("\",\"", fieldNames), delim });
                 return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
@@ -663,19 +662,18 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public IViewDef GetViewDefinition(string viewName)
         {
-            ViewDef vd = null;
+            ViewDef vd = new ViewDef();
             // note that this request is undocumented by Commence!
-            string dde = BuildDDERequestCommand(new string[] { "GetViewDefinition", viewName, CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetViewDefinition", EncodeDdeArgument(viewName), CMC_DELIM });
             string viewInfo = DDERequest(dde);
             if (viewInfo != null)
             {
                 string[] buffer = viewInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                vd = new ViewDef();
                 vd.Name = buffer[0];
-                vd.TypeDescription = buffer[1];
+                vd.Type = buffer[1];
                 vd.Category = buffer[2];
                 vd.FileName = buffer[3];
-                vd.Type = Utils.GetValueFromEnumDescription<CommenceViewType>(vd.TypeDescription);
+                vd.ViewType = Utils.GetValueFromEnumDescription<CommenceViewType>(vd.Type);
             }
             return vd;
         }
@@ -908,10 +906,55 @@ namespace Vovin.CmcLibNet.Database
             object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewView", viewName }));
             return (retval == null) ? false : true;
         }
+        /// <summary>
+        /// Perform DDE request and return results
+        /// </summary>
+        /// <param name="ddeRequestCommand">DDE request as defined by Commence DDE specifations in dde.chm</param>
+        /// <returns>String array, <c>null</c> on error</returns>
+        private string DDERequest(string ddeRequestCommand) // note the omission of topic
+        {
+            // When we open a DDE channel, we start a timer.
+            // We then subscribe our conversation to the elapsed event of the timer
+            // The conversation gets closed after a set timeout.
+            // This allows us to make subsequent requests within the same DDE conversation,
+            // provided they are made before the timeout.
+            // Whenever a new request is made, the timer is restarted.
+            // The reason for this is that it prevents
+            // a) the overhead of opening a new conversation
+            // b) too many conversations being opened (there can be only 10).
+            string retval = null;
+
+            if (_conv == null)
+            {
+                _conv = CommenceConversation.Instance; // CommenceConversation handles the actual call to commence
+                _conv.Topic = this._db.Path;
+            }
+
+            if (DDETimer == null)
+            {
+                DDETimer = new Timer(DDETimeout);
+                DDETimer.AutoReset = false;
+                DDETimer.Elapsed += _conv.HandleTimerElapsed;
+            }
+            DDETimer.Interval = DDETimeout;
+            DDETimer.Start(); // (re)start timer
+
+            try
+            {
+                this.LastError = string.Empty; // clear GetLastError
+                retval = _conv.DDERequest(ddeRequestCommand);
+            }
+            catch (CommenceDDEException e)
+            {
+                this.LastError = e.Message; // store the last error
+                retval = null; // if null, we know an exception occurred, we will not (re)throw it! TODO reevaluate this
+            }
+            return retval;
+        }
 
         #endregion
 
-        #region DDE Execute methods
+        #region Commence DDE Execute methods
 
         /// <inheritdoc />
         public bool AddItem(string categoryName, string itemName, string clarifyValue = "")
@@ -1025,220 +1068,6 @@ namespace Vovin.CmcLibNet.Database
             return DDEExecute(BuildDDERequestCommand(new string[] { "UnassignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
         }
 
-        /// <inheritdoc />
-        public bool HasDuplicates(string categoryName, string fieldName, bool caseSensitive = true)
-        {
-            using (ICommenceCursor cur = this.GetCursor(categoryName, CmcCursorType.Category, CmcOptionFlags.All))
-            {
-                return cur.HasDuplicates(fieldName, caseSensitive);
-            }
-        }
-
-        /// <inheritdoc />
-        public bool FieldValueExists(string categoryName, string fieldName, string fieldValue, bool caseSensitive = true)
-        {
-            using (ICommenceCursor cur = this.GetCursor(categoryName))
-            {
-                ICursorFilters filters = new CursorFilters(cur);
-                ICursorFilterTypeF f = filters.Add(1, FilterType.Field);
-                f.FieldName = fieldName;
-                f.FieldValue = fieldValue;
-                f.Qualifier = FilterQualifier.EqualTo;
-                if (caseSensitive) { f.MatchCase = true; }
-                if (filters.Apply() > 0) { return true;}
-            }
-            return false;
-        }
-        #endregion
-
-        #region helper methods
-        private List<string> GetDDEValuesAsList(string[] args)
-        {
-            string values = DDERequest(BuildDDERequestCommand(args));
-            if (values == null) // an error occurred, return error value
-            {
-                List<string> retval = new List<string>();
-                retval.Add(this.GetLastError());
-                return retval;
-            }
-            // the delimiter is always the last element
-            string[] splitter = new string[] { args.Last() };
-            return values.Split(splitter, StringSplitOptions.None).ToList<string>();
-        }
-
-        private string GetDDEValues(string[] args)
-        {
-            string retval = string.Empty;
-            retval = DDERequest(BuildDDERequestCommand(args));
-            if (retval == null) // an error occurred, return error value
-            {
-                retval = this.GetLastError();
-            }
-            return retval;
-        }
-
-        /// <summary>
-        /// Returns the *Count of the object specified in DDE request command as specified by args
-        /// </summary>
-        /// <param name="args">Parameters of the desired request. YOU are responsible for the right order!</param>
-        /// <returns>Count, -1 on error.</returns>
-        private int GetDDECount(string[] args)
-        {
-            string result = DDERequest(BuildDDERequestCommand(args));
-            return (result == null) ? -1 : Convert.ToInt32(result);
-        }
-
-        /// <summary>
-        /// Builds the DDE request string for Commence.
-        /// </summary>.
-        /// <param name="args">Request item plus optional parameters. The request item string must always be the first element.</param>
-        /// <returns>string in format "[Request command(param1, param2, paramN)]".</returns>
-        private string BuildDDERequestCommand(string[] args)
-        {
-            StringBuilder sb = null;
-            sb = new StringBuilder("[" + args[0]);
-
-            if (args.Length == 1)// request item without additional parameters
-            {
-                sb.Append("()]");
-                return sb.ToString();
-            }
-            //sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
-            sb.Append("(");
-            sb.Append(String.Join(",",args.Skip(1)));
-            sb.Append(")]"); // note the skip of the first argument
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Encode array of arguments.
-        /// </summary>
-        /// <param name="args">string array.</param>
-        /// <returns>Encoded array of arguments.</returns>
-        private IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args)
-        {
-            foreach (string arg in args)
-            {
-                string retval = EncodeDdeArgument(arg);
-                yield return retval;
-            }
-        }
-
-        /// <summary>
-        /// Encodes the DDE arguments so that they will be processed correctly
-        /// </summary>
-        /// <param name="arg"></param>
-        /// <returns>DDE-safe argument string.</returns>
-        /// <remarks>This method is not exhaustive - some combinations cannot be handled.</remarks>
-        private string EncodeDdeArgument(string arg)
-        {
-            // By default, arguments used in a DDE request will be double quoted
-            // Commence does not require that they are, it is just a little safer
-            // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
-            // however, if the argument contains an embedded 'control' character,
-            // we need to make special arrangements
-            string retval = arg.EncloseWithChar('\"');
-
-            // when the argument itself is quoted we can get away by adding additional quotes
-            if (arg.StartsWith("\"") && arg.EndsWith("\""))
-            {
-
-                return arg.EncloseWithChar('\"', 2);
-            }
-            // when the argument contains both a double-quote and a comma, we're in trouble
-            if (arg.Contains('\"') && arg.Contains(','))
-            {
-                // I do not yet know how to deal with this, if at all possible
-                // TODO even while this is very rare, it needs a solution
-            }
-            // when the argument contains a double-quote, forego double-quoting and just return the string
-            if (arg.Contains('\"'))
-            {
-                return arg;
-            }
-            return retval;
-        }
-
-        /// <summary>
-        /// Creates object array from string array.
-        /// </summary>
-        /// <param name="input">string array</param>
-        /// <returns>object array that can be consumed by COM clients such as VBScript.</returns>
-        private object[] toObjectArray(string[] input)
-        {
-            object[] objArray = new object[input.Length];
-            input.CopyTo(objArray, 0);
-            return objArray;
-        }
-        /// <summary>
-        /// Creates string array from object.
-        /// </summary>
-        /// <param name="arg">object</param>
-        /// <returns>string array</returns>
-        private string[] ToStringArray(object arg)
-        {
-            var collection = arg as System.Collections.IEnumerable;
-            if (collection != null)
-            {
-                return collection
-                  .Cast<object>()
-                  .Select(x => x.ToString())
-                  .ToArray();
-            }
-
-            if (arg == null)
-            {
-                return new string[] { };
-            }
-
-            return new string[] { arg.ToString() };
-        }
-
-        /// <summary>
-        /// Perform DDE request and return results
-        /// </summary>
-        /// <param name="ddeRequestCommand">DDE request as defined by Commence DDE specifations in dde.chm</param>
-        /// <returns>String array, <c>null</c> on error</returns>
-        private string DDERequest(string ddeRequestCommand) // note the omission of topic
-        {
-            // When we open a DDE channel, we start a timer.
-            // We then subscribe our conversation to the elapsed event of the timer
-            // The conversation gets closed after a set timeout.
-            // This allows us to make subsequent requests within the same DDE conversation,
-            // provided they are made before the timeout.
-            // Whenever a new request is made, the timer is restarted.
-            // The reason for this is that it prevents
-            // a) the overhead of opening a new conversation
-            // b) too many conversations being opened (there can be only 10).
-            string retval = null;
-
-            if (_conv == null) 
-            {
-                _conv = CommenceConversation.Instance; // CommenceConversation handles the actual call to commence
-                _conv.Topic = this._db.Path;
-            }
-            
-            if (DDETimer == null)
-            {
-                DDETimer = new Timer(DDETimeout);
-                DDETimer.AutoReset = false;
-                DDETimer.Elapsed += _conv.HandleTimerElapsed;
-            }
-            DDETimer.Interval = DDETimeout;
-            DDETimer.Start(); // (re)start timer
-
-            try
-            {
-                this.LastError = string.Empty; // clear GetLastError
-                retval = _conv.DDERequest(ddeRequestCommand);
-            }
-            catch (CommenceDDEException e)
-            {
-                this.LastError = e.Message; // store the last error
-                retval = null; // if null, we know an exception occurred, we will not (re)throw it! TODO reevaluate this
-            }
-            return retval;
-        }
 
         /// <summary>
         /// Performs the DDE Excecute and stores last error, if any.
@@ -1248,7 +1077,7 @@ namespace Vovin.CmcLibNet.Database
         private bool DDEExecute(string DDEExecuteCommand)
         {
             bool retval = false;
-            if (_conv == null) 
+            if (_conv == null)
             {
                 _conv = CommenceConversation.Instance;
                 _conv.Topic = this._db.Path;
@@ -1274,9 +1103,32 @@ namespace Vovin.CmcLibNet.Database
             return retval;
         }
 
-        private string GetFieldTypeAsString(CommenceFieldType ft)
+        /// <inheritdoc />
+        public bool FieldValueExists(string categoryName, string fieldName, string fieldValue, bool caseSensitive = true)
         {
-            return ft.GetEnumDescription();
+            using (ICommenceCursor cur = this.GetCursor(categoryName))
+            {
+                ICursorFilters filters = new CursorFilters(cur);
+                ICursorFilterTypeF f = filters.Add(1, FilterType.Field);
+                f.FieldName = fieldName;
+                f.FieldValue = fieldValue;
+                f.Qualifier = FilterQualifier.EqualTo;
+                if (caseSensitive) { f.MatchCase = true; }
+                if (filters.Apply() > 0) { return true;}
+            }
+            return false;
+        }
+        #endregion
+
+        #region Methods
+
+        /// <inheritdoc />
+        public bool HasDuplicates(string categoryName, string fieldName, bool caseSensitive = true)
+        {
+            using (ICommenceCursor cur = this.GetCursor(categoryName, CmcCursorType.Category, CmcOptionFlags.All))
+            {
+                return cur.HasDuplicates(fieldName, caseSensitive);
+            }
         }
 
         /// <summary>
@@ -1349,6 +1201,213 @@ namespace Vovin.CmcLibNet.Database
             }
             return retval;
         }
+
+        /// <summary>
+        /// Get database schema.
+        /// </summary>
+        /// <returns></returns>
+        public IDatabaseSchema GetDatabaseSchema(MetaDataOptions options)
+        {
+            using (MetaDataBuilder mb = new MetaDataBuilder(this, options))
+            {
+                return mb.BuildDatabaseSchema();
+            }
+        }
+
+        /// <inheritdoc />
+        public void ExportDatabaseSchema(string fileName, MetaDataOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentException("Filename null or empty.", nameof(fileName));
+            }
+
+            using (ICommenceDatabase db = new CommenceDatabase())
+            {
+                var schema = db.GetDatabaseSchema(options);
+
+                switch (options.Format)
+                {
+                    default:
+                    case MetaDataFormat.Json:
+                        var s = JsonConvert.SerializeObject(schema);
+                        using (StreamWriter sw = new StreamWriter(fileName))
+                        {
+                            sw.Write(s);
+                        }
+                        break;
+                    case MetaDataFormat.Xml:
+
+                        XmlSerializer xsSubmit = new XmlSerializer(typeof(DatabaseSchema));
+                        var xml = string.Empty;
+
+                        using (var sw = new StreamWriter(fileName))
+                        {
+                            using (XmlWriter writer = XmlWriter.Create(sw))
+                            {
+                                xsSubmit.Serialize(writer, schema);
+                                xml = sw.ToString(); // Your XML
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        #endregion
+
+        #region Helper methods
+
+         private List<string> GetDDEValuesAsList(string[] args)
+        {
+            string values = DDERequest(BuildDDERequestCommand(args));
+            if (values == null) // an error occurred, return error value
+            {
+                List<string> retval = new List<string>();
+                retval.Add(this.GetLastError());
+                return retval;
+            }
+            // the delimiter is always the last element
+            string[] splitter = new string[] { args.Last() };
+            return values.Split(splitter, StringSplitOptions.None).ToList();
+        }
+
+        private string GetDDEValues(string[] args)
+        {
+            string retval = string.Empty;
+            retval = DDERequest(BuildDDERequestCommand(args));
+            if (retval == null) // an error occurred, return error value
+            {
+                retval = this.GetLastError();
+            }
+            return retval;
+        }
+
+        /// <summary>
+        /// Returns the *Count of the object specified in DDE request command as specified by args
+        /// </summary>
+        /// <param name="args">Parameters of the desired request. YOU are responsible for the right order!</param>
+        /// <returns>Count, -1 on error.</returns>
+        private int GetDDECount(string[] args)
+        {
+            string result = DDERequest(BuildDDERequestCommand(args));
+            return (result == null) ? -1 : Convert.ToInt32(result);
+        }
+
+        /// <summary>
+        /// Builds the DDE request string for Commence.
+        /// </summary>.
+        /// <param name="args">Request item plus optional parameters. The request item string must always be the first element.</param>
+        /// <returns>string in format "[Request command(param1, param2, paramN)]".</returns>
+        private string BuildDDERequestCommand(string[] args)
+        {
+            StringBuilder sb = null;
+            sb = new StringBuilder("[" + args[0]);
+
+            if (args.Length == 1)// request item without additional parameters
+            {
+                sb.Append("()]");
+                return sb.ToString();
+            }
+            //sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
+            sb.Append("(");
+            sb.Append(String.Join(",", args.Skip(1)));
+            sb.Append(")]"); // note the skip of the first argument
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Encode array of arguments.
+        /// </summary>
+        /// <param name="args">string array.</param>
+        /// <returns>Encoded array of arguments.</returns>
+        private IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args)
+        {
+            foreach (string arg in args)
+            {
+                string retval = EncodeDdeArgument(arg);
+                yield return retval;
+            }
+        }
+
+        /// <summary>
+        /// Encodes the DDE arguments so that they will be processed correctly
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns>DDE-safe argument string.</returns>
+        /// <remarks>This method is not exhaustive - some combinations cannot be handled.</remarks>
+        private string EncodeDdeArgument(string arg)
+        {
+            // By default, arguments used in a DDE request will be double quoted
+            // Commence does not require that they are, it is just a little safer
+            // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
+            // however, if the argument contains an embedded 'control' character,
+            // we need to make special arrangements
+            string retval = arg.EncloseWithChar('\"');
+
+            // when the argument itself is quoted we can get away by adding additional quotes
+            if (arg.StartsWith("\"") && arg.EndsWith("\""))
+            {
+
+                return arg.EncloseWithChar('\"', 2);
+            }
+            // when the argument contains both a double-quote and a comma, we're in trouble
+            if (arg.Contains('\"') && arg.Contains(','))
+            {
+                // I do not yet know how to deal with this, if at all possible
+                // TODO even while this is very rare, it needs a solution
+            }
+            // when the argument contains a double-quote, forego double-quoting and just return the string
+            if (arg.Contains('\"'))
+            {
+                return arg;
+            }
+            return retval;
+        }
+
+        /// <summary>
+        /// Creates object array from string array.
+        /// </summary>
+        /// <param name="input">string array</param>
+        /// <returns>object array that can be consumed by COM clients such as VBScript.</returns>
+        private object[] toObjectArray(string[] input) // TODO move to Utils
+        {
+            object[] objArray = new object[input.Length];
+            input.CopyTo(objArray, 0);
+            return objArray;
+        }
+
+        /// <summary>
+        /// Creates string array from object.
+        /// </summary>
+        /// <param name="arg">object</param>
+        /// <returns>string array</returns>
+        private string[] ToStringArray(object arg) // TODO move to Utils
+        {
+            var collection = arg as System.Collections.IEnumerable;
+            if (collection != null)
+            {
+                return collection
+                  .Cast<object>()
+                  .Select(x => x.ToString())
+                  .ToArray();
+            }
+
+            if (arg == null)
+            {
+                return new string[] { };
+            }
+
+            return new string[] { arg.ToString() };
+        }
+
+        private string GetFieldTypeAsString(CommenceFieldType ft)
+        {
+            return ft.GetEnumDescription();
+        }
         #endregion
 
         #region Properties
@@ -1356,9 +1415,6 @@ namespace Vovin.CmcLibNet.Database
         /// Last DDE error received from Commence.
         /// </summary>
         private string LastError { get; set; }
-
-
-
         #endregion
     }
 }

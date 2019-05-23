@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
     /// <summary>
     /// Exposes members of the database definition.
@@ -41,33 +41,5 @@ namespace Vovin.CmcLibNet.Database
         /// Path where synchronization packets exchanged. WARNING: Commence does not properly return this value if client is set to sync by any means other than Shared LAN. If it syncs via FTP, you will still erronously get a Shared LAN location if one was ever set.
         /// </summary>
         string Spoolpath { get;  }
-    }
-
-    /// <summary>
-    /// Holds information on the database definition.
-    /// </summary>
-    [ComVisible(true)]
-    [Guid("7ABBCC06-26AE-4a34-B07D-873F9B0A9C26")]
-    [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(IDBDef))]
-    public class DBDef : IDBDef
-    {
-        internal DBDef() { }
-        /// <inheritdoc />
-        public string Name { get; internal set; }
-        /// <inheritdoc />
-        public string Path { get; internal set; }
-        /// <inheritdoc />
-        public bool Attached { get; internal set; }
-        /// <inheritdoc />
-        public bool Connected { get; internal set; }
-        /// <inheritdoc />
-        public bool IsServer { get; internal set; }
-        /// <inheritdoc />
-        public bool IsClient { get; internal set; }
-        /// <inheritdoc />
-        public string Username { get; internal set; }
-        /// <inheritdoc />
-        public string Spoolpath { get; internal set; }
     }
 }

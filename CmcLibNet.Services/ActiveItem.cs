@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Vovin.CmcLibNet;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Database.Metadata;
 using Vovin.CmcLibNet.Export;
 
 namespace Vovin.CmcLibNet.Services

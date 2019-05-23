@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Database.Metadata;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -99,16 +100,16 @@ namespace Vovin.CmcLibNet.Database
             {
                 List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" });
                 vd = GetViewDefinition(pName);
-                if (vd != null && unsupported.Contains(vd.TypeDescription))
+                if (vd != null && unsupported.Contains(vd.Type))
                 {
-                    throw new NotSupportedException("View is of type: " + vd.TypeDescription + 
+                    throw new NotSupportedException("View is of type: " + vd.Type + 
                         "\nNo cursor can be created on views of the following types:\n\n" + 
                         string.Join(", ", unsupported) + 
                         ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
                 }
                 try
                 {
-                    cur = new CommenceCursor(_db, pCursorType, pName, _rcwReleasePublisher, pCursorFlags, vd.TypeDescription);
+                    cur = new CommenceCursor(_db, pCursorType, pName, _rcwReleasePublisher, pCursorFlags, vd.Type);
                 }
                 catch (COMException e)
                 {

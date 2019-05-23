@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
     /// <summary>
     /// Describes a Commence connection.

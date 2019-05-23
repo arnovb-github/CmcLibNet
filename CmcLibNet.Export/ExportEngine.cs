@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Database.Metadata;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -232,9 +235,9 @@ namespace Vovin.CmcLibNet.Export
                     return  new XmlWriter(cursor, settings);
             }
         }
-#endregion
+        #endregion
 
-#region Event methods
+        #region Event methods
         // we need some mechanism to tell consumers about the progress of our export
         // the writer classes are not exposed, so we need to capture the events of those classes,
         // and then raise an event that consumers can subscribe to.
@@ -302,6 +305,6 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-#endregion
+        #endregion
     }
 }

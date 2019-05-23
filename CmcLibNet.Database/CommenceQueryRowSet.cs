@@ -72,6 +72,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pRowID">row or thid  id.</param>
         /// <param name="rcwpub">RCWReleasePublisher object used for COM Interop object cleanup.</param>
         /// <param name="flags">option flags, must be 0.</param>
+        /// <param name="identifier"><see cref="RowSetIdentifier"/></param>
         internal CommenceQueryRowSet(FormOA.ICommenceCursor cur, string pRowID, IRcwReleasePublisher rcwpub, CmcOptionFlags flags = CmcOptionFlags.Default, RowSetIdentifier identifier = RowSetIdentifier.RowId)
         {
             switch (identifier)

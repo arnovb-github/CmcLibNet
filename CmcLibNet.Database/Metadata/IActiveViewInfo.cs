@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
     /// <summary>
     /// Exposes properties of the currently active Commence view.

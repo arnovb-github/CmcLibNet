@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
     /// <summary>
     /// Contains the category definition.
@@ -9,6 +10,7 @@ namespace Vovin.CmcLibNet.Database
     [Guid("ABA6E0E8-F97B-4eb5-877A-E2C9C86BEF21")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICategoryDef))]
+    [Serializable]
     public class CategoryDef : ICategoryDef
     {
         internal CategoryDef() { }

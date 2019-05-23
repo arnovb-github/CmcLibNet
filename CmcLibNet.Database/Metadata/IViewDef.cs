@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
     /// <summary>
-    /// Exposes member of the view definition.
+    /// Exposes view definition.
     /// </summary>
     [ComVisible(true)]
     [Guid("94D7005B-1E3F-45d1-B566-9A0F55BE3A3C")]
@@ -16,11 +16,11 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// View Type.
         /// </summary>
-        string TypeDescription { get; }
+        string Type { get; }
         /// <summary>
         /// Underlying Commence category.
         /// </summary>
-        string Category { get;}
+        string Category { get; }
         /// <summary>
         /// Filename (e.g. for Report Views).
         /// </summary>

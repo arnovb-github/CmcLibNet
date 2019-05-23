@@ -1,8 +1,8 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet.Database
+namespace Vovin.CmcLibNet.Database.Metadata
 {
-
     /// <summary>
     /// Holds information on the view definition.
     /// </summary>
@@ -10,18 +10,18 @@ namespace Vovin.CmcLibNet.Database
     [Guid("7326FF13-98BC-466c-B45F-44F1656B605C")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IViewDef))]
+    [Serializable]
     public class ViewDef : IViewDef
     {
-        
-        internal ViewDef() { }
+        internal ViewDef() { } // required for XML serialization
         /// <summary>
-        /// ViewType as enum, is a little more practical in some circumstances
+        /// Using ViewType enum is a little more practical in some circumstances
         /// </summary>
-        internal CommenceViewType Type { get; set; } //enum isn't public so internal.
+        internal CommenceViewType ViewType { get; set; } // the enum isn't public so internal.
         /// <inheritdoc />
         public string Name { get; internal set; }
         /// <inheritdoc />
-        public string TypeDescription { get; internal set; }
+        public string Type { get; internal set; }
         /// <inheritdoc />
         public string Category { get; internal set; }
         /// <inheritdoc />
