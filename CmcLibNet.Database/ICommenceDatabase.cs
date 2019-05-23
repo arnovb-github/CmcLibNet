@@ -1114,12 +1114,13 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Gets a serializable object containnig the Commence schema definition.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="options"><see cref="MetaDataOptions"/></param>
+        /// <returns><see cref="DatabaseSchema"/></returns>
         [ComVisible(false)]
         IDatabaseSchema GetDatabaseSchema(MetaDataOptions options = null);
 
         /// <summary>
-        /// Exports the schema information to file.
+        /// Exports the schema information to file. Defaults to Json.
         /// </summary>
         /// <param name="fileName">Fully qualified filename.</param>
         /// <param name="options"><see cref="MetaDataOptions"/></param>

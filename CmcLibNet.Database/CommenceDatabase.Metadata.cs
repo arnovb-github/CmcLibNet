@@ -1202,10 +1202,7 @@ namespace Vovin.CmcLibNet.Database
             return retval;
         }
 
-        /// <summary>
-        /// Get database schema.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc />
         public IDatabaseSchema GetDatabaseSchema(MetaDataOptions options = null)
         {
             if (options == null) { options = new MetaDataOptions(); }
