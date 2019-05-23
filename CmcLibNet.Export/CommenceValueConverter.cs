@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -134,7 +135,6 @@ namespace Vovin.CmcLibNet.Export
                 case CommenceFieldType.Time: // expects "hh:mm"
                     string[] s = canonicalValue.Split(':');
                     retval = s[0] + ":" + s[1] + ":00";
-                    //retval = "1970-01-01T" + s[0] + ":" + s[1];
                     break;
                 case CommenceFieldType.Checkbox: // expects "TRUE" or "FALSE" (case-insensitive)
                     retval = canonicalValue.ToLower();
@@ -186,9 +186,13 @@ namespace Vovin.CmcLibNet.Export
         /// Removes leading currency symbol from string.
         /// </summary>
         /// <param name="value">string.</param>
-        /// <returns>strking.</returns>
+        /// <returns></returns>
         internal static string RemoveCurrencySymbol(string value)
         {
+            if (value.StartsWith("-")) // AVB 2019-05-24
+            {
+                value = value.Right(value.Length - 1);
+            }
             if (value.StartsWith(CanonicalCurrencySymbol))
             {
                 string ret = value;
