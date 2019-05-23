@@ -1116,14 +1116,14 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <returns></returns>
         [ComVisible(false)]
-        IDatabaseSchema GetDatabaseSchema(MetaDataOptions options);
+        IDatabaseSchema GetDatabaseSchema(MetaDataOptions options = null);
 
         /// <summary>
         /// Exports the schema information to file.
         /// </summary>
         /// <param name="fileName">Fully qualified filename.</param>
         /// <param name="options"><see cref="MetaDataOptions"/></param>
-        void ExportDatabaseSchema(string fileName, MetaDataOptions options);
+        void ExportDatabaseSchema(string fileName, MetaDataOptions options = null);
 
         /// <summary>
         /// Close any references to Commence. The object should be disposed after this.

@@ -1206,8 +1206,9 @@ namespace Vovin.CmcLibNet.Database
         /// Get database schema.
         /// </summary>
         /// <returns></returns>
-        public IDatabaseSchema GetDatabaseSchema(MetaDataOptions options)
+        public IDatabaseSchema GetDatabaseSchema(MetaDataOptions options = null)
         {
+            if (options == null) { options = new MetaDataOptions(); }
             using (MetaDataBuilder mb = new MetaDataBuilder(this, options))
             {
                 return mb.BuildDatabaseSchema();
@@ -1215,11 +1216,11 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        public void ExportDatabaseSchema(string fileName, MetaDataOptions options)
+        public void ExportDatabaseSchema(string fileName, MetaDataOptions options = null)
         {
             if (options == null)
             {
-                throw new ArgumentNullException(nameof(options));
+                options = new MetaDataOptions();
             }
             if (string.IsNullOrEmpty(fileName))
             {

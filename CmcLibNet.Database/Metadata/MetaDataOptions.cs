@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Database.Metadata
     public class MetaDataOptions : IMetaDataOptions
     {
         /// <inheritdoc />
-        public MetaDataFormat Format { get; set; }
+        public MetaDataFormat Format { get; set; } = MetaDataFormat.Json;
         /// <inheritdoc />
         public bool IncludeFormXml { get; set; }
         /// <inheritdoc />
