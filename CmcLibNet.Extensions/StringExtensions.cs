@@ -7,41 +7,6 @@ namespace Vovin.CmcLibNet.Extensions
     /// </summary>
     internal static class StringExtensions
     {
-        ///// <summary>
-        ///// Returns number of occurrences of a character in a string
-        ///// </summary>
-        ///// <param name="str">String to search in.</param>
-        ///// <param name="c">Character to count.</param>
-        ///// <returns></returns>
-        //internal static int Count(this string str, char c)
-        //{
-        //    int counter = 0;
-        //    foreach (char x in str)
-        //    {
-        //        if (x == c) { counter++; }
-        //    }
-        //    return counter;
-        //}
-
-        ///// <summary>
-        ///// Returns Nth index of character in a string
-        ///// </summary>
-        ///// <param name="input">String to search in</param>
-        ///// <param name="value">String to search for</param>
-        ///// <param name="startIndex">Start index</param>
-        ///// <param name="nth">Nth occurrence</param>
-        ///// <returns></returns>
-        ///// <exception cref="NotSupportedException"></exception>
-        //internal static int IndexOfNthChar(this string input, char value, int startIndex, int nth) // TODO this is not doing what I intended it to do
-        //{
-        //    if (nth < 1)
-        //        throw new NotSupportedException("Param 'nth' must be greater than 0!");
-        //    if (nth == 1)
-        //        return input.IndexOf(value, startIndex);
-
-        //    return input.IndexOfNthChar(value, input.IndexOf(value, startIndex) + 1, --nth);
-        //}
-
         /// <summary>
         /// Surround string with character.
         /// </summary>
