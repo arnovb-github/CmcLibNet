@@ -189,9 +189,11 @@ namespace Vovin.CmcLibNet.Export
         /// <returns></returns>
         internal static string RemoveCurrencySymbol(string value)
         {
+            string negativeSymbol = string.Empty;
             if (value.StartsWith("-")) // AVB 2019-05-24
             {
                 value = value.Right(value.Length - 1);
+                negativeSymbol = "-";
             }
             if (value.StartsWith(CanonicalCurrencySymbol))
             {
@@ -201,11 +203,11 @@ namespace Vovin.CmcLibNet.Export
             }
             if (value.StartsWith(CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol))
             {
-                return value.Remove(0, CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.Length).Trim();
+                return negativeSymbol + value.Remove(0, CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol.Length).Trim();
             }
             else
             {
-                return value;
+                return negativeSymbol + value;
             }
         }
     }
