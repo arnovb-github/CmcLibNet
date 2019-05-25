@@ -15,6 +15,8 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(ICommenceCursor))]
     public class CommenceCursor : ICommenceCursor
     {
+        /* TODO rethink the setcolumns stuff, those methods are a mess */
+
         private FormOA.ICommenceCursor _cur = null; // 'raw' ICommenceCursor object; a COM object
         private IRcwReleasePublisher _rcwReleasePublisher = null;
         private CursorFilters _filters = null;
@@ -441,7 +443,7 @@ namespace Vovin.CmcLibNet.Database
         /// <remarks>This method cannot be used to set related columns.</remarks>
         internal bool SetColumns(params string[] columnNames)
         {
-            int row = -1;
+            int col = -1;
 
             if (columnNames == null) { return false; }
 
@@ -457,22 +459,22 @@ namespace Vovin.CmcLibNet.Database
 
             if (_directColumnsWereSet && !_relatedColumnsWereSet)
             {
-                row = this.ColumnCount - 1;
+                col = this.ColumnCount - 1;
             }
             // no columns were set at all
             if (!_directColumnsWereSet && !_relatedColumnsWereSet)
             {
-                row = -1;
+                col = -1;
             }
 
             for (int i = 0; i < columnNames.Length; i++)
             {
-                bool result = this.SetColumn(row + 1, columnNames[i], (int)CmcOptionFlags.Default);
+                bool result = this.SetColumn(col + 1, columnNames[i], (int)CmcOptionFlags.Default);
                 if (!result)
                 {
-                    throw new CommenceCOMException("An error occurred while trying to set direct column:\n" + columnNames[i] + " at position " + (row + 1).ToString());
+                    throw new CommenceCOMException("An error occurred while trying to set direct column:\n" + columnNames[i] + " at position " + (col + 1).ToString());
                 }
-                row++;
+                col++;
             }
             _directColumnsWereSet = true;
             return true;
@@ -498,7 +500,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns><c>true on success</c>, <c>false</c> on error.</returns>
         internal bool SetRelatedColumns(List<IRelatedColumn> relatedColumns)
         {
-            int row = -1;
+            int col = -1;
             if (relatedColumns == null) { return false; }
 
             // a default cursor has all columns, and you cannot append to it.
@@ -508,29 +510,29 @@ namespace Vovin.CmcLibNet.Database
             // TODO: if no columns were explicitly set, a default cursor still holds all fields.
             if (!_directColumnsWereSet && !_relatedColumnsWereSet)
             {
-                row = -1; // -1 because we 1 is added and we want to start at 0.
+                col = -1; // -1 because we 1 is added and we want to start at 0.
             }
 
             // No direct columns were set, but we did add related columns
             if (!_directColumnsWereSet && _relatedColumnsWereSet)
             {
-                row = this.ColumnCount -1;
+                col = this.ColumnCount -1;
             }
 
             // direct columns were set, but no related columns
             if (_directColumnsWereSet && !_relatedColumnsWereSet)
             {
-                row = this.ColumnCount - 1;
+                col = this.ColumnCount - 1;
             }
 
             for (int i = 0; i < relatedColumns.Count; i++)
             {
-                bool result = this.SetRelatedColumn(row + 1, relatedColumns[i].Connection, relatedColumns[i].Category, relatedColumns[i].Field, CmcOptionFlags.Default);
+                bool result = this.SetRelatedColumn(col + 1, relatedColumns[i].Connection, relatedColumns[i].Category, relatedColumns[i].Field, CmcOptionFlags.Default);
                 if (result == false)
                 {
                     throw new CommenceCOMException("An error occurred while trying to set related column:\n" + relatedColumns[i].Connection + ", " + relatedColumns[i].Category + ", " + relatedColumns[i].Field);
                 }
-                row++;
+                col++;
             }
             _relatedColumnsWereSet = true;
             return true;
@@ -774,7 +776,7 @@ namespace Vovin.CmcLibNet.Database
                 // so make sure the return value is sized properly
                 string[][] rowvalues = new string[qrs.RowCount][];
                 object[] buffer = null;
-                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0);
+                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // move to first row
 
                 for (int i = 0; i < qrs.RowCount; i++)
                 {
