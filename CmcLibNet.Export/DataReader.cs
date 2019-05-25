@@ -277,7 +277,7 @@ namespace Vovin.CmcLibNet.Export
                     string[] buffer = null;
                     if (cd.IsConnection)
                     {
-                        if (String.IsNullOrEmpty(rawdata[i][j].Trim()))
+                        if (string.IsNullOrEmpty(rawdata[i][j].Trim()))
                         {
                             cv = new CommenceValue(cd); // always create a CommenceValue for consistency
                         }
@@ -286,8 +286,19 @@ namespace Vovin.CmcLibNet.Export
                             if (!settings.SplitConnectedItems)
                             {
                                 buffer = new string[] { rawdata[i][j] };
-
-                            } // if
+                            }
+                            // We assume here that connected values are newline separated,
+                            // depending on the type of cursor, they may not be!
+                            // They will be if the cursor:
+                            // - is of type View
+                            // - has connected fields set using the SetRelatedColumn method
+                            // If a user just dumps a cursor obtained by GetCursor(<category>, <flag All>),
+                            // he will get weird results.
+                            // We include a check for this
+                            else if (cursor.CursorType == CmcCursorType.Category && !cursor._relatedColumnsWereSet)
+                            {
+                                buffer = new string[] { rawdata[i][j] };
+                            }
                             else
                             {
                                 switch (cd.CommenceFieldDefinition.Type)
@@ -329,7 +340,7 @@ namespace Vovin.CmcLibNet.Export
                 case ValueFormatting.Canonical:
                     for (int i = 0; i < retval.Length; i++)
                     {
-                        if (!String.IsNullOrEmpty(retval[i]))
+                        if (!string.IsNullOrEmpty(retval[i]))
                         {
                             //retval[i] = GetCanonicalCommenceValue(retval[i], cd.FieldType);
                             retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
@@ -339,7 +350,7 @@ namespace Vovin.CmcLibNet.Export
                 case ValueFormatting.XSD_ISO8601:
                     for (int i = 0; i < retval.Length; i++)
                     {
-                        if (!String.IsNullOrEmpty(retval[i]))
+                        if (!string.IsNullOrEmpty(retval[i]))
                         {
                             //string canonical = GetCanonicalCommenceValue(retval[i], cd.FieldType);
                             string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
@@ -353,7 +364,7 @@ namespace Vovin.CmcLibNet.Export
 
         private int BalanceNumRowsAndFieldSize(IExportSettings settings)
         {
-            /* If the fieldsize is very large, decrease the number of rows being read.
+            /* If the maxfieldsize is very large, decrease the number of rows being read.
              * This is largely untested.
             */
             int maxpower = 20;

@@ -151,31 +151,92 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
+        ///// <inheritdoc />
+        //public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
+        //{
+        //    if (settings != null) { this.Settings = settings; } // use custom settings if supplied
+        //    CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+        //    if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
+        //    {
+        //        // User requested we skip connections.
+        //        // A default cursor on a category contains all fields *and* connections.
+        //        // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
+        //        // We optimize here by only including direct fields in the cursor
+        //        using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
+        //        {
+        //            ExportCursor(cur, fileName, this.Settings);
+        //        }
+        //    }
+        //    else // TODO process cursor so as to use SetRelatedColumn
+        //    {
+        //    flags = flags | CmcOptionFlags.All; // slap on some more flags
+        //    using (ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category,flags))
+        //        {
+        //            ExportCursor(cur, fileName, this.Settings);
+        //        }
+        //    }
+        //}
+
         /// <inheritdoc />
         public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
         {
             if (settings != null) { this.Settings = settings; } // use custom settings if supplied
-            CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+            CmcOptionFlags flags = this.Settings.UseThids ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+
+            // User requested we skip connections.
+            // A default cursor on a category contains all fields *and* connections.
+            // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
+            // We optimize here by only including direct fields in the cursor
+
             if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
             {
-                // User requested we skip connections.
-                // A default cursor on a category contains all fields including connections.
-                // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
-                // We optimize here by only including direct fields in the cursor
-                using (ICommenceCursor cur = GetCursorWithJustDirectFields(categoryName, flags))
+                using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
                 {
                     ExportCursor(cur, fileName, this.Settings);
                 }
             }
             else
             {
-            flags = flags | CmcOptionFlags.All; // slap on some more flags
-            using (ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category,flags))
+                using (ICommenceCursor cur = GetCategoryCursorAllFieldsAndConnections(categoryName, flags))
                 {
+                    // You can create a cursor with all fields including connections by just
+                    // supplying CmcOptionFlags.All.
+                    // However, when the cursor is read, connected items are returned as comma-delimited strng,
+                    // which, because Commence does not supply text-qualifiers, makes it impossible to split them.
+                    // We therefore explicitly set the connections which deteriorates performance
+                    // but gains us (more) reliability.
                     ExportCursor(cur, fileName, this.Settings);
                 }
             }
+                
         }
+
+        private ICommenceCursor GetCategoryCursorAllFieldsAndConnections(string categoryName, CmcOptionFlags flags)
+        {
+            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
+            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
+            cur.Columns.AddDirectColumns(fieldNames);
+            var cons = _db.GetConnectionNames(cur.Category);
+            int counter = cur.ColumnCount;
+            foreach (var c in cons)
+            {
+                string nameField = _db.GetNameField(c.ToCategory);
+                cur.Columns.AddRelatedColumn(c.Name, c.ToCategory, nameField);
+                counter++;
+            }
+            cur.Columns.Apply();
+            return cur;
+        }
+
+        private ICommenceCursor GetCategoryCursorFieldsOnly(string categoryName, CmcOptionFlags flags )
+        {
+            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
+            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
+            cur.Columns.AddDirectColumns(fieldNames);
+            cur.Columns.Apply();
+            return cur;
+        }
+
 
         private string GetActiveViewName()
         {
@@ -192,14 +253,6 @@ namespace Vovin.CmcLibNet.Export
             return retval;
         }
 
-        private ICommenceCursor GetCursorWithJustDirectFields(string categoryName, CmcOptionFlags flags )
-        {
-            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
-            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
-            cur.Columns.AddDirectColumns(fieldNames);
-            cur.Columns.Apply();
-            return cur;
-        }
         /// <summary>
         /// Factory method for creating the required export writer object for a cursor export.
         /// </summary>
