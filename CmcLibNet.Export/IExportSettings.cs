@@ -84,7 +84,7 @@ namespace Vovin.CmcLibNet.Export
         //[Obsolete]
         //string XSDFile { get; set; }
         /// <summary>
-        /// Return connection data as distinct items. Formatting options will be ignored.
+        /// Treat connections as distinct nodes/elements. Formatting options will be ignored.
         /// </summary>
         /// <remarks>
         /// Only applies to <see cref="ExportFormat.Json"/>. <see cref="ExportFormat.Xml"/> nests items by default.
@@ -93,10 +93,10 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Make Commence use DDE calls to retrieve data. <b>WARNING:</b> extremely slow!
         /// </summary>
-        /// <remarks>Should only be used as a last resort, as this can take a very long time (up to days!).
+        /// <remarks>Should only be used as a last resort, as this can take a *very* long time.
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
         /// The Commence API only returns a limited number of characters by default; note that the limit is settable <see cref="Database.CommenceCursor.MaxFieldSize"/>.
-        /// This setting will request the connected items one by one, via DDE.</para></remarks>
+        /// This setting will request the connected items one by one.</para></remarks>
         bool PreserveAllConnections { get; set; }
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
@@ -107,17 +107,19 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
-        /// Split connected values into separate nodes. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
+        /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>. Default is <c>true</c>.
         /// If set to <c>false</c>, connected values are not split and you will get the data as Commence returns them.
         /// </summary>
+        /// <remarks>This setting may be overridden internally if the is no meaningful way of splitting the items.</remarks>
         bool SplitConnectedItems { get; set; }
         /// <summary>
         /// Specify the number of rows to export at a time. Default is 1024.
         /// </summary>
+        /// <remarks>This setting may be overriden internally for performance reasons.</remarks>
         int NumRows { get; set; }
         /// <summary>
         /// Maximum number of characters to retrieve from fields. This includes connected fields.
-        /// The default when exporting from the export engine is 500.000, which is about five times the Commence default.
+        /// The default when exporting from the export engine is ~500.000, which is about five times the Commence default.
         /// </summary>
         /// <remarks>Setting this can have severe impact on memory usage. Note that when set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
         int MaxFieldSize { get; set; }

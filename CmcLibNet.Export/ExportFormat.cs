@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         Xml = 0,
         /// <summary>
-        /// Export to JSON format. Uses JSON.NET.
+        /// Export to JSON format.
         /// <remarks>If you intend to use this assembly as a standalone dll AND you want to use JSON export, make sure to put the Newtonsoft.Json.dll version 6.0.x in the same folder. In the future, I will forget to update this comment if that changes.
         /// <para>Exporting to JSON uses a lot more memory than exporting to XML.</para></remarks>
         /// </summary>
@@ -32,12 +32,14 @@ namespace Vovin.CmcLibNet.Export
         Text = 3,
         /// <summary>
         /// Export to Microsoft Excel xslx format (Excel 2007 or higher).
-        /// <remarks>Excel does not have to be installed.
+        /// <remarks>Does not require Microsoft Excel.
         /// <para>If you choose an existing Excel file, a sheet will be inserted. <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
         /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will clear the worksheet
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
-        /// <para>The export engine requires exclusive access to the Excel file.
-        /// You cannot therefore use Excel VBA to export Commence data into the same workbook that you're macro code is running from.</para>
+        /// <para>The export engine requires exclusive access to the Excel file, so you cannot
+        /// use Excel VBA to export Commence data into the same workbook that you're VBA is running from.</para>
+        /// <para>Note that when you are working with very large datasets, memory-usage goes up considerably.
+        /// I estimate it at about 1 GB of memory for every 10 million cells (50K items with 200 fields).</para>
         /// </remarks>
         /// </summary>
         Excel = 4,
@@ -47,8 +49,7 @@ namespace Vovin.CmcLibNet.Export
         GoogleSheets = 5,
         /// <summary>
         /// Just reads the data and emits a <see cref="IExportEngineEvents.ExportProgressChanged"/> event that you can subscribe to.
-        /// <para>The <see cref="ExportProgressAsStringChangedArgs.RowValues"/> property will contain the Commence data in a JSON representation.</para>
-        /// <para>The number of items contained in the JSON depends on the number of rows you request.</para>
+        /// <para>The <see cref="ExportProgressAsStringChangedArgs.RowValues"/> property will contain serialized Json.</para>
         /// <para>The filename argument is ignored when using this setting.</para>
         /// </summary>
         Event = 6,
