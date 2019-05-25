@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -62,7 +61,7 @@ namespace Vovin.CmcLibNet.Export
                     if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
                         // only write if we have something
-                        if (!String.IsNullOrEmpty(v.DirectFieldValue))
+                        if (!string.IsNullOrEmpty(v.DirectFieldValue))
                         {
                             _xtw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             // can we get away with writing the value or do we need to use CData?
