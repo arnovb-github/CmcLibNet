@@ -27,6 +27,16 @@ namespace Vovin.CmcLibNet.Export
             _sheetName = Utils.EscapeString(s, "_").Left(MaxSheetNameLength);
             settings.Canonical = true; // override custom setting
             settings.SplitConnectedItems = false; // override custom setting
+            // When dealing with very large cursors,
+            // the default number of rows read may lead to memory issues when dumping to a datatable
+            // we may have to cap the number of items being read
+            // This superceeds the check already performed in the datareader.
+            // I am undecided on this.
+            // What I do know is that writing 1000 rows of 250 columns of size 30.000
+            // (i.e. 250 large text fields, fully populated) will fail.
+            // Maybe we should have some mechanism that collects the size of the fields
+            // then caps the NumRows count accordingly.
+            // However, it would not solve issues with EPPlus running out of memory when dealing with huge workbooks.
         }
 
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e) 
@@ -234,5 +244,6 @@ namespace Vovin.CmcLibNet.Export
                     return cd.ColumnLabel; // will contain fieldname if not specified
             }
         }
+
     }
 }
