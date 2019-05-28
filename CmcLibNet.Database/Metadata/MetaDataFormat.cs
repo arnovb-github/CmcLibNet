@@ -17,9 +17,5 @@ namespace Vovin.CmcLibNet.Database.Metadata
         /// XML
         /// </summary>
         Xml = 1,
-        /// <summary>
-        /// HTML
-        /// </summary>
-        Html = 2 // TODO implement
     }
 }
