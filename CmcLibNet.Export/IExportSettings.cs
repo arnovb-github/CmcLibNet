@@ -110,7 +110,23 @@ namespace Vovin.CmcLibNet.Export
         /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>. Default is <c>true</c>.
         /// If set to <c>false</c>, connected values are not split and you will get the data as Commence returns them.
         /// </summary>
-        /// <remarks>This setting may be overridden internally if the is no meaningful way of splitting the items.</remarks>
+        /// <remarks>This setting may be overridden internally if there is no meaningful way of splitting the items.
+        /// <list type="table">
+        /// <listheader>It will be respected on a</listheader>
+        /// <item><term><see cref="Vovin.CmcLibNet.Database.CmcCursorType.Category"/></term><description>If the connected field(s) were defined using 
+        /// <see cref="Vovin.CmcLibNet.Database.ICommenceCursor.SetRelatedColumn(int, string, string, string, CmcOptionFlags)"/> 
+        /// or <see cref="Vovin.CmcLibNet.Database.CursorColumns.AddRelatedColumn(string, string, string)"/>.</description></item>
+        /// <item><term><see cref="Vovin.CmcLibNet.Database.CmcCursorType.View"/></term><description>Always</description></item>
+        /// </list>
+        /// <para>On a regular cursor, i.e. with the connections defined as 'direct columns' (the default behaviour),
+        /// connected items are returned by Commence as comma delimited strings without a text-qualifier,
+        /// making it impossible to split them meaningfully.</para>
+        /// <para>When a cursor is created with the <see cref="UseThids"/> flag, thids will only be returned on 'direct' connection columns in a cursor.
+        /// They can therefore not be split when the cursor is of type <see cref="Vovin.CmcLibNet.Database.CmcCursorType.Category"/>
+        /// *unless* only the name field of the connection is present in the cursor.
+        /// Including logic for that scenario unfortunately blows my mind.
+        /// If you want thids *and* split them, create a view, or just split them yourselves.</para>
+        /// </remarks>
         bool SplitConnectedItems { get; set; }
         /// <summary>
         /// Specify the number of rows to export at a time. Default is 1024.
