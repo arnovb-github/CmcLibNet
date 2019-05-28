@@ -17,22 +17,80 @@ namespace Vovin.CmcLibNet.Database.Metadata
             Name = name;
             _definition = definition;
         }
+
         /// <inheritdoc />
         public string Name { get; set; }
+
         /// <inheritdoc />
-        public int MaxItems => _definition.MaxItems;
+        public int MaxItems
+        {
+            get
+            {
+                return _definition.MaxItems;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Shared => _definition.Shared;
+        public bool Shared
+        {
+            get
+            {
+                return _definition.Shared;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Duplicates => _definition.Duplicates;
+        public bool Duplicates
+        {
+            get
+            {
+                return _definition.Duplicates;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Clarified => _definition.Clarified;
+        public bool Clarified
+        {
+            get
+            {
+                return _definition.Clarified;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string ClarifySeparator => _definition.ClarifySeparator;
+        public string ClarifySeparator
+        {
+            get
+            {
+                return _definition.ClarifySeparator;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string ClarifyField => _definition.ClarifyField;
+        public string ClarifyField
+        {
+            get
+            {
+                return _definition.ClarifyField;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public int CategoryID => _definition.CategoryID;
+        public int CategoryID
+        {
+            get
+            {
+                return _definition.CategoryID;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
         public int Items { get; set; }
         /// <inheritdoc />

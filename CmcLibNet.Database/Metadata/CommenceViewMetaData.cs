@@ -2,7 +2,6 @@
 
 namespace Vovin.CmcLibNet.Database.Metadata
 {
-
     /// <summary>
     /// Commence view information.
     /// </summary>
@@ -12,7 +11,7 @@ namespace Vovin.CmcLibNet.Database.Metadata
         private readonly IViewDef _definition;
 
         /// <summary>
-        /// Empty public constructor required for XML serialization.
+        /// Empty constructor required for XML serialization.
         /// </summary>
         internal CommenceViewMetaData() { }
 
@@ -21,12 +20,43 @@ namespace Vovin.CmcLibNet.Database.Metadata
             _definition = definition;
         }
         /// <inheritdoc />
-        public string Type => _definition.Type;
+        public string Type
+        {
+            get
+            {
+                return _definition.Type;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string Category => _definition.Category;
+        public string Category
+        {
+            get
+            {
+                return _definition.Category;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string FileName => _definition.FileName;
+        public string FileName
+        {
+            get
+            {
+                return _definition.FileName;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string Name => _definition.Name;
+        public string Name
+        {
+            get
+            {
+                return _definition.Name;
+            }
+            set { }
+        }
     }
 }

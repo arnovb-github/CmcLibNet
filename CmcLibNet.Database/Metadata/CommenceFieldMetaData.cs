@@ -19,17 +19,65 @@ namespace Vovin.CmcLibNet.Database.Metadata
         /// <inheritdoc />
         public CommenceFieldType Type => _definition.Type;
         /// <inheritdoc />
-        public bool Shared => _definition.Shared;
+        public bool Shared
+        {
+            get
+            {
+                return _definition.Shared;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Mandatory => _definition.Mandatory;
+        public bool Mandatory
+        {
+            get
+            {
+                return _definition.Mandatory;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Recurring => _definition.Recurring;
+        public bool Recurring
+        {
+            get
+            {
+                return _definition.Recurring;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public bool Combobox => _definition.Combobox;
+        public bool Combobox
+        {
+            get
+            {
+                return _definition.Combobox;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public int MaxChars => _definition.MaxChars;
+        public int MaxChars
+        {
+            get
+            {
+                return _definition.MaxChars;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
-        public string DefaultString => _definition.DefaultString;
+        public string DefaultString
+        {
+            get
+            {
+                return _definition.DefaultString;
+            }
+            set { }
+        }
+
         /// <inheritdoc />
         public string Name { get; set; }
     }

@@ -31,6 +31,7 @@ namespace Vovin.CmcLibNet.Database.Metadata
                 else
                     return Name + ' ' + ToCategory;
             }
+            set { }
         }
     }
 }

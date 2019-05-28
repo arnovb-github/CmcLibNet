@@ -10,31 +10,88 @@ namespace Vovin.CmcLibNet.Database.Metadata
     [Serializable]
     public class DatabaseSchema : IDatabaseSchema
     {
-        private readonly IDBDef _definition;
+        internal readonly IDBDef _definition;
         internal DatabaseSchema(IDBDef definition)
         {
             _definition = definition;
         }
         /// <summary>
-        /// Empty public constructor required for XML serialization.
+        /// Empty constructor required for XML serialization.
         /// </summary>
         internal DatabaseSchema() { }
+
         /// <inheritdoc />
-        public string Name => _definition.Name;
+        public string Name
+        {
+            get
+            {
+                return _definition.Name;
+            }
+            set { } // empty setter needed for serialization
+        }
         /// <inheritdoc />
-        public string Path => _definition.Path;
+        public string Path
+        {
+            get
+            {
+                return _definition.Path;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public bool Attached => _definition.Attached;
+        public bool Attached
+        {
+            get
+            {
+                return _definition.Attached;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public bool Connected => _definition.Connected;
+        public bool Connected
+        {
+            get
+            {
+                return _definition.Connected;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public bool IsServer => _definition.IsServer;
+        public bool IsServer
+        {
+            get
+            {
+                return _definition.IsServer;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public bool IsClient => _definition.IsClient;
+        public bool IsClient
+        {
+            get
+            {
+                return _definition.IsClient;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public string Username => _definition.Username;
+        public string Username
+        {
+            get
+            {
+                return _definition.Username;
+            }
+            set { }
+        }
         /// <inheritdoc />
-        public string Spoolpath => _definition.Spoolpath;
+        public string Spoolpath
+        {
+            get
+            {
+                return _definition.Spoolpath;
+            }
+            set { }
+        }
         /// <inheritdoc />
         public List<CommenceCategoryMetaData> Categories { get; internal set; }
         /// <inheritdoc />
