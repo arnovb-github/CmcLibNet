@@ -113,11 +113,6 @@ namespace Vovin.CmcLibNet.Database.Metadata
             return content;
         }
 
-        private string GetFormXmlContent()
-        {
-            return string.Empty;
-        }
-
         private IEnumerable<CommenceViewMetaData> GetViewMetaData(IEnumerable<string> views)
         {
             foreach (string viewName in views)
