@@ -1344,12 +1344,12 @@ namespace Vovin.CmcLibNet.Database
             // for example, when a fieldname contains a comma, the DDE request would trip unless the argument is double-quoted
             // however, if the argument contains an embedded 'control' character,
             // we need to make special arrangements
+            string repl = @"""""";
             string retval = arg.EncloseWithChar('\"');
 
             // when the argument itself is quoted we can get away by adding additional quotes
             if (arg.StartsWith("\"") && arg.EndsWith("\""))
             {
-
                 return arg.EncloseWithChar('\"', 2);
             }
             // when the argument contains both a double-quote and a comma, we're in trouble
@@ -1357,11 +1357,19 @@ namespace Vovin.CmcLibNet.Database
             {
                 // I do not yet know how to deal with this, if at all possible
                 // TODO even while this is very rare, it needs a solution
+                if (arg.StartsWith("\"") || arg.EndsWith("\""))
+                {
+                    return arg;
+                }
+                // will only work if the comma is between the quotes
+                // but hey, it's one extra scenario tackled
+                arg = arg.Replace("\"", repl);
+                return arg.EncloseWithChar('\"');
             }
-            // when the argument contains a double-quote, forego double-quoting and just return the string
-            if (arg.Contains('\"'))
+            // when the argument contains a double-quote, escape double-quotes
+            if (arg.Contains("\""))
             {
-                return arg;
+                return arg.Replace("\"", repl);
             }
             return retval;
         }
