@@ -10,9 +10,8 @@ namespace Vovin.CmcLibNet.Database
     [Guid("57BE7683-A6EF-4f41-9AD3-717126AB7563")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilterTypeCTI))]
-    public sealed class CursorFilterTypeCTI : CursorFilter, ICursorFilterTypeCTI
+    public sealed class CursorFilterTypeCTI : BaseCursorFilter, ICursorFilterTypeCTI
     {
-        private const string _filterType = "CTI";
         private string _itemName = string.Empty;
         private string _clarifyValue = string.Empty;
 
@@ -62,22 +61,27 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
+        /// <inheritdoc />
+        public override string FiltertypeIdentifier => "CTI";
+
         /// <summary>
         /// Creates the filter string.
         /// </summary>
         /// <returns>Filter string.</returns>
-        public override string ToString()
+        public override string ToString() // It would be better to overload ToString() in the base class and pass a delegate to it
         {
-            StringBuilder sb = new StringBuilder("[ViewFilter(");
-            sb.Append(base.ClauseNumber.ToString() + ',');
-            sb.Append(_filterType + ',');
-            sb.Append(base.Except ? "NOT," : ",");
-            sb.Append(Utils.dq(this.Connection) + ',');
-            sb.Append(Utils.dq(this.Category) + ',');
-            //sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
-            sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
-            sb.Append(")]");
-            return sb.ToString();
+            return base.ToString(FilterFormatters.FormatCTIFilter);
+            // before the base class ToString(Func<>) overload
+            //StringBuilder sb = new StringBuilder("[ViewFilter(");
+            //sb.Append(base.ClauseNumber.ToString() + ',');
+            //sb.Append(this.FiltertypeIdentifier + ',');
+            //sb.Append(base.Except ? "NOT," : ",");
+            //sb.Append(Utils.dq(this.Connection) + ',');
+            //sb.Append(Utils.dq(this.Category) + ',');
+            //sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
+            //sb.Append(")]");
+            //return sb.ToString();
         }
+
     }
 }

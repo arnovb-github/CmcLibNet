@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Vovin.CmcLibNet;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Extensions;
 
@@ -13,10 +12,8 @@ namespace Vovin.CmcLibNet.Database
     [Guid("5B58E064-675F-4d91-A34E-ED3824118033")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilterTypeF))]
-    public sealed class CursorFilterTypeF : CursorFilter, ICursorFilterTypeF
+    public sealed class CursorFilterTypeF : BaseCursorFilter, ICursorFilterTypeF
     {
-        private const string _filterType = "F"; 
-        private bool? _Shared;
         private string _filterQualifierString = string.Empty;
         private FilterQualifier _filterQualifier;
 
@@ -36,20 +33,15 @@ namespace Vovin.CmcLibNet.Database
         public string FilterBetweenEndValue { get; set; }
         /// <inheritdoc />
         public bool MatchCase { get; set; }
-        /// <inheritdoc />
-        public bool Shared
-        {
-            get
-            {
-                return (bool)_Shared;
-            }
-            set
-            {
-                _Shared = value;
-            }
-        }
 
         /// <inheritdoc />
+        // TODO get rid of this property entirely
+        // we need to make the Qualifier enum COM-visible and force COM users to use that.
+        // tough luck for them, or is it? We'd lose the 'regular' syntax they are used to.
+        // but we could then lose all the stuff using the description attribute
+        // I'm undecided on this
+        // at the very least, shouldn't we set the qualifier property here?
+        // NO. circular reference
         public string QualifierString
         {
             get
@@ -85,21 +77,28 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
-        /// <summary>
-        /// Sets filter syntax according to direct and 'between' filter qualifiers
-        /// </summary>
-        /// <param name="sb">StringBuilder</param>
-        private void SetFilterValue(StringBuilder sb)
+        /// <inheritdoc />
+        public override string FiltertypeIdentifier => "F";
+
+        private bool _shared = false;
+        /// <inheritdoc />
+        public bool Shared
         {
-            if (String.Compare(this.QualifierString, FilterQualifier.Between.GetEnumDescription(), true) == 0)
+            get
             {
-                sb.Append(Utils.dq(this.FilterBetweenStartValue) + ',' + Utils.dq(this.FilterBetweenEndValue) + ',');
+                return _shared;
             }
-            else
+            set
             {
-                sb.Append(Utils.dq(this.FieldValue) + ',');
+                _shared = value;
+                SharedOptionSet = true;
             }
         }
+
+        /// <summary>
+        /// Keep track of whether the 'shared/local' option was set
+        /// </summary>
+        public bool SharedOptionSet { get; private set; }
 
         /// <summary>
         /// Creates the filter string.
@@ -107,23 +106,25 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Filter string.</returns>
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder("[ViewFilter(");
-            sb.Append(base.ClauseNumber.ToString() + ',');
-            sb.Append(_filterType + ',');
-            sb.Append((base.Except) ? "NOT," : ",");
-            if (_Shared.HasValue)
-            {
-                sb.Append("," + Utils.dq((this.Shared) ? "Shared" : "Local") + ",,");
-            }
-            else
-            {
-                sb.Append(Utils.dq(this.FieldName) + ',');
-                sb.Append(Utils.dq(this.QualifierString) + ',');
-                SetFilterValue(sb);
-                sb.Append((this.MatchCase) ? "1" : "0");
-            }
-            sb.Append(")]");
-            return sb.ToString();
+            return base.ToString(FilterFormatters.FormatFFilter);
+            // before the base class ToString(Func<>) overload
+            //StringBuilder sb = new StringBuilder("[ViewFilter(");
+            //sb.Append(base.ClauseNumber.ToString() + ',');
+            //sb.Append(this.FiltertypeIdentifier + ',');
+            //sb.Append((base.Except) ? "NOT," : ",");
+            //if (this.SharedOptionSet)
+            //{
+            //    sb.Append("," + Utils.dq((this.Shared) ? "Shared" : "Local") + ",,");
+            //}
+            //else
+            //{
+            //    sb.Append(Utils.dq(this.FieldName) + ',');
+            //    sb.Append(Utils.dq(this.QualifierString) + ',');
+            //    SetFilterValue(sb);
+            //    sb.Append((this.MatchCase) ? "1" : "0");
+            //}
+            //sb.Append(")]");
+            //return sb.ToString();
         }
     }
 }

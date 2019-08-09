@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
@@ -13,7 +12,7 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("691B0432-73F1-4508-B44E-A8AACB26F1FB")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(ICursorFilter))]
+    [ComDefaultInterface(typeof(IBaseCursorFilter))]
     /* a problem we will now run into is,
      * that interfaces of derived classes are not fully exposed to COM
      * if early-binding is used, we're fine,
@@ -22,7 +21,7 @@ namespace Vovin.CmcLibNet.Database
      * it will only see the ICursorFilter interface.
      * This is why we use the 'new' keyword in the derived interfaces.
      * */
-    public abstract class CursorFilter : ICursorFilter
+    public abstract class BaseCursorFilter : IBaseCursorFilter
     {
         /// <summary>
         /// The clause number is a 1-based int specifying the filter order. There can be up to 8 filters.
@@ -33,7 +32,7 @@ namespace Vovin.CmcLibNet.Database
         /// Constructor checks and sets the clausenumber.
         /// </summary>
         /// <param name="clauseNumber">Clause number, should be between 1 and 8.</param>
-        protected internal CursorFilter(int clauseNumber)
+        protected internal BaseCursorFilter(int clauseNumber)
         {
             ClauseNumber = clauseNumber;
         }
@@ -41,8 +40,12 @@ namespace Vovin.CmcLibNet.Database
         #region Properties
         /// <inheritdoc />
         public bool OrFilter { get; set; }
+
         /// <inheritdoc />
         public bool Except { get; set; }
+
+        /// <inheritdoc />
+        public abstract string FiltertypeIdentifier { get; }
 
         #endregion
 
@@ -72,6 +75,12 @@ namespace Vovin.CmcLibNet.Database
         public virtual string GetViewFilterString()
         {
             return this.ToString();
+        }
+
+        /// <inheritdoc />
+        public string ToString(Func<IBaseCursorFilter, string> formatter)
+        {
+            return formatter(this);
         }
         #endregion
     }

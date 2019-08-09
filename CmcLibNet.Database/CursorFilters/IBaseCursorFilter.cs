@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -7,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     [ComVisible(true)]
     [Guid("E655C043-066E-45eb-BEBF-ECF77CF190FF")]
-    public interface ICursorFilter
+    public interface IBaseCursorFilter
     {
         /// <summary>
         /// Except flag. Set to true to create a Except (NOT) filter.
@@ -29,5 +30,17 @@ namespace Vovin.CmcLibNet.Database
         /// Filter clause number. Should be a number between 1 and 8.
         /// </summary>
         int ClauseNumber { get; set; }
+        /// <summary>
+        /// String representing the filtertype identifier for use in a Commence DDE request.
+        /// </summary>
+        string FiltertypeIdentifier { get; }
+        /// <summary>
+        /// Overload allowing custom formatting.
+        /// </summary>
+        /// <param name="formatter">Func&lt;IbaseCusrorFilter, string&gt;.</param>
+        /// <returns>Output of Func</returns>
+        /// <remarks>Only available to .Net clients.</remarks>
+        [ComVisible(false)]
+        string ToString(Func<IBaseCursorFilter, string> formatter);
     }
 }

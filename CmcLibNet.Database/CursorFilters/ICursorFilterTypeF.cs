@@ -7,24 +7,33 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     [ComVisible(true)]
     [Guid("1C3049E6-9BE6-4041-83CB-1E321DFA25D2")]
-    public interface ICursorFilterTypeF
+    public interface ICursorFilterTypeF : IBaseCursorFilter
     {
-        // replicated from ICursorFilter
-        // inheriting from ICursorFilter would be cleaner, but break COM Interop
+        // Simply inheriting from ICursorFilter would be cleaner, but break COM Interop.
+        // Instead we just replicate ICursorFilter and slap on the 'new' keyword
+        // This is obviously ugly and should be looked into in the future
         #region Replicated for COM Interop
         /// <summary>
-        /// Specify Not-filter. Equivalent to the 'Except' checkbox in a filter dialog
+        /// Specify Not-filter. Equivalent to the 'Except' chekbox in a filtyer dialog
         /// </summary>
-        bool Except { get; set; }
+        new bool Except { get; set; }
         /// <summary>
-        /// Specify if this filter must be treated as an OR filter. Default is false, i.e., the default is an AND filter.
+        /// Specify if this filter must be treated as an Or filter. Default is false.
         /// </summary>
-        bool OrFilter { get; set; }
+        new bool OrFilter { get; set; }
         /// <summary>
         /// Returns the ViewFilter string, useful for debugging.
         /// </summary>
         /// <returns>fully formatted ViewFilter DDE command constructed by the ToString</returns>
-        string GetViewFilterString();
+        new string GetViewFilterString();
+        /// <summary>
+        /// Filter clause number. Should be a number between 1 and 8.
+        /// </summary>
+        new int ClauseNumber { get; set; }
+        /// <summary>
+        /// String representing the filtertype identifier for use in a Commence DDE request.
+        /// </summary>
+        new string FiltertypeIdentifier { get; }
         #endregion
 
         /// <summary>
@@ -87,8 +96,13 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         bool MatchCase { get; set; }
         /// <summary>
-        /// Local/Shared filter. Set to true for Shared, false for Local. Defaults to false.
+        /// Keep track of whether the 'shared/local' option was set
         /// </summary>
+        bool SharedOptionSet { get; }
+        /// <summary>
+        /// Filter for Local/Shared items.
+        /// </summary>
+        /// <remarks>When set, fieldvalues are ignored.</remarks>
         bool Shared { get; set; }
     }
 }

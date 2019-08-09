@@ -35,7 +35,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="cf">CursorFilter.</param>
         /// <returns><c>true</c> on success, <c>false</c> on error.</returns>
-        bool RemoveFilter(CursorFilter cf);
+        bool RemoveFilter(BaseCursorFilter cf);
         /// <summary>
         /// Remove filter from collection by clause number, if present.
         /// The underlying cursor is also updated, there is no need to call <see cref="Apply()"/>.

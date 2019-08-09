@@ -10,9 +10,8 @@ namespace Vovin.CmcLibNet.Database
     [Guid("1866675F-7D57-4142-9A91-600C753EAEAB")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilterTypeCTCTI))]
-    public sealed class CursorFilterTypeCTCTI : CursorFilter, ICursorFilterTypeCTCTI
+    public sealed class CursorFilterTypeCTCTI : BaseCursorFilter, ICursorFilterTypeCTCTI
     {
-        private const string _filterType = "CTCTI";
         private string _itemName = string.Empty;
         private string _clarifyValue = string.Empty;
 
@@ -65,24 +64,29 @@ namespace Vovin.CmcLibNet.Database
                 }
             }
         }
+
+        /// <inheritdoc />
+        public override string FiltertypeIdentifier => "CTCTI";
+
         /// <summary>
         /// Creates the filter string.
         /// </summary>
         /// <returns>Filter string.</returns>
-        public override string ToString()
+        public override string ToString() // It would be better to overload ToString() in the base class and pass a delegate to it
         {
-            StringBuilder sb = new StringBuilder("[ViewFilter(");
-            sb.Append(base.ClauseNumber.ToString() + ',');
-            sb.Append(_filterType + ',');
-            sb.Append((base.Except) ? "NOT" : ",");
-            sb.Append(Utils.dq(this.Connection) + ',');
-            sb.Append(Utils.dq(this.Category) + ',');
-            sb.Append(Utils.dq(this.Connection2) + ',');
-            sb.Append(Utils.dq(this.Category2) + ',');
-            //sb.Append(Utils.dq(this.Item + this.ClarifySeparator + this.ClarifyValue));
-            sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
-            sb.Append(")]");
-            return sb.ToString();
+            return base.ToString(FilterFormatters.FormatCTCTIFilter);
+            // before the base class ToString(Func<>) overload
+            //StringBuilder sb = new StringBuilder("[ViewFilter(");
+            //sb.Append(base.ClauseNumber.ToString() + ',');
+            //sb.Append(this.FiltertypeIdentifier + ',');
+            //sb.Append((base.Except) ? "NOT" : ",");
+            //sb.Append(Utils.dq(this.Connection) + ',');
+            //sb.Append(Utils.dq(this.Category) + ',');
+            //sb.Append(Utils.dq(this.Connection2) + ',');
+            //sb.Append(Utils.dq(this.Category2) + ',');
+            //sb.Append(Utils.dq(Utils.GetClarifiedItemName(this.Item, this.ClarifySeparator, this.ClarifyValue)));
+            //sb.Append(")]");
+            //return sb.ToString();
         }
     }
 }
