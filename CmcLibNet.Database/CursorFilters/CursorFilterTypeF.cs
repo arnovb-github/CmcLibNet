@@ -36,12 +36,12 @@ namespace Vovin.CmcLibNet.Database
 
         /// <inheritdoc />
         // This property is the one that COM-clients use to set the Qualifier.
-        // Technically there is no reason why they couldn't also just use the Qualifier property
+        // Technically there is no reason why they couldn't also just use the Qualifier property itself.
         // However, they would then have to supply one of the enum values.
         // That would be impractical because:
         // a) the enum has lots of values, some of which are interchangeable, 
         //    meaning they mean the same in the context of a filter, such as True, 1 and Checked for a checkbox.
-        // b) they will be used to using strings when composing a filter in Item Detail Form scripting.
+        // b) they will already be used to using strings when composing a filter in Item Detail Form scripting.
         public string QualifierString
         {
             get
