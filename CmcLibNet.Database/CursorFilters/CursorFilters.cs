@@ -92,10 +92,10 @@ namespace Vovin.CmcLibNet.Database
     [Guid("57C88F8C-8D4C-4ba3-9487-4354065809D4")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilters))]
-    public class CursorFilters : ICursorFilters, IEnumerable<BaseCursorFilter>
+    public class CursorFilters : ICursorFilters, IEnumerable<IBaseCursorFilter>
     {
         private Database.ICommenceCursor _cur = null;
-        private List<BaseCursorFilter> _filters = new List<BaseCursorFilter>();
+        private List<IBaseCursorFilter> _filters = new List<IBaseCursorFilter>();
         private const int _MAX_FILTERS = 8;
 
         #region Constructors
@@ -130,19 +130,19 @@ namespace Vovin.CmcLibNet.Database
             switch (filterType)
             {
                 case FilterType.Field:
-                    CursorFilterTypeF f = new CursorFilterTypeF(clauseNumber);
+                    ICursorFilterTypeF f = new CursorFilterTypeF(clauseNumber);
                     _filters.Add(f);
                     return f;
                 case FilterType.ConnectionToCategoryField:
-                    CursorFilterTypeCTCF ctcf = new CursorFilterTypeCTCF(clauseNumber);
+                    ICursorFilterTypeCTCF ctcf = new CursorFilterTypeCTCF(clauseNumber);
                     _filters.Add(ctcf);
                     return ctcf;
                 case FilterType.ConnectionToItem:
-                    CursorFilterTypeCTI cti = new CursorFilterTypeCTI(clauseNumber);
+                    ICursorFilterTypeCTI cti = new CursorFilterTypeCTI(clauseNumber);
                     _filters.Add(cti);
                     return cti;
                 case FilterType.ConnectionToCategoryToItem:
-                    CursorFilterTypeCTCTI ctcti = new CursorFilterTypeCTCTI(clauseNumber);
+                    ICursorFilterTypeCTCTI ctcti = new CursorFilterTypeCTCTI(clauseNumber);
                     _filters.Add(ctcti);
                     return ctcti;
                 default:
@@ -216,9 +216,9 @@ namespace Vovin.CmcLibNet.Database
             List<string> logic = new List<string>();
 
             // sort the list by clausenumber to make sure the order of the logic is set correctly.
-            List<BaseCursorFilter> sortedList = _filters.OrderBy(o => o.ClauseNumber).ToList();
+            List<IBaseCursorFilter> sortedList = _filters.OrderBy(o => o.ClauseNumber).ToList();
 
-            foreach (BaseCursorFilter f in sortedList)
+            foreach (IBaseCursorFilter f in sortedList)
             {
                 if (sb == null) { sb = new StringBuilder("[ViewConjunction("); }
                 if (_cur.SetFilter(f.ToString(), CmcOptionFlags.Default) == false)
@@ -265,7 +265,7 @@ namespace Vovin.CmcLibNet.Database
         {
             // displays all filter clauses
             StringBuilder sb = new StringBuilder();
-            foreach (BaseCursorFilter f in _filters)
+            foreach (IBaseCursorFilter f in _filters)
             {
                 sb.AppendLine(f.GetViewFilterString());
             }
@@ -277,7 +277,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="filters">List of filters.</param>
         /// <param name="clauseNumber">Clause number to check.</param>
         /// <returns><c>true</c> if clausenumber in use, otherwise <c>false</c>.</returns>
-        private bool ClauseInUse(List<BaseCursorFilter> filters, int clauseNumber)
+        private bool ClauseInUse(List<IBaseCursorFilter> filters, int clauseNumber)
         {
             return filters.Any(a => a.ClauseNumber == clauseNumber);
         }
@@ -286,7 +286,7 @@ namespace Vovin.CmcLibNet.Database
         /// Get Enumerator.
         /// </summary>
         /// <returns>IEnumerator.</returns>
-        public IEnumerator<BaseCursorFilter> GetEnumerator()
+        public IEnumerator<IBaseCursorFilter> GetEnumerator()
         {
             return _filters.GetEnumerator();
         }
