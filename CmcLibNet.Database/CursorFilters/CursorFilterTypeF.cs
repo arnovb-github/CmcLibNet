@@ -35,13 +35,13 @@ namespace Vovin.CmcLibNet.Database
         public bool MatchCase { get; set; }
 
         /// <inheritdoc />
-        // TODO get rid of this property entirely
-        // we need to make the Qualifier enum COM-visible and force COM users to use that.
-        // tough luck for them, or is it? We'd lose the 'regular' syntax they are used to.
-        // but we could then lose all the stuff using the description attribute
-        // I'm undecided on this
-        // at the very least, shouldn't we set the qualifier property here?
-        // NO. circular reference
+        // This property is the one that COM-clients use to set the Qualifier.
+        // Technically there is no reason why they couldn't also just use the Qualifier property
+        // However, they would then have to supply one of the enum values.
+        // That would be impractical because:
+        // a) the enum has lots of values, some of which are interchangeable, 
+        //    meaning they mean the same in the context of a filter, such as True, 1 and Checked for a checkbox.
+        // b) they will be used to using strings when composing a filter in Item Detail Form scripting.
         public string QualifierString
         {
             get
@@ -56,6 +56,7 @@ namespace Vovin.CmcLibNet.Database
                     if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
                     {
                         _filterQualifierString = fq.GetEnumDescription();
+                        _filterQualifier = fq; // also set Qualifier property
                         break;
                     }
                 }
@@ -67,13 +68,14 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
+        [ComVisible(false)]
         public FilterQualifier Qualifier
         {
             get { return _filterQualifier; }
             set
             {
                 _filterQualifier = value;
-                this.QualifierString = value.GetEnumDescription();
+                _filterQualifierString = value.GetEnumDescription();
             }
         }
 

@@ -39,13 +39,7 @@ namespace Vovin.CmcLibNet.Database
         public bool MatchCase { get; set; }
 
         /// <inheritdoc />
-        // TODO get rid of this property entirely
-        // we need to make the Qualifier enum COM-visible and force COM users to use that.
-        // tough luck for them, or is it? We'd lose the 'regular' syntax they are used to.
-        // but we could then lose all the stuff using the description attribute
-        // I'm undecided on this
-        // at the very least, shouldn't we set the qualifier property here?
-        // NO. circular reference
+        // see also CursorFilterTypeF
         public string QualifierString
         {            
             get
@@ -60,6 +54,7 @@ namespace Vovin.CmcLibNet.Database
                     if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
                     {
                         _filterQualifierString = fq.GetEnumDescription();
+                        _filterQualifier = fq;
                         break;
                     }
                 }
@@ -71,13 +66,14 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
+        [ComVisible(false)]
         public FilterQualifier Qualifier
         {
             get { return _filterQualifier; }
             set
             {
                 _filterQualifier = value;
-                this.QualifierString = value.GetEnumDescription();
+                _filterQualifierString = value.GetEnumDescription();
             }
         }
 

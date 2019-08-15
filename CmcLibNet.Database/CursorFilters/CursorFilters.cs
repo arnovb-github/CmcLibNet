@@ -236,10 +236,9 @@ namespace Vovin.CmcLibNet.Database
                     /* Not sure if this is the best place to throw, it might be better to throw it earlier, in CommenceCursor
                      * however, if we do it in CommenceCursor, the default behaviour would change from an Interop consumer point of view
                      * I.o.w., it would no longer comply with what Commence documentation specifies and that is unwanted
-                     * throwing it here makes this assembly harder to debug tho.
+                     * throwing it here on the other hand makes this assembly harder to debug.
                      * The actual error occurs in CommenceCursor.SetFilter
                      */
-                    // throwing an error exits a foreach loop
                     throw new CommenceCOMException("CommenceCursor method SetFilter failed on filter request:\n\n'" + f.ToString() + "'");
                 } // if
 
