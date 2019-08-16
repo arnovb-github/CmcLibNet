@@ -92,10 +92,10 @@ namespace Vovin.CmcLibNet.Database
     [Guid("57C88F8C-8D4C-4ba3-9487-4354065809D4")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(ICursorFilters))]
-    public class CursorFilters : ICursorFilters, IEnumerable<IBaseCursorFilter>
+    public class CursorFilters : ICursorFilters, IEnumerable<ICursorFilter>
     {
         private Database.ICommenceCursor _cur = null;
-        private List<IBaseCursorFilter> _filters = new List<IBaseCursorFilter>();
+        private List<ICursorFilter> _filters = new List<ICursorFilter>();
         private const int _MAX_FILTERS = 8;
 
         #region Constructors
@@ -216,9 +216,9 @@ namespace Vovin.CmcLibNet.Database
             List<string> logic = new List<string>();
 
             // sort the list by clausenumber to make sure the order of the logic is set correctly.
-            List<IBaseCursorFilter> sortedList = _filters.OrderBy(o => o.ClauseNumber).ToList();
+            List<ICursorFilter> sortedList = _filters.OrderBy(o => o.ClauseNumber).ToList();
 
-            foreach (IBaseCursorFilter f in sortedList)
+            foreach (ICursorFilter f in sortedList)
             {
                 if (sb == null) { sb = new StringBuilder("[ViewConjunction("); }
                 if (_cur.SetFilter(f.ToString(), CmcOptionFlags.Default) == false)
@@ -265,7 +265,7 @@ namespace Vovin.CmcLibNet.Database
         {
             // displays all filter clauses
             StringBuilder sb = new StringBuilder();
-            foreach (IBaseCursorFilter f in _filters)
+            foreach (ICursorFilter f in _filters)
             {
                 sb.AppendLine(f.GetViewFilterString());
             }
@@ -277,7 +277,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="filters">List of filters.</param>
         /// <param name="clauseNumber">Clause number to check.</param>
         /// <returns><c>true</c> if clausenumber in use, otherwise <c>false</c>.</returns>
-        private bool ClauseInUse(List<IBaseCursorFilter> filters, int clauseNumber)
+        private bool ClauseInUse(List<ICursorFilter> filters, int clauseNumber)
         {
             return filters.Any(a => a.ClauseNumber == clauseNumber);
         }
@@ -286,7 +286,7 @@ namespace Vovin.CmcLibNet.Database
         /// Get Enumerator.
         /// </summary>
         /// <returns>IEnumerator.</returns>
-        public IEnumerator<IBaseCursorFilter> GetEnumerator()
+        public IEnumerator<ICursorFilter> GetEnumerator()
         {
             return _filters.GetEnumerator();
         }

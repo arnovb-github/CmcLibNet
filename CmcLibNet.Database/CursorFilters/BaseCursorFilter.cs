@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Database
     [ComVisible(true)]
     [Guid("691B0432-73F1-4508-B44E-A8AACB26F1FB")]
     [ClassInterface(ClassInterfaceType.None)]
-    [ComDefaultInterface(typeof(IBaseCursorFilter))]
+    [ComDefaultInterface(typeof(ICursorFilter))]
     /* a problem we will now run into is,
      * that interfaces of derived classes are not fully exposed to COM
      * if early-binding is used, we're fine,
@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Database
      * it will only see the ICursorFilter interface.
      * This is why we use the 'new' keyword in the derived interfaces.
      * */
-    public abstract class BaseCursorFilter : IBaseCursorFilter
+    public abstract class BaseCursorFilter : ICursorFilter
     {
         /// <summary>
         /// The clause number is a 1-based int specifying the filter order. There can be up to 8 filters.
@@ -78,7 +78,7 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
-        public string ToString(Func<IBaseCursorFilter, string> formatter)
+        public string ToString(Func<ICursorFilter, string> formatter)
         {
             return formatter(this);
         }

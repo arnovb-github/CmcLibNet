@@ -80,7 +80,7 @@
     <Compile Include="CmcLibNet.Database\CmcLinkMode.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\BaseCursorFilter.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\FilterFormatters.cs" />
-    <Compile Include="CmcLibNet.Database\CursorFilters\IBaseCursorFilter.cs" />
+    <Compile Include="CmcLibNet.Database\CursorFilters\ICursorFilter.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CommenceCategoryMetaData.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CommenceConnection.cs" />
     <Compile Include="CmcLibNet.Database\CommenceFieldType.cs" />

@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     [ComVisible(true)]
     [Guid("E655C043-066E-45eb-BEBF-ECF77CF190FF")]
-    public interface IBaseCursorFilter
+    public interface ICursorFilter
     {
         /// <summary>
         /// Except flag. Set to true to create a Except (NOT) filter.
@@ -41,6 +41,6 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Output of Func</returns>
         /// <remarks>Only available to .Net clients.</remarks>
         [ComVisible(false)]
-        string ToString(Func<IBaseCursorFilter, string> formatter);
+        string ToString(Func<ICursorFilter, string> formatter);
     }
 }

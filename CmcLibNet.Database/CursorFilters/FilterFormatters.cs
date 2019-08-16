@@ -5,7 +5,7 @@ namespace Vovin.CmcLibNet.Database
     // contains the methods to create a [ViewFilter(bla)] DDE request string from the filter objects
     internal static class FilterFormatters
     {
-        internal static string FormatCTIFilter(IBaseCursorFilter filter)
+        internal static string FormatCTIFilter(ICursorFilter filter)
         {
             ICursorFilterTypeCTI f = (CursorFilterTypeCTI)filter;
             StringBuilder sb = new StringBuilder("[ViewFilter(");
@@ -23,7 +23,7 @@ namespace Vovin.CmcLibNet.Database
             return sb.ToString();
         }
 
-        internal static string FormatFFilter(IBaseCursorFilter filter)
+        internal static string FormatFFilter(ICursorFilter filter)
         {
             ICursorFilterTypeF f = (ICursorFilterTypeF)filter;
             StringBuilder sb = new StringBuilder("[ViewFilter(");
@@ -60,7 +60,7 @@ namespace Vovin.CmcLibNet.Database
             return sb.ToString();
         }
 
-        internal static string FormatCTCTIFilter(IBaseCursorFilter filter)
+        internal static string FormatCTCTIFilter(ICursorFilter filter)
         {
             ICursorFilterTypeCTCTI f = (CursorFilterTypeCTCTI)filter;
             StringBuilder sb = new StringBuilder("[ViewFilter(");
@@ -82,7 +82,7 @@ namespace Vovin.CmcLibNet.Database
             return sb.ToString();
         }
 
-        internal static string FormatCTCFFilter(IBaseCursorFilter filter)
+        internal static string FormatCTCFFilter(ICursorFilter filter)
         {
             ICursorFilterTypeCTCF f = (CursorFilterTypeCTCF)filter;
             StringBuilder sb = new StringBuilder("[ViewFilter(");

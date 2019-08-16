@@ -7,7 +7,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     [ComVisible(true)]
     [Guid("1C3049E6-9BE6-4041-83CB-1E321DFA25D2")]
-    public interface ICursorFilterTypeF : IBaseCursorFilter
+    public interface ICursorFilterTypeF : ICursorFilter
     {
         // Simply inheriting from ICursorFilter would be cleaner, but break COM Interop.
         // Instead we just replicate ICursorFilter and slap on the 'new' keyword
