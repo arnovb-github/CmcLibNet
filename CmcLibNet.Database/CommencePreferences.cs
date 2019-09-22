@@ -5,73 +5,29 @@
     /// </summary>
     internal class Preferences
     {
-        string _me = "(-Me-) item not set.";
-        string _mecat = "(-Me-) category not set.";
-        string _letterlogdir = "Letter Log Directory not set.";
-        string _externaldir = "Spool directory not set or not applicable.";
 
         /// <summary>
         /// Gets (-Me-) item.
         /// </summary>
         /// <remarks>Does NOT set this preference in Commence.</remarks>
-        internal string Me
-        {
-            get
-            {
-                return _me;
-            }
-            set
-            {
-                _me = value;
-            }
-
-        }
+        internal string Me { get; set; } = "(-Me-) item not set.";
 
         /// <summary>
         /// Gets/Sets (-Me-) category.
         /// </summary>
         /// <remarks>Does NOT set this preference in Commence.</remarks>
-        internal string MeCategory
-        {
-            get
-            {
-                return _mecat;
-            }
-            set
-            {
-                _mecat = value;
-            }
-        }
+        internal string MeCategory { get; set; } = "(-Me-) category not set.";
 
         /// <summary>
         /// Gets/Sets Letter Log path
         /// </summary>
         /// <remarks>Does NOT set this preference in Commence.</remarks>
-        internal string LetterLogDir
-        {
-            get
-            {
-                return _letterlogdir;
-            }
-            set
-            {
-                _letterlogdir = value;
-            }
-        }
+        internal string LetterLogDir { get; set; } = "Letter Log Directory not set.";
+
         /// <summary>
         /// Gets/Sets External Data files path.
         /// </summary>
         /// <remarks>Does NOT set this preference in Commence.</remarks>
-        internal string ExternalDir
-        {
-            get
-            {
-                return _externaldir;
-            }
-            set
-            {
-                _externaldir = value;
-            }
-        }
+        internal string ExternalDir { get; set; } = "Spool directory not set or not applicable.";
     }
 }
