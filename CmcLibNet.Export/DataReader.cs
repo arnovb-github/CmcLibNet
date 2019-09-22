@@ -438,7 +438,7 @@ namespace Vovin.CmcLibNet.Export
                     ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
-            }, TaskCreationOptions.LongRunning);
+            }, TaskCreationOptions.LongRunning); // longrunning is overkill here
 
             Task.WaitAll(readTask, processTask);
             // raise 'done' event
