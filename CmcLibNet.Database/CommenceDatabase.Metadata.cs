@@ -1379,7 +1379,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="input">string array</param>
         /// <returns>object array that can be consumed by COM clients such as VBScript.</returns>
-        private object[] toObjectArray(string[] input) // TODO move to Utils
+        private object[] ToObjectArray(string[] input) // TODO move to Utils
         {
             object[] objArray = new object[input.Length];
             input.CopyTo(objArray, 0);
