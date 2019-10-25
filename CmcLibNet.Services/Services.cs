@@ -35,7 +35,7 @@ namespace Vovin.CmcLibNet.Services
     /// </summary>
     [ComVisible(true)]
     [Guid("BFE25F8A-9F4C-4AD9-8662-84D13B12B4D9")]
-    [ProgIdAttribute("CmcLibNet.Services")]
+    [ProgId("CmcLibNet.Services")]
     [ClassInterface(ClassInterfaceType.None)]
     [ComDefaultInterface(typeof(IServices))]
     public class Services : IServices
