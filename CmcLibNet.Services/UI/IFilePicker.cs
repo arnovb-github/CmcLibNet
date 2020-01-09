@@ -33,8 +33,9 @@ namespace Vovin.CmcLibNet.Services.UI
         string DefaultExt { get; set; }
 
         /// <summary>
-        /// Returns an OpenFileDialog instance
+        /// Returns an OpenFileDialog instance.
         /// </summary>
+        /// <returns>Dialog window.</returns>
         string ShowDialog();
     }
 }
