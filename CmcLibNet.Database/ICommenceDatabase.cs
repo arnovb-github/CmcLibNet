@@ -42,6 +42,16 @@ namespace Vovin.CmcLibNet.Database
          * e.g. returning string[] getSomething() will not work in VBScript!
          * There is the MarshalAsAttribute, but I can't get it to work like I want to :/
          */
+
+        #region DDE options
+        /// <summary>
+        /// Make assembly try to string-escape DDE arguments. Default is <code>true</code>.
+        /// </summary>
+        /// <remarks>By default, all arguments passed to DDE requests will be enclosed in double-quotes.
+        /// Setting this to false allows you to have fine-grained control over the format of the parameters.</remarks>
+        bool EncodeDDEArguments { get; set; }
+        #endregion
+
         #region Commence DDE Request commands
         /// <summary>
         /// Specifies whether Commence should return clarified item names, or leave bStatus empty to get the current status.
@@ -50,7 +60,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>"OK" if successful, inspect <see cref="GetLastError" /> on failure.
         /// <para>If bStatus was omitted this method returns "True" if clarified, "False" if not.</para></returns>
         /// <seealso cref="GetLastError"/>
-		string ClarifyItemNames(string bStatus = null); // can't do bool? because COM doesn't like Nullable types
+        string ClarifyItemNames(string bStatus = null); // can't do bool? because COM doesn't like Nullable types
 
         /// <summary>
         /// Gets the category of the active item or view.
@@ -1109,6 +1119,7 @@ namespace Vovin.CmcLibNet.Database
         bool FieldValueExists(string categoryName, string fieldName, string fieldValue, bool caseSensitive = true);
 
         #endregion
+
         #region Methods
 
         /// <summary>

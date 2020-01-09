@@ -296,3 +296,4 @@ CmcLibNet.Export/HTMLDataWriter.cs
 CmcLibNet.Export/TextDataWriter.cs
 CmcLibNet.Export/XMLDataWriter.cs
 
+/CmcLibNet.Database/CommenceDatabase.Metadata - Copy.cs

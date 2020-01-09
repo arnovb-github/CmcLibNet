@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Database
         private readonly string[] _splitter = new string[] { CMC_DELIM };
         private readonly string[] _splitter2 = new string[] { CMC_DELIM2 };
         private Timer DDETimer;
-        private readonly int DDETimeout = 5000; // milliseconds after which a DDE conversation is closed.
+        private readonly int DDETimeout = 1000; // milliseconds after which a DDE conversation is closed.
         private CommenceConversation _conv;
 
         #region Commence DDE Request methods
@@ -88,11 +88,13 @@ namespace Vovin.CmcLibNet.Database
             {
                 // commence will return {ViewName}Delim {ViewType}Delim {CategoryName}Delim {ItemName}Delim {FieldName}
                 string[] buffer = viewInfo.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                avi = new ActiveViewInfo();
-                avi.Name = buffer[0];
-                avi.Type = (buffer[1] == "Add Item") ? "Item Detail Form" : buffer[1]; // translate. This is a discrepancy in Commence documentation.
-                avi.Category = buffer[2];
-                avi.Item = buffer[3];
+                avi = new ActiveViewInfo
+                {
+                    Name = buffer[0],
+                    Type = (buffer[1] == "Add Item") ? "Item Detail Form" : buffer[1], // translate. This is a discrepancy in Commence documentation.
+                    Category = buffer[2],
+                    Item = buffer[3]
+                };
                 if (avi.Type.ToLower() == "item detail form")
                 {
                     avi.Field = buffer[4];
@@ -110,18 +112,18 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetCallerID", EncodeDdeArgument(categoryName), phoneNumber });
+                return GetDDEValues(new string[] { "GetCallerID", categoryName, phoneNumber });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetCallerID", EncodeDdeArgument(categoryName), phoneNumber, delim });
+                return GetDDEValues(new string[] { "GetCallerID", categoryName, phoneNumber, delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetCallerID(string categoryName, string phoneNumber)
         {
-            return GetDDEValuesAsList(new string[] { "GetCallerID", EncodeDdeArgument(categoryName), phoneNumber, CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetCallerID", categoryName, phoneNumber, CMC_DELIM });
         }
 
         /// <inheritdoc />
@@ -134,7 +136,7 @@ namespace Vovin.CmcLibNet.Database
         public ICategoryDef GetCategoryDefinition(string categoryName)
         {
             CategoryDef cd = new CategoryDef();
-            string dde = BuildDDERequestCommand(new string[] { "GetCategoryDefinition", EncodeDdeArgument(categoryName), CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetCategoryDefinition", categoryName, CMC_DELIM });
             string categoryInfo = DDERequest(dde);
 
             if (categoryInfo != null)
@@ -219,7 +221,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public int GetConnectedItemCount(string categoryName, string itemName, string connectionName, string connCategory)
         {
-            return GetDDECount(new string[] { "GetConnectedItemCount", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory });
+            return GetDDECount(new string[] { "GetConnectedItemCount", categoryName, itemName, connectionName, connCategory });
         }
 
         /// <inheritdoc />
@@ -227,11 +229,11 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetConnectedItemField", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, EncodeDdeArgument(fieldName) });
+                return GetDDEValues(new string[] { "GetConnectedItemField", categoryName, itemName, connectionName, connCategory, fieldName });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetConnectedItemField", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, EncodeDdeArgument(fieldName), delim });
+                return GetDDEValues(new string[] { "GetConnectedItemField", categoryName, itemName, connectionName, connCategory, fieldName, delim });
             }
         }
 
@@ -240,24 +242,24 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetConnectedItemNames", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory });
+                return GetDDEValues(new string[] { "GetConnectedItemNames", categoryName, itemName, connectionName, connCategory });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetConnectedItemNames", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, delim });
+                return GetDDEValues(new string[] { "GetConnectedItemNames", categoryName, itemName, connectionName, connCategory, delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetConnectedItemNames(string categoryName, string itemName, string connectionName, string connCategory)
         {
-            return GetDDEValuesAsList(new string[] { "GetConnectedItemNames", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetConnectedItemNames", categoryName, itemName, connectionName, connCategory, CMC_DELIM });
         }
 
         /// <inheritdoc />
         public int GetConnectionCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetConnectionCount", EncodeDdeArgument(categoryName) });
+            return GetDDECount(new string[] { "GetConnectionCount", categoryName });
         }
 
         ///// <inheritdoc />
@@ -293,7 +295,7 @@ namespace Vovin.CmcLibNet.Database
         public IEnumerable<ICommenceConnection> GetConnectionNames(string categoryName)
         {
             IList<ICommenceConnection> retval = new List<ICommenceConnection>();
-            string buffer = GetDDEValues(new string[] { "GetConnectionNames", EncodeDdeArgument(categoryName), CMC_DELIM, CMC_DELIM2 });
+            string buffer = GetDDEValues(new string[] { "GetConnectionNames", categoryName, CMC_DELIM, CMC_DELIM2 });
             if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
             {
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
@@ -370,20 +372,20 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string GetField(string categoryName, string itemName, string fieldName)
         {
-            return GetDDEValues(new string[] { "GetField", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName) });
+            return GetDDEValues(new string[] { "GetField", categoryName, itemName, fieldName });
         }
 
         /// <inheritdoc />
         public int GetFieldCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetFieldCount", EncodeDdeArgument(categoryName) });
+            return GetDDECount(new string[] { "GetFieldCount", categoryName });
         }
 
         /// <inheritdoc />
         public ICommenceFieldDefinition GetFieldDefinition(string categoryName, string fieldName)
         {
             CommenceFieldDefinition fd = new CommenceFieldDefinition();
-            string dde = BuildDDERequestCommand(new string[] { "GetFieldDefinition", EncodeDdeArgument(categoryName), EncodeDdeArgument(fieldName), CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetFieldDefinition", categoryName, fieldName, CMC_DELIM });
             string fieldInfo = DDERequest(dde);
             if (fieldInfo != null)
             {
@@ -405,18 +407,18 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetFieldNames", EncodeDdeArgument(categoryName)});
+                return GetDDEValues(new string[] { "GetFieldNames", categoryName});
             }
             else
             {
-                return GetDDEValues(new string[] { "GetFieldNames", EncodeDdeArgument(categoryName), delim });
+                return GetDDEValues(new string[] { "GetFieldNames", categoryName, delim });
             }
 
         }
         /// <inheritdoc />
         public List<string> GetFieldNames(string categoryName)
         {
-            return GetDDEValuesAsList(new string[] { "GetFieldNames", EncodeDdeArgument(categoryName), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetFieldNames", categoryName, CMC_DELIM });
         }
 
         /* this method may prove a little problematic.
@@ -441,32 +443,32 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
+                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
+                return GetDDEValues(new string[] { "GetFields", categoryName, itemName, fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetFields(string categoryName, string itemName, List<string> fieldNames)
         {
-            //return GetDDEValuesAsList(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Count.ToString(), string.Join("\",\"", fieldNames), CMC_DELIM });
-            return GetDDEValuesAsList(new string[] { "GetFields", EncodeDdeArgument(categoryName), itemName, fieldNames.Count.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), CMC_DELIM });
+            //return GetDDEValuesAsList(new string[] { "GetFields", categoryName, itemName, fieldNames.Count.ToString(), string.Join("\",\"", fieldNames), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetFields", categoryName, itemName, fieldNames.Count.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), CMC_DELIM });
         }
 
         /// <inheritdoc />
         public bool GetFieldToFile(string categoryName, string itemName, string fieldName, string fileName)
         {
-            object retval = DDERequest(BuildDDERequestCommand(new string[] {"GetFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] {"GetFieldToFile", categoryName, itemName, fieldName, fileName }));
             return (retval == null) ? false : true;
         }
 
         /// <inheritdoc />
         public int GetFormCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetFormCount", EncodeDdeArgument(categoryName) });
+            return GetDDECount(new string[] { "GetFormCount", categoryName });
         }
 
         /// <inheritdoc />
@@ -474,24 +476,24 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetFormNames", EncodeDdeArgument(categoryName) });
+                return GetDDEValues(new string[] { "GetFormNames", categoryName });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetFormNames", EncodeDdeArgument(categoryName), delim });
+                return GetDDEValues(new string[] { "GetFormNames", categoryName, delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetFormNames(string categoryName)
         {
-            return GetDDEValuesAsList(new string[] { "GetFormNames", EncodeDdeArgument(categoryName), CMC_DELIM});
+            return GetDDEValuesAsList(new string[] { "GetFormNames", categoryName, CMC_DELIM});
         }
 
         /// <inheritdoc />
         public int GetImageFieldCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetImageFieldCount", EncodeDdeArgument(categoryName) });
+            return GetDDECount(new string[] { "GetImageFieldCount", categoryName });
         }
 
         /// <inheritdoc />
@@ -499,30 +501,30 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetImageFieldNames", EncodeDdeArgument(categoryName) });
+                return GetDDEValues(new string[] { "GetImageFieldNames", categoryName });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetImageFieldNames", EncodeDdeArgument(categoryName), delim });
+                return GetDDEValues(new string[] { "GetImageFieldNames", categoryName, delim });
             }
         }
         /// <inheritdoc />
         public List<string> GetImageFieldNames(string categoryName)
         {
-            return GetDDEValuesAsList(new string[] { "GetImageFieldNames", EncodeDdeArgument(categoryName), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetImageFieldNames", categoryName, CMC_DELIM });
         }
 
         /// <inheritdoc />
         public bool GetImageFieldToFile(string categoryName, string itemName, string fieldName, string fileName)
         {
-            object retval = DDERequest(BuildDDERequestCommand(new string[] { "GetImageFieldToFile", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "GetImageFieldToFile", categoryName, itemName, fieldName, fileName }));
             return (retval == null) ? false : true;
         }
 
         /// <inheritdoc />
         public int GetItemCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetItemCount", EncodeDdeArgument(categoryName) });
+            return GetDDECount(new string[] { "GetItemCount", categoryName });
         }
 
         
@@ -531,17 +533,17 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetItemNames", EncodeDdeArgument(categoryName) });
+                return GetDDEValues(new string[] { "GetItemNames", categoryName });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetItemNames", EncodeDdeArgument(categoryName), delim });
+                return GetDDEValues(new string[] { "GetItemNames", categoryName, delim });
             }
         }
         /// <inheritdoc />
         public List<string> GetItemNames(string categoryName)
         {
-            return GetDDEValuesAsList(new string[] { "GetItemNames", EncodeDdeArgument(categoryName), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetItemNames", categoryName, CMC_DELIM });
         }
 
         /// <inheritdoc />
@@ -566,7 +568,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string GetMeField(string fieldName)
         {
-            return GetDDEValues(new string[] { "GetMeField", EncodeDdeArgument(fieldName) });
+            return GetDDEValues(new string[] { "GetMeField", fieldName });
         }
 
         /// <inheritdoc />
@@ -656,7 +658,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public int GetViewCount(string categoryName)
         {
-            return GetDDECount(new string[] { "GetViewCount", EncodeDdeArgument(categoryName), CMC_DELIM });
+            return GetDDECount(new string[] { "GetViewCount", categoryName, CMC_DELIM });
         }
 
         /// <inheritdoc />
@@ -664,7 +666,7 @@ namespace Vovin.CmcLibNet.Database
         {
             ViewDef vd = new ViewDef();
             // note that this request is undocumented by Commence!
-            string dde = BuildDDERequestCommand(new string[] { "GetViewDefinition", EncodeDdeArgument(viewName), CMC_DELIM });
+            string dde = BuildDDERequestCommand(new string[] { "GetViewDefinition", viewName, CMC_DELIM });
             string viewInfo = DDERequest(dde);
             if (viewInfo != null)
             {
@@ -683,18 +685,18 @@ namespace Vovin.CmcLibNet.Database
         {
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "GetViewNames", EncodeDdeArgument(categoryName) });
+                return GetDDEValues(new string[] { "GetViewNames", categoryName });
             }
             else
             {
-                return GetDDEValues(new string[] { "GetViewNames", EncodeDdeArgument(categoryName), delim });
+                return GetDDEValues(new string[] { "GetViewNames", categoryName, delim });
             }
         }
 
         /// <inheritdoc />
         public List<string> GetViewNames(string categoryName)
         {
-            return GetDDEValuesAsList(new string[] { "GetViewNames", EncodeDdeArgument(categoryName), CMC_DELIM });
+            return GetDDEValuesAsList(new string[] { "GetViewNames", categoryName, CMC_DELIM });
         }
 
         /// <inheritdoc />
@@ -722,7 +724,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string MergeTemplateCreate(string templateName, string categoryName, bool shared)
         {
-            return GetDDEValues(new string[] { "MergeTemplateCreate", templateName, EncodeDdeArgument(categoryName), (shared) ? "1" : "0" });
+            return GetDDEValues(new string[] { "MergeTemplateCreate", templateName, categoryName, (shared) ? "1" : "0" });
         }
 
         /// <inheritdoc />
@@ -734,7 +736,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ViewCategory(string categoryName)  // expects subsequent requests
         {
-            return GetDDEValues(new string[] { "ViewCategory", EncodeDdeArgument(categoryName) });
+            return GetDDEValues(new string[] { "ViewCategory", categoryName });
         }
 
         /// <inheritdoc />
@@ -746,13 +748,13 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public int ViewConnectedCount(int index, string connectionName, string connCategory)
         {
-            return GetDDECount(new string[] { "ViewConnectedCount", index.ToString(), EncodeDdeArgument(connectionName), EncodeDdeArgument(connCategory) });
+            return GetDDECount(new string[] { "ViewConnectedCount", index.ToString(), connectionName, connCategory });
         }
 
         /// <inheritdoc />
         public string ViewConnectedField(int index, string connectionName, string connCategory, int connIndex, string fieldName)
         {
-            return GetDDEValues(new string[] { "ViewConnectedField", index.ToString(), EncodeDdeArgument(connectionName), connCategory, connIndex.ToString(), EncodeDdeArgument(fieldName) });
+            return GetDDEValues(new string[] { "ViewConnectedField", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldName });
         }
 
         /// <inheritdoc />
@@ -767,13 +769,13 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), EncodeDdeArgument(connectionName), connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), EncodeDdeArgument(connectionName), EncodeDdeArgument(connCategory), connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join("\",\"", fieldNames) });
+                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), EncodeDdeArgument(connectionName), connCategory, connIndex.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), EncodeDdeArgument(connectionName), EncodeDdeArgument(connCategory), connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), String.Join("\",\"", fieldNames), delim });
+                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
         }
 
@@ -787,7 +789,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ViewConnectedItem(int index, string connectionName, string connCategory, int connIndex)
         {
-            return GetDDEValues(new string[] { "ViewConnectedItem", index.ToString(), EncodeDdeArgument(connectionName), connCategory, connIndex.ToString() });
+            return GetDDEValues(new string[] { "ViewConnectedItem", index.ToString(), connectionName, connCategory, connIndex.ToString() });
         }
 
         /// <inheritdoc />
@@ -799,7 +801,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ViewField(int index, string fieldName)
         {
-            return GetDDEValues(new string[] { "ViewField", index.ToString(), EncodeDdeArgument(fieldName) });
+            return GetDDEValues(new string[] { "ViewField", index.ToString(), fieldName });
         }
 
         /// <inheritdoc />
@@ -835,7 +837,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewFieldToFile(int index, string fieldName, string fileName)
         {
-            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewFieldToFile", index.ToString(), fieldName, fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -851,7 +853,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewImageFieldToFile(int index, string fieldName, string fileName)
         {
-            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewImageFieldToFile", index.ToString(), EncodeDdeArgument(fieldName), fileName }));
+            object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewImageFieldToFile", index.ToString(), fieldName, fileName }));
             return (retval == null) ? false : true;
         }
 
@@ -932,8 +934,10 @@ namespace Vovin.CmcLibNet.Database
 
             if (DDETimer == null)
             {
-                DDETimer = new Timer(DDETimeout);
-                DDETimer.AutoReset = false;
+                DDETimer = new Timer(DDETimeout)
+                {
+                    AutoReset = false
+                };
                 DDETimer.Elapsed += _conv.HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout;
@@ -959,43 +963,43 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool AddItem(string categoryName, string itemName, string clarifyValue = "")
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "AddItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AddItem", categoryName, itemName, clarifyValue }));
         }
 
         /// <inheritdoc />
         public bool AddSharedItem(string categoryName, string itemName, string clarifyValue = "")
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "AddSharedItem", EncodeDdeArgument(categoryName), itemName, clarifyValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AddSharedItem", categoryName, itemName, clarifyValue }));
         }
 
         /// <inheritdoc />
         public bool AppendText(string categoryName, string itemName, string fieldName, string text)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "AppendText", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), text }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AppendText", categoryName, itemName, fieldName, text }));
         }
 
         /// <inheritdoc />
         public bool AssignConnection(string categoryName, string itemName, string connectionName, string connCategory, string connItem)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "AssignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "AssignConnection", categoryName, itemName, connectionName, connCategory, connItem }));
         }
 
         /// <inheritdoc />
         public bool CheckInFormScript(string categoryName, string formName, string fileName)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckInFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckInFormScript", categoryName, formName, fileName }));
         }
 
         /// <inheritdoc />
         public bool CheckOutFormScript(string categoryName, string formName, string fileName)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckOutFormScript", EncodeDdeArgument(categoryName), formName, fileName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "CheckOutFormScript", categoryName, formName, fileName }));
         }
 
         /// <inheritdoc />
         public bool DeleteItem(string categoryName, string itemName)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "DeleteItem", EncodeDdeArgument(categoryName), itemName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "DeleteItem", categoryName, itemName }));
         }
 
         /// <inheritdoc />
@@ -1007,7 +1011,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool EditItem(string categoryName, string itemName, string fieldName, string fieldValue)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "EditItem", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(fieldName), fieldValue }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "EditItem", categoryName, itemName, fieldName, fieldValue }));
         }
 
         /// <inheritdoc />
@@ -1034,7 +1038,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool PromoteItemToShared(string categoryName, string itemName)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "PromoteItemToShared", EncodeDdeArgument(categoryName), itemName }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "PromoteItemToShared", categoryName, itemName }));
         }
 
         /// <inheritdoc />
@@ -1048,11 +1052,11 @@ namespace Vovin.CmcLibNet.Database
         {
             if (formName == null)
             {
-                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName}));
+                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", categoryName, itemName}));
             }
             else
             {
-                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", EncodeDdeArgument(categoryName), itemName, formName }));
+                return DDEExecute(BuildDDERequestCommand(new string[] { "ShowItem", categoryName, itemName, formName }));
             }
         }
 
@@ -1065,7 +1069,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool UnassignConnection(string categoryName, string itemName, string connectionName, string connCategory, string connItem)
         {
-            return DDEExecute(BuildDDERequestCommand(new string[] { "UnassignConnection", EncodeDdeArgument(categoryName), itemName, EncodeDdeArgument(connectionName), connCategory, connItem }));
+            return DDEExecute(BuildDDERequestCommand(new string[] { "UnassignConnection", categoryName, itemName, connectionName, connCategory, connItem }));
         }
 
 
@@ -1084,8 +1088,10 @@ namespace Vovin.CmcLibNet.Database
             }
             if (DDETimer == null)
             {
-                DDETimer = new Timer(DDETimeout);
-                DDETimer.AutoReset = false;
+                DDETimer = new Timer(DDETimeout)
+                {
+                    AutoReset = false
+                };
                 DDETimer.Elapsed += _conv.HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout; // (re)set interval
@@ -1259,13 +1265,15 @@ namespace Vovin.CmcLibNet.Database
 
         #region Helper methods
 
-         private List<string> GetDDEValuesAsList(string[] args)
+        private List<string> GetDDEValuesAsList(string[] args)
         {
             string values = DDERequest(BuildDDERequestCommand(args));
             if (values == null) // an error occurred, return error value
             {
-                List<string> retval = new List<string>();
-                retval.Add(this.GetLastError());
+                List<string> retval = new List<string>
+                {
+                    this.GetLastError()
+                };
                 return retval;
             }
             // the delimiter is always the last element
@@ -1295,6 +1303,9 @@ namespace Vovin.CmcLibNet.Database
             return (result == null) ? -1 : Convert.ToInt32(result);
         }
 
+        /// <inheritdoc />
+        public bool EncodeDDEArguments { get; set; } = true;
+
         /// <summary>
         /// Builds the DDE request string for Commence.
         /// </summary>.
@@ -1310,10 +1321,14 @@ namespace Vovin.CmcLibNet.Database
                 sb.Append("()]");
                 return sb.ToString();
             }
+            // the following line suggests we already tried the aproach of encoding all arguments?
+            // do not yet delete it!
             //sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
+            IEnumerable<string> arguments = args.Skip(1); // note the skip of the first argument
+            if (EncodeDDEArguments) { arguments = EncodeDdeArguments(arguments); }
             sb.Append("(");
-            sb.Append(String.Join(",", args.Skip(1)));
-            sb.Append(")]"); // note the skip of the first argument
+            sb.Append(string.Join(",", arguments));
+            sb.Append(")]"); 
             return sb.ToString();
         }
 
@@ -1322,7 +1337,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="args">string array.</param>
         /// <returns>Encoded array of arguments.</returns>
-        private IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args)
+        private IEnumerable<string> EncodeDdeArguments(IEnumerable<string> args) // move this to extension method
         {
             foreach (string arg in args)
             {
@@ -1393,8 +1408,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>string array</returns>
         private string[] ToStringArray(object arg) // TODO move to Utils
         {
-            var collection = arg as System.Collections.IEnumerable;
-            if (collection != null)
+            if (arg is System.Collections.IEnumerable collection)
             {
                 return collection
                   .Cast<object>()
