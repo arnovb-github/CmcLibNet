@@ -35,7 +35,7 @@ namespace Vovin.CmcLibNet.Services.UI
         /// <summary>
         /// Returns an OpenFileDialog instance.
         /// </summary>
-        /// <returns>Dialog window.</returns>
+        /// <returns>Return value from Dialog window.</returns>
         string ShowDialog();
     }
 }
