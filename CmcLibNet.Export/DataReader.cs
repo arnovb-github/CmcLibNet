@@ -390,8 +390,8 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Experimental stuff
-        // based on SO feedback
-        // this actually works but gains us nothing in terms of performance
+        // based on SO feedback: https://stackoverflow.com/questions/53788909/convert-expensive-call-to-async-while-keeping-event-system-intact
+        // this actually works but gains us nothing in terms of performance, unfortunately
         internal CancellationTokenSource CTS = new CancellationTokenSource();
         /// <summary>
         /// Reads the Commence database in a asynchronous fashion
@@ -424,7 +424,10 @@ namespace Vovin.CmcLibNet.Export
                     CTS.Cancel(); // cancel data read
                     throw; // rethrow the event. If we didn't do this, all errors would be swallowed
                 }
-                finally { values.CompleteAdding(); }
+                finally
+                {
+                    values.CompleteAdding();
+                }
 
             }, TaskCreationOptions.LongRunning);
 
@@ -438,9 +441,10 @@ namespace Vovin.CmcLibNet.Export
                     ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
-            }, TaskCreationOptions.LongRunning); // longrunning is overkill here
+            }, TaskCreationOptions.LongRunning); // longrunning is probably overkill here
 
-            Task.WaitAll(readTask, processTask);
+            Task.WaitAll(readTask, processTask); // we need to wait all before we give the 'done' signal.
+            values.Dispose();
             // raise 'done' event
             ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
             OnDataReadCompleted(e); // done with reading data
