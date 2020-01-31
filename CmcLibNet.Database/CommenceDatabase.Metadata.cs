@@ -18,17 +18,25 @@ namespace Vovin.CmcLibNet.Database
     // That is a difficult way of saying all DDE stuff is in here.
     public partial class CommenceDatabase : ICommenceDatabase
     {
+        #region Fields
         /// <summary>
         /// Delimiters used in Commence DDE conversations
         /// By defining them here, consumers do not have to supply them with every 'DDE call' that uses them
         /// </summary>
+        // TODO we should turn this into read-only properties,
+        // and include a overloaded constructor allowing for 
+        // a) setting custom delimiters for edge-case scenarios
+        // b) a means of getting the values of those
         private const string CMC_DELIM = @"|$%`!^*|";
         private const string CMC_DELIM2 = @"|@##~~&|";
+        // TODO if we change the above fields to properties,
+        // we also need to rework the splitters
         private readonly string[] _splitter = new string[] { CMC_DELIM };
         private readonly string[] _splitter2 = new string[] { CMC_DELIM2 };
         private Timer DDETimer;
         private readonly int DDETimeout = 1000; // milliseconds after which a DDE conversation is closed.
         private CommenceConversation _conv;
+        #endregion
 
         #region Commence DDE Request methods
         /// <inheritdoc />

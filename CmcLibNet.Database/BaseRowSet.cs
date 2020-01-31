@@ -42,7 +42,7 @@
         #endregion
 
         /// <inheritdoc />
-        public abstract int RowCount { get;}
+        public abstract int RowCount { get; }
         /// <inheritdoc />
         public abstract int ColumnCount { get; }
         /// <inheritdoc />

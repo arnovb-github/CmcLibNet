@@ -9,7 +9,11 @@ namespace Vovin.CmcLibNet.Database
     [Guid("F083B422-05FC-4C23-A5DE-C4528DDC477A")]
     public interface ICommenceQueryRowSet : IBaseRowSet
     {
-        /* Anything marked with the new keyword is in there to make the method/property available to COM */
+        /* Anything marked with the new keyword is in there to make the method/property available to COM
+         * A more clean implementation could be to create separate interfaces just for COM.
+         * It would mean some duplication, but it would be a little more pure,
+         * i.e. it would be clear(er) what to use for COM and what to use for.Net
+         */
 
         /// <inheritdoc />
         new int RowCount { get; }
