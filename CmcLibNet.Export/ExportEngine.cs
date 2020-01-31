@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
+﻿using System;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Database.Metadata;
@@ -58,9 +56,9 @@ namespace Vovin.CmcLibNet.Export
         /// ExportCompleted event for outside assemblies.
         /// </summary>
         public event ExportCompletedHandler ExportCompleted;
-        private BaseWriter _writer = null;
-        private IExportSettings _settings = null;
-        private readonly ICommenceDatabase _db = null;
+        private BaseWriter _writer;
+        private IExportSettings _settings;
+        private readonly ICommenceDatabase _db;
 
         #region Constructors
         /// <summary>
