@@ -776,35 +776,25 @@ namespace Vovin.CmcLibNet.Database
                 // so make sure the return value is sized properly
                 string[][] rowvalues = new string[qrs.RowCount][];
                 object[] buffer = null;
-                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // move to first row
+                int numColumns = qrs.ColumnCount; // store number of columns so we only need 1 COM call for it (makes method 5 times faster!)
+                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // determine the rowpointer we are currently at
 
                 for (int i = 0; i < qrs.RowCount; i++)
                 {
-                    /* Note that we do not bother with the CmcOptionFlags.Canonical flag,
-                     * because for indirect fields it is ignored.
-                     * We implement our own formatting transformation.
-                     */
-                    rowvalues[i] = new string[qrs.ColumnCount + 1]; // add extra element for thid
+                    rowvalues[i] = new string[numColumns + 1]; // number of columns plus extra element for thid
                     if (this.Flags.HasFlag(CmcOptionFlags.UseThids)) // do not make the extra API call unless requested
                     {
                         string thid = qrs.GetRowID(i, CmcOptionFlags.Default); // GetRowID does not advance the rowpointer. Note that the flag must be 0.
                         rowvalues[i][0] = thid; // put thid in first column of row
                     }
 
-                    // process rowset
                     buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
                     if (buffer == null)
                     {
 						qrs.Close();
                         throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
                     }
-                    #if DEBUG
-                    if (i == 5) // simulate error
-                    {
-                        //throw new CommenceCOMException("An error occurred while reading row " + (rowpointer + i + 1).ToString());
-                    }
-                    #endif
-                    for (int j = 0; j < qrs.ColumnCount; j++)
+                    for (int j = 0; j < numColumns; j++)
                     {
                         rowvalues[i][j + 1] = buffer[j].ToString(); // put rowvalue in 2nd and up column of row
                     } // j
