@@ -397,7 +397,7 @@ namespace Vovin.CmcLibNet.Export
         /// Reads the Commence database in a asynchronous fashion
         /// The idea is that the reading of Commence data continues as the event consumers do their thing.
         /// </summary>
-        internal void GetDataByAPIAsync()
+        internal void GetDataByAPIAsync() // a bad method name, suggestion async
         {
             int rowsProcessed = 0;
             var values = new BlockingCollection<CmcData>();

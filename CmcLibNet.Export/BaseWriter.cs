@@ -80,7 +80,7 @@ namespace Vovin.CmcLibNet.Export
             {
                 if (ValidCustomHeaders(_settings.CustomHeaders.Select(x => x.ToString()).ToArray())) { _customColumnHeaders = _settings.CustomHeaders.Select(x => x.ToString()).ToArray(); }
             }
-            _dataSourceName = (String.IsNullOrEmpty(_cursor.View)) ? _cursor.Category : _cursor.View;
+            _dataSourceName = (string.IsNullOrEmpty(_cursor.View)) ? _cursor.Category : _cursor.View;
             _cursor.SeekRow(CmcCursorBookmark.Beginning, 0); // put rowpointer on first item
         }
 

@@ -185,7 +185,7 @@ namespace Vovin.CmcLibNet.Export
             }
 
             // start the data retrieval process that fires the events we'll respond to
-            base.ReadCommenceData(); 
+            base.ReadCommenceData();
         }
 
         private void ClearSheet(string sheetName)
