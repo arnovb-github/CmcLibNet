@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -156,12 +157,12 @@ namespace Vovin.CmcLibNet.Database
         public override object[] GetRow(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default)
         {
             object[] retval = null;
-            string[] result = null;
 
             try
             {
-                result = _qrs.GetRow(nRow, base.Delim, (int)flags).Split(base._splitter, StringSplitOptions.None);
-                retval = toObjectArray(result);
+                retval = _qrs.GetRow(nRow, base.Delim, (int)flags)
+                    .Split(base._splitter, StringSplitOptions.None)
+                    .ToArray<object>();
             }
             catch (COMException)
             {

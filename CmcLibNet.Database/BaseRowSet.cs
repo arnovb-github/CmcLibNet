@@ -65,18 +65,6 @@
         protected string Delim { get { return CMC_DELIM; } }
 
         /// <summary>
-        /// Creates object array from string array.
-        /// </summary>
-        /// <param name="input">string array.</param>
-        /// <returns>object array that can be consumed by COM clients such as VBScript.</returns>
-        protected internal static object[] toObjectArray(string[] input)
-        {
-            object[] objArray = new object[input.Length];
-            input.CopyTo(objArray, 0);
-            return objArray;
-        }
-
-        /// <summary>
         /// Dispose method
         /// </summary>
         public void Dispose()
