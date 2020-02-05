@@ -77,7 +77,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Make values ISO8601-compliant.
         /// </summary>
-        bool XSDCompliant { get; set; }
+        bool ISO8601Compliant { get; set; }
         ///// <summary>
         ///// XML Schema Definition file associated with XML export. This property is not intended for use in your code. It is exposed publicly to fulfill COM Interop requirements. Setting this property has no effect.
         ///// </summary>

@@ -64,7 +64,7 @@ namespace Vovin.CmcLibNet.Export
             // override any user settings
             // let the OleDb driver do it's magic
             base._settings.Canonical = false;
-            base._settings.XSDCompliant = false;
+            base._settings.ISO8601Compliant = false;
 
             sheetName = Utils.EscapeString(_dataSourceName, "_");
             Dictionary<string, string> columnMap = ColumnMap;

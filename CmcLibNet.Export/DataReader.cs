@@ -44,7 +44,7 @@ namespace Vovin.CmcLibNet.Export
             }
             this.columnDefinitions = columndefinitions;
             regex = new Regex(pattern);
-            if (this.settings.XSDCompliant)
+            if (this.settings.ISO8601Compliant)
             {
                 this.Formatting = ValueFormatting.XSD_ISO8601;
             }

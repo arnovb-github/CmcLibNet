@@ -20,7 +20,7 @@ namespace Vovin.CmcLibNet.Export
             _ds = base.CreateDataSetFromCursorColumns();
             _filename = fileName;
             base._settings.Canonical = true; // TODO fails on large numbers with . or ,
-            base._settings.XSDCompliant = false; // TODO when set to true, ADO.NET doesn't get it
+            base._settings.ISO8601Compliant = false; // TODO when set to true, ADO.NET doesn't get it
             base.ReadCommenceData();
         }
 

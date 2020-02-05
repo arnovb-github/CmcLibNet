@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Export
     {
         private bool _useThids = false;
         private object[] _customHeaders = null;
-        private bool _xsdcompliant =  false;
+        private bool _iso8601compliant =  false;
         private int _maxrows = (int)Math.Pow(2, 10); // 1024
         private int _maxfieldsize = (int)Math.Pow(2, 19); // that is ~500.000
 
@@ -63,13 +63,13 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public string TextQualifier { get; set; } = "\"";
         /// <inheritdoc />
-        public bool XSDCompliant
+        public bool ISO8601Compliant
         {
-            get { return _xsdcompliant; }
+            get { return _iso8601compliant; }
             set
             {
-                _xsdcompliant = value;
-                if (_xsdcompliant) { this.Canonical = true; }
+                _iso8601compliant = value;
+                if (_iso8601compliant) { this.Canonical = true; }
             }
         }
 
