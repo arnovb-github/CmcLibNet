@@ -107,15 +107,7 @@ namespace Vovin.CmcLibNet.Export
                     using (_writer = this.GetExportWriter(cur, settings))
                     {
                         SubscribeToWriterEvents(_writer);
-                        switch (settings.ExportFormat)
-                        {
-                            case ExportFormat.Excel:
-                                _writer.WriteOut(fileName);
-                                break;
-                            default:
-                                _writer.WriteOut(fileName);
-                                break;
-                        }
+                        _writer.WriteOut(fileName);
                     }
                 }
             }
@@ -148,32 +140,6 @@ namespace Vovin.CmcLibNet.Export
                 ExportCursor(cur, fileName, this.Settings);
             }
         }
-
-        ///// <inheritdoc />
-        //public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
-        //{
-        //    if (settings != null) { this.Settings = settings; } // use custom settings if supplied
-        //    CmcOptionFlags flags = (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
-        //    if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
-        //    {
-        //        // User requested we skip connections.
-        //        // A default cursor on a category contains all fields *and* connections.
-        //        // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
-        //        // We optimize here by only including direct fields in the cursor
-        //        using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
-        //        {
-        //            ExportCursor(cur, fileName, this.Settings);
-        //        }
-        //    }
-        //    else // TODO process cursor so as to use SetRelatedColumn
-        //    {
-        //    flags = flags | CmcOptionFlags.All; // slap on some more flags
-        //    using (ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category,flags))
-        //        {
-        //            ExportCursor(cur, fileName, this.Settings);
-        //        }
-        //    }
-        //}
 
         /// <inheritdoc />
         public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
