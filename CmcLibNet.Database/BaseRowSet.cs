@@ -70,7 +70,7 @@
         public void Dispose()
         {
             Dispose(true);
-            System.GC.SuppressFinalize(this); 
+            System.GC.SuppressFinalize(this);
         }
 
         // Protected implementation of Dispose pattern.
@@ -92,5 +92,16 @@
             //
             disposed = true;
         }
+
+        //// we *could* bring all methods and properties that all ICommenceXRowset share to the base class
+        //// by using the below implementation. Would make the code more DRY
+        //// It would work but is very hard to debug because of the dynamic keyword.
+        //// Also, it makes code slightly slower.
+        //protected internal object[] GetRow(dynamic rs, int nRow, CmcOptionFlags flags = CmcOptionFlags.Default)
+        //{
+        //    return ((string)rs.GetRow(nRow, Delim, (int)flags))
+        //        .Split(_splitter, StringSplitOptions.None)
+        //        .ToArray<object>();
+        //}
     }
 }

@@ -778,8 +778,8 @@ namespace Vovin.CmcLibNet.Database
                 object[] buffer = null;
                 int numColumns = qrs.ColumnCount; // store number of columns so we only need 1 COM call; makes method much faster
                 int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // determine the rowpointer we are currently at
-
-                for (int i = 0; i < qrs.RowCount; i++)
+                int numRows = qrs.RowCount; // store number of rows to be read so we need only 1 COM call
+                for (int i = 0; i < numRows; i++)
                 {
                     rowvalues[i] = new string[numColumns + 1]; // number of columns plus extra element for thid
                     if (this.Flags.HasFlag(CmcOptionFlags.UseThids)) // do not make the extra API call unless requested
