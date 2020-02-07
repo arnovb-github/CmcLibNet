@@ -151,11 +151,12 @@ namespace Vovin.CmcLibNet.Export
             // A default cursor on a category contains all fields *and* connections.
             // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
             // We optimize here by only including direct fields in the cursor
-
-            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
+            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel) // TODO: get rid of the HeaderMode check
             {
                 using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
                 {
+                    // we can limit MAX_FIELD_SIZE in this case
+                    this.Settings.MaxFieldSize = (int)Math.Pow(2, 15); // 32.768‬, the built-in Commence max fieldsize is 30.000
                     ExportCursor(cur, fileName, this.Settings);
                 }
             }
