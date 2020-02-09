@@ -226,7 +226,7 @@ namespace Vovin.CmcLibNet.Export
                 }
                 else
                 {
-                    dc = dt.Columns.Add("DirectValue" + dt.Columns.Count.ToString(), Utils.GetTypeForCommenceField(cd.CommenceFieldDefinition.Type));
+                    dc = dt.Columns.Add("DirectValue" + dt.Columns.Count.ToString(), cd.CommenceFieldDefinition.Type.GetTypeForCommenceField());
                 }
                 dc.Caption = caption;
                 dc.AllowDBNull = true;
