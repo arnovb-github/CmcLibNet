@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -137,7 +138,7 @@ namespace Vovin.CmcLibNet.Export
                 }
                 else
                 {
-                    sb2.Append(Utils.GetOleDbTypeStringForCommenceField(cd.CommenceFieldDefinition.Type).ToUpper());
+                    sb2.Append(cd.CommenceFieldDefinition.Type.GetOleDbTypeStringForCommenceField().ToUpper());
                 }
 
                 fielddefs.Add(sb2.ToString());

@@ -156,7 +156,7 @@ namespace Vovin.CmcLibNet.Export
                     {
                         string value = Utils.RemoveControlCharacters(v.DirectFieldValue);
                         value = FitExcelCellValue(value);
-                        c.DataType = Utils.GetTypeForOpenXml(v.ColumnDefinition.CommenceFieldDefinition.Type); // inline strings cannot deal with line breaks
+                        c.DataType = v.ColumnDefinition.CommenceFieldDefinition.Type.GetTypeForOpenXml(); // inline strings cannot deal with line breaks
                         if (v.DirectFieldValue.Contains("\r\n"))
                         {
                             c.DataType = CellValues.String; // inline strings cannot deal with line breaks
