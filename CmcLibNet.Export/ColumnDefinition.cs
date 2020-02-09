@@ -2,6 +2,7 @@
 using System.Data.OleDb;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Database.Metadata;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -42,8 +43,8 @@ namespace Vovin.CmcLibNet.Export
         internal string CustomColumnLabel { get; set; }
         internal string Delimiter { get; private set; }
 
-        internal DbType DbType => Utils.GetDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
-        internal OleDbType OleDbType => Utils.GetOleDbTypeForCommenceField(this.CommenceFieldDefinition.Type);
+        internal DbType DbType => this.CommenceFieldDefinition.Type.GetDbTypeForCommenceField();
+        internal OleDbType OleDbType => this.CommenceFieldDefinition.Type.GetOleDbTypeForCommenceField();
 
         internal ICommenceFieldDefinition CommenceFieldDefinition
         {

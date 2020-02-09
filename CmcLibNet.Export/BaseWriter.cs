@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -337,7 +338,7 @@ namespace Vovin.CmcLibNet.Export
                         throw;
                     }
                     // set column properties
-                    dc.DataType = Utils.GetTypeForCommenceField(td.ColumnDefinitions[j].CommenceFieldDefinition.Type);
+                    dc.DataType = td.ColumnDefinitions[j].CommenceFieldDefinition.Type.GetTypeForCommenceField();
                     dc.AllowDBNull = true; // this is default, but setting it explicitly makes it more clear.
                 }
             }
@@ -345,12 +346,11 @@ namespace Vovin.CmcLibNet.Export
             // as it is, we don't know what our 'primary' table is at this point in the code
             // all we know it is the only table without a fkid field, but that's a little awkward to check.
             // we hack that by having a 'mock' primary table variable.
-            List<DataRelation> relations = null;
+            List<DataRelation> relations = new List<DataRelation>();
             foreach (DataTable d in retval.Tables)
             {
                 if (!d.Equals(primaryTable))
                 {
-                    if (relations == null) { relations = new List<DataRelation>(); }
                     DataRelation r = new DataRelation("rel_" + d.TableName,
                         primaryTable.TableName,
                         d.TableName,
@@ -364,7 +364,7 @@ namespace Vovin.CmcLibNet.Export
             // tricky snag found on https://msdn.microsoft.com/en-us/library/2z22c2sz.aspx
             // "Any DataRelation object created by using this constructor must be added to the collection
             // with the AddRange method inside of a BeginInit and EndInit block.
-            if (relations != null)
+            if (relations.Any())
             {
                 retval.BeginInit();
                 retval.Relations.AddRange(relations.ToArray());

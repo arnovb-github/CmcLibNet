@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.OleDb;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -78,106 +77,125 @@ namespace Vovin.CmcLibNet
             return default(T); // returns the default value. May be hard to debug!
         }
 
-        /// <summary>
-        /// Gets the System.Type for the Commence fieldtype
-        /// </summary>
-        /// <param name="fieldType">Commence field type</param>
-        /// <returns>System.Type</returns>
-        internal static Type GetTypeForCommenceField(CommenceFieldType fieldType)
-        {
-            // String type DataTable columns can be specified to have a certain length,
-            // but by default they take any length,
-            // so there is no need to request the length from Commence.
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence: // when a sequence is gotten canonical it will contain decimals
-                    return typeof(double);
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return typeof(DateTime);
-                case CommenceFieldType.Checkbox:
-                    return typeof(bool);
-                default:
-                    return typeof(string);
-            }
-        }
+        ///// <summary>
+        ///// Gets the System.Type for the Commence fieldtype
+        ///// </summary>
+        ///// <param name="fieldType">Commence field type</param>
+        ///// <returns>System.Type</returns>
+        //internal static Type GetTypeForCommenceField(CommenceFieldType fieldType)
+        //{
+        //    // String type DataTable columns can be specified to have a certain length,
+        //    // but by default they take any length,
+        //    // so there is no need to request the length from Commence.
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence: // when a sequence is gotten canonical it will contain decimals
+        //            return typeof(double);
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return typeof(DateTime);
+        //        case CommenceFieldType.Checkbox:
+        //            return typeof(bool);
+        //        default:
+        //            return typeof(string);
+        //    }
+        //}
 
-        [Obsolete]
-        internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(CommenceFieldType fieldType)
+        //[Obsolete]
+        //internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number;
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
+        //        case CommenceFieldType.Checkbox:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
+        //        default:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.String; // should ideally be SharedString for filesize
+        //    }
+        //}
+
+        //internal static string GetOleDbTypeStringForCommenceField(CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return "double";
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return "datetime";
+        //        case CommenceFieldType.Checkbox:
+        //            return "bit";
+        //        case CommenceFieldType.Name:
+        //            return "char (50)";
+        //        default:
+        //            return "memo"; // just make it big :)
+        //    }
+        //}
+
+        //internal static DbType GetDbTypeForCommenceField(CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return DbType.Double;
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return DbType.DateTime;
+        //        case CommenceFieldType.Checkbox:
+        //            return DbType.Boolean;
+        //        default:
+        //            return DbType.String;
+        //    }
+        //}
+
+        // TODO rewrite these GetTypeBlabla methods as extension methods 
+        internal static string GetSQLiteTypeForCommenceField(CommenceFieldType fieldType)
         {
             switch (fieldType)
             {
                 case CommenceFieldType.Number:
                 case CommenceFieldType.Calculation:
                 case CommenceFieldType.Sequence:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number;
+                    return "REAL";
                 case CommenceFieldType.Date:
                 case CommenceFieldType.Time:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
+                    return "TEXT";
                 case CommenceFieldType.Checkbox:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
+                    return "INTEGER";
                 default:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.String; // should ideally be SharedString for filesize
+                    return "TEXT";
             }
         }
 
-        internal static string GetOleDbTypeStringForCommenceField(CommenceFieldType fieldType)
-        {
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence:
-                    return "double";
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return "datetime";
-                case CommenceFieldType.Checkbox:
-                    return "bit";
-                case CommenceFieldType.Name:
-                    return "char (50)";
-                default:
-                    return "memo"; // just make it big :)
-            }
-        }
-
-        internal static DbType GetDbTypeForCommenceField(CommenceFieldType fieldType)
-        {
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence:
-                    return DbType.Double;
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return DbType.DateTime;
-                case CommenceFieldType.Checkbox:
-                    return DbType.Boolean;
-                default:
-                    return DbType.String;
-            }
-        }
-
-        internal static OleDbType GetOleDbTypeForCommenceField(CommenceFieldType fieldType)
-        {
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence:
-                    return OleDbType.Double;
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return OleDbType.Date;
-               case CommenceFieldType.Checkbox:
-                    return OleDbType.Boolean;
-                default:
-                    return OleDbType.LongVarWChar;
-            }
-        }
+        //internal static OleDbType GetOleDbTypeForCommenceField(CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return OleDbType.Double;
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return OleDbType.Date;
+        //       case CommenceFieldType.Checkbox:
+        //            return OleDbType.Boolean;
+        //        default:
+        //            return OleDbType.LongVarWChar;
+        //    }
+        //}
 
         /// <summary>
         /// Replace all non-letter and non-digit characters.
