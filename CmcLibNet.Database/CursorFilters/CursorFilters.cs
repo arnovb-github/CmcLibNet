@@ -96,7 +96,7 @@ namespace Vovin.CmcLibNet.Database
     {
         private Database.ICommenceCursor _cur = null;
         private List<ICursorFilter> _filters = new List<ICursorFilter>();
-        private const int _MAX_FILTERS = 8;
+        //private const int _MAX_FILTERS = 8;
 
         #region Constructors
         /// <summary>
@@ -122,7 +122,7 @@ namespace Vovin.CmcLibNet.Database
             // However, we can sort of get away with using the 'dynamic' keyword.
             // .Net consumers will still need to cast the type, but at least it should be 'visible'(?verify!)
 
-            if (_filters.Count() == _MAX_FILTERS)
+            if (_filters.Count() == CommenceLimits.MaxFilters)
             {
                 throw new IndexOutOfRangeException("Maximum number of filters in use (" + _filters.Count().ToString() + ").");
             }
