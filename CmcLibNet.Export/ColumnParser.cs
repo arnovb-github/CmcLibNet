@@ -14,7 +14,8 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Delimiter Commence returns in columnlabels when requested from a view.
         /// </summary>
-        private const string connDelim = "%%";
+        private readonly string connDelim = "%%";
+        internal static string thidIdentifier = "THID"; // a bit dangerous, a database *could* have a field already named THID
 
         /// <summary>
         /// Collection of <see cref="ColumnDefinition"/> objects that hold information on a column.
@@ -72,10 +73,10 @@ namespace Vovin.CmcLibNet.Export
             // this is a little tricky
             if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                ColumnDefinition cd = new ColumnDefinition(db, 0, "thid");
-                cd.FieldName = "thid";
-                cd.CustomColumnLabel = "thid";
-                cd.ColumnLabel = "thid";
+                ColumnDefinition cd = new ColumnDefinition(db, 0, thidIdentifier);
+                cd.FieldName = thidIdentifier;
+                cd.CustomColumnLabel = thidIdentifier;
+                cd.ColumnLabel = thidIdentifier;
                 cd.Category = _cursor.Category;
                 _columnDefinitions.Add(cd);
             }
