@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Export
     // The ComSourceInterfacesAttribute is the key to
     // exposing COM events from a managed class.
     [ComSourceInterfaces(typeof(IExportEngineCOMEvents))]
-    public class ExportEngine : IExportEngine //note that we do not inherit from IExportEngineEvents!
+    public class ExportEngine : IExportEngine
     {
         /// <summary>
         /// ExportProgressChanged event for outside assemblies.
@@ -94,7 +94,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     /* Nested exports for Json.
                      * Internally, all returned Commence data are first put into a ADO.NET dataset.
-                     * Then that dataset is serialzed yo the JSON .
+                     * Then that dataset is serialized to the JSON .
                      */
                     using (_writer = new AdoNetWriter(cur, settings))
                     {
@@ -115,30 +115,39 @@ namespace Vovin.CmcLibNet.Export
             {
                 ps.EnableConstantDisplayAndPower(false);
                 UnsubscribeToWriterEvents(_writer);
+                _writer?.Dispose();
             }
         }
 
         private void SubscribeToWriterEvents(BaseWriter w)
         {
-            w.ExportProgressChanged += (s, e) => HandleExportProgressChanged(s, e);
-            w.ExportCompleted += (s, e) => HandleExportCompleted(s, e);
+            if (w != null)
+            {
+                w.ExportProgressChanged += (s, e) => HandleExportProgressChanged(s, e);
+                w.ExportCompleted += (s, e) => HandleExportCompleted(s, e);
+            }
         }
 
         private void UnsubscribeToWriterEvents(BaseWriter w)
         {
-            w.ExportProgressChanged -= (s, e) => HandleExportProgressChanged(s, e);
-            w.ExportCompleted -= (s, e) => HandleExportCompleted(s, e);
+            if (w != null)
+            {
+                w.ExportProgressChanged -= (s, e) => HandleExportProgressChanged(s, e);
+                w.ExportCompleted -= (s, e) => HandleExportCompleted(s, e);
+            }
         }
 
         /// <inheritdoc />
         public void ExportView(string viewName, string fileName, IExportSettings settings = null)
         {
-            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
+
             if (settings != null) { this.Settings = settings; } // store custom settings
-            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, (this.Settings.UseThids) ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
+            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
+            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, this.Settings.UseThids ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
             {
                 ExportCursor(cur, fileName, this.Settings);
             }
+
         }
 
         /// <inheritdoc />
@@ -173,7 +182,7 @@ namespace Vovin.CmcLibNet.Export
                     ExportCursor(cur, fileName, this.Settings);
                 }
             }
-                
+
         }
 
         private ICommenceCursor GetCategoryCursorAllFieldsAndConnections(string categoryName, CmcOptionFlags flags)
@@ -193,7 +202,7 @@ namespace Vovin.CmcLibNet.Export
             return cur;
         }
 
-        private ICommenceCursor GetCategoryCursorFieldsOnly(string categoryName, CmcOptionFlags flags )
+        private ICommenceCursor GetCategoryCursorFieldsOnly(string categoryName, CmcOptionFlags flags)
         {
             ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
             string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
@@ -227,6 +236,11 @@ namespace Vovin.CmcLibNet.Export
         /// <remarks>Defaults to XML.</remarks>
         internal BaseWriter GetExportWriter(ICommenceCursor cursor, IExportSettings settings)
         {
+            if (settings.PreserveAllConnections)
+            {
+                return new Complex.SQLiteWriter(cursor, settings);
+            }
+
             switch (settings.ExportFormat)
             {
                 case ExportFormat.Text:
@@ -250,7 +264,7 @@ namespace Vovin.CmcLibNet.Export
                     // will probably always be too slow
                     throw new NotImplementedException();
                 default:
-                    return  new XmlWriter(cursor, settings);
+                    return new XmlWriter(cursor, settings);
             }
         }
         #endregion
@@ -308,7 +322,6 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Properties
-
         /// <inheritdoc />
         public IExportSettings Settings
         {
@@ -322,7 +335,6 @@ namespace Vovin.CmcLibNet.Export
                 _settings = value;
             }
         }
-
         #endregion
     }
 }

@@ -12,27 +12,44 @@ namespace Vovin.CmcLibNet.Export
     [ComDefaultInterface(typeof(IExportSettings))]
     public class ExportSettings : IExportSettings
     {
+        private bool _canonical;
         private bool _useThids = false;
         private object[] _customHeaders = null;
         private bool _iso8601compliant =  false;
         private int _maxrows = (int)Math.Pow(2, 10); // 1024
-        private int _maxfieldsize = (int)Math.Pow(2, 19); // that is ~500.000
+        private int _maxfieldsize = (int)Math.Pow(2, 19); // roughly ~500.000
 
         /// <inheritdoc />
-        public bool Canonical { get; set; } = false;
+        public bool Canonical
+        {
+            get
+            {
+                if (this.ISO8601Compliant) { _canonical = true; }
+                return _canonical;
+            }
+            set
+            {
+                _canonical = value;
+            }
+        }
         /// <inheritdoc />
         public bool UseThids
         {
             get
             {
-                if (this.PreserveAllConnections) { _useThids = false; } // override
+                if (this.UseDDE) { _useThids = false; } // override
+                if (this.PreserveAllConnections) { _useThids = true; } // override
                 return _useThids;
             }
             set
             {
+                UserRequestedThids = value;
                 _useThids = value;
             }
         }
+
+        // invisible to outside
+        internal bool UserRequestedThids { get; set; } // for use in ComplexWriter
         /// <inheritdoc />
         public HeaderMode HeaderMode { get; set; } = HeaderMode.Fieldname;
         /// <inheritdoc />
@@ -65,11 +82,14 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public bool ISO8601Compliant
         {
-            get { return _iso8601compliant; }
+            get
+            {
+                if (this.PreserveAllConnections) { _iso8601compliant = true; }
+                return _iso8601compliant;
+            }
             set
             {
                 _iso8601compliant = value;
-                if (_iso8601compliant) { this.Canonical = true; }
             }
         }
 
@@ -80,7 +100,7 @@ namespace Vovin.CmcLibNet.Export
         public bool NestConnectedItems { get; set; }
 
         /// <inheritdoc />
-        public bool PreserveAllConnections { get; set; }
+        public bool UseDDE { get; set; }
 
         /// <inheritdoc />
         public bool IncludeConnectionInfo { get; set; }
@@ -123,5 +143,7 @@ namespace Vovin.CmcLibNet.Export
         public bool ReadCommenceDataAsync { get; set; } = true;
         /// <inheritdoc />
         public string CustomRootNode { get; set; }
+        /// <inheritdoc />
+        public bool PreserveAllConnections { get; set; } = false;
     }
 }

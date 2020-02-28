@@ -50,17 +50,13 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         protected internal List<string> _exportHeaders = null;
         /// <summary>
+        /// Disposed flag for use with IDisposable.
+        /// </summary>
+        private bool disposed = false;
+        /// <summary>
         /// Datareader object.
         /// </summary>
         private DataReader dr = null;
-        /// <summary>
-        /// Disposed flag for use with IDisposable.
-        /// </summary>
-        bool disposed = false;
-        ///// <summary>
-        ///// Used for creating unique labels for columnnames if they contain duplicates.
-        ///// </summary>
-        //string _label = null;
         #endregion
 
         #region Constructors
@@ -79,7 +75,10 @@ namespace Vovin.CmcLibNet.Export
             // this check is very important
             if (_settings.HeaderMode == HeaderMode.CustomLabel)
             {
-                if (ValidCustomHeaders(_settings.CustomHeaders.Select(x => x.ToString()).ToArray())) { _customColumnHeaders = _settings.CustomHeaders.Select(x => x.ToString()).ToArray(); }
+                if (ValidCustomHeaders(_settings.CustomHeaders.Select(x => x.ToString()).ToArray()))
+                {
+                    _customColumnHeaders = _settings.CustomHeaders.Select(x => x.ToString()).ToArray();
+                }
             }
             _dataSourceName = (string.IsNullOrEmpty(_cursor.View)) ? _cursor.Category : _cursor.View;
             _cursor.SeekRow(CmcCursorBookmark.Beginning, 0); // put rowpointer on first item
@@ -135,7 +134,7 @@ namespace Vovin.CmcLibNet.Export
             dr.DataProgressChanged += (s, e) => HandleProcessedDataRows(s, e);
             dr.DataReadCompleted += (s, e) => HandleDataReadComplete(s, e);
 
-            if (this._settings.PreserveAllConnections)
+            if (this._settings.UseDDE)
             {
                 dr.GetDataByDDE(this.GetTableInfoFromCursorColumns());
             }
@@ -270,6 +269,7 @@ namespace Vovin.CmcLibNet.Export
         }
 
         // only used with ADO writers
+        // TODO this method can be greatly simplified
         protected internal DataSet CreateDataSetFromCursorColumns()
         { 
             DataSet retval = null;
@@ -406,7 +406,7 @@ namespace Vovin.CmcLibNet.Export
         public void Dispose()
         {
             Dispose(true);
-            System.GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -505,6 +505,8 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         protected internal List<ColumnDefinition> ColumnDefinitions
         {
+            // TODO: this should probably better be a property of CommenceCursor
+
             // create _headerLists just once!
             get
             {
@@ -522,6 +524,10 @@ namespace Vovin.CmcLibNet.Export
                     _columnInfo = cp.ParseColumns();
                 }
                 return _columnInfo;
+            }
+            set // added after introduction of SqliteWriter, which recreates cursors on the fly
+            {
+                _columnInfo = value;
             }
         }
 

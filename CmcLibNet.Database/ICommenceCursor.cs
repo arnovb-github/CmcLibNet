@@ -282,6 +282,10 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="fileName">(Fully qualified) filename. Overwrites existing file.</param>
         /// <param name="settings">Settings object.</param>
+        /// <remarks>
+        /// The <see cref="Export.IExportSettings.PreserveAllConnections"/> options is ignored in this method.
+        /// Alternatively, but extremely slow, you can use either the <see cref="Export.IExportSettings.UseDDE"/> option or crank up the 
+        /// <see cref="Export.IExportSettings.MaxFieldSize"/> value and hope you have enough RAM memory.</remarks>
         void ExportToFile(string fileName, Export.IExportSettings settings = null);
 
         /// <summary>

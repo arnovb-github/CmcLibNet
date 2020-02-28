@@ -160,24 +160,24 @@ namespace Vovin.CmcLibNet
         //    }
         //}
 
-        // TODO rewrite these GetTypeBlabla methods as extension methods 
-        internal static string GetSQLiteTypeForCommenceField(CommenceFieldType fieldType)
-        {
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence:
-                    return "REAL";
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return "TEXT";
-                case CommenceFieldType.Checkbox:
-                    return "INTEGER";
-                default:
-                    return "TEXT";
-            }
-        }
+        //// TODO rewrite these GetTypeBlabla methods as extension methods 
+        //internal static string GetSQLiteTypeForCommenceField(CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return "REAL";
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return "TEXT";
+        //        case CommenceFieldType.Checkbox:
+        //            return "INTEGER";
+        //        default:
+        //            return "TEXT";
+        //    }
+        //}
 
         //internal static OleDbType GetOleDbTypeForCommenceField(CommenceFieldType fieldType)
         //{

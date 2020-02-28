@@ -95,8 +95,12 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <remarks>Should only be used as a last resort, as this can take a *very* long time.
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
-        /// The Commence API only returns a limited number of characters by default; note that the limit is settable <see cref="Database.CommenceCursor.MaxFieldSize"/>.
-        /// This setting will request the connected items one by one.</para></remarks>
+        /// This setting will request the connected items one by one. <seealso cref="PreserveAllConnections"/></para></remarks>
+        bool UseDDE { get; set; }
+        /// <summary>
+        /// Include all connected items
+        /// </summary>
+        /// <remarks>Use this if connected data is truncated. Will be significantly slower due to multiple data reads.</remarks>
         bool PreserveAllConnections { get; set; }
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.

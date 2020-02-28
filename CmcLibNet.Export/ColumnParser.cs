@@ -33,7 +33,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Captures incoming list of custom headers, if any.
         /// </summary>
-        private string[] _customHeaders = null;
+        private readonly string[] _customHeaders = null;
         /// <summary>
         /// Cursor object.
         /// </summary>
@@ -58,9 +58,9 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         protected internal List<ColumnDefinition> ParseColumns()
         {
-            Database.ICommenceDatabase db = new Database.CommenceDatabase();
-            _connNames = db.GetConnectionNames(_cursor.Category); // retrieve all connections for current category. Used to check columns against.
             _columnDefinitions = new List<ColumnDefinition>();
+            ICommenceDatabase db = new CommenceDatabase(); // can't use using here, because we would close the database prematurely and lose our cursor. Not sure why that happens, it is a new reference?.
+            _connNames = db.GetConnectionNames(_cursor.Category); // retrieve all connections for current category. Used to check columns against.
 
             if (_connNames != null) // there are connections
             {
@@ -73,11 +73,14 @@ namespace Vovin.CmcLibNet.Export
             // this is a little tricky
             if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                ColumnDefinition cd = new ColumnDefinition(db, 0, thidIdentifier);
-                cd.FieldName = thidIdentifier;
-                cd.CustomColumnLabel = thidIdentifier;
-                cd.ColumnLabel = thidIdentifier;
-                cd.Category = _cursor.Category;
+                ColumnDefinition cd = new ColumnDefinition(db, 0, thidIdentifier)
+                {
+                    FieldName = thidIdentifier,
+                    CustomColumnLabel = thidIdentifier,
+                    ColumnLabel = thidIdentifier,
+                    Category = _cursor.Category,
+                    CommenceFieldDefinition = new CommenceFieldDefinition() // provide empty definition to prevent DDEException on GetFieldDefinition
+                };
                 _columnDefinitions.Add(cd);
             }
 
@@ -106,6 +109,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                 }
             }
+
             return _columnDefinitions;
         }
 

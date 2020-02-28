@@ -640,6 +640,11 @@ namespace Vovin.CmcLibNet.Database
         {
             Export.ExportEngine exportEngine = new Export.ExportEngine();
             if (settings != null) { exportEngine.Settings = settings; } // store custom settings
+            // override setting, we would lose filter (if any) on the cursor if it was on a category
+            if (this.CursorType == CmcCursorType.Category)
+            {
+                exportEngine.Settings.PreserveAllConnections = false;
+            }
             exportEngine.ExportCursor(this, fileName, exportEngine.Settings);
         }
 

@@ -14,6 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,12 +30,13 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
     <LangVersion>default</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RegisterForComInterop>true</RegisterForComInterop>
@@ -65,6 +68,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data.SQLite, Version=1.0.112.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.112.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
@@ -75,6 +81,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmcLibNet.Attributes\StringValueAttibute.cs" />
     <Compile Include="CmcLibNet.Database\CmcCursorBookmark.cs" />
     <Compile Include="CmcLibNet.Database\CmcCursorType.cs" />
     <Compile Include="CmcLibNet.Database\CmcLinkMode.cs" />
@@ -111,6 +118,10 @@
     <Compile Include="CmcLibNet.Database\Metadata\MetaDataOptions.cs" />
     <Compile Include="CmcLibNet.Database\RelatedColumnType.cs" />
     <Compile Include="CmcLibNet.Database\RowSetIdentifier.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\CursorFactory.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\CursorParameters.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\SQLiteWriter.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\SqlMap.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
     <Compile Include="CmcLibNet.Export\ExcelUpdateOptions.cs" />
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingEPPlus.cs" />
@@ -118,13 +129,16 @@
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingOpenXml.cs" />
     <Compile Include="CmcLibNet.Export\ExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\ExportFormat.cs" />
+    <Compile Include="CmcLibNet.Export\ExportProgressAsStringChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\HeaderMode.cs" />
     <Compile Include="CmcLibNet.Export\IExportCompleteArgs.cs" />
+    <Compile Include="CmcLibNet.Export\IExportProgressAsStringChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\LabelType.cs" />
     <Compile Include="CmcLibNet.Export\OleDbConnections.cs" />
     <Compile Include="CmcLibNet.Export\ValueFormatting.cs" />
     <Compile Include="CmcLibNet.Export\XmlWriter.cs" />
+    <Compile Include="CmcLibNet.Extensions\CommenceFieldTypeExtension.cs" />
     <Compile Include="CmcLibNet.Extensions\EnumExtensions.cs" />
     <Compile Include="CmcLibNet.Extensions\StringExtensions.cs" />
     <Compile Include="CmcLibNet.Services\UI\FilePicker.cs" />
@@ -132,6 +146,7 @@
     <Compile Include="CmcLibNet\Application.cs" />
     <Compile Include="CmcLibNet\AssemblyInfo.cs" />
     <Compile Include="CmcLibNet\CommenceApp.cs" />
+    <Compile Include="CmcLibNet\CommenceLimits.cs" />
     <Compile Include="CmcLibNet\IApplication.cs" />
     <Compile Include="CmcLibNet\PowerSavings.cs" />
     <Compile Include="CmcLibNet\RcwReleasePublisher.cs" />
@@ -159,7 +174,6 @@
     <Compile Include="CmcLibNet.Export\BaseWriter.cs" />
     <Compile Include="CmcLibNet.Export\ColumnDefinition.cs" />
     <Compile Include="CmcLibNet.Export\ColumnParser.cs" />
-    <Compile Include="CmcLibNet.Export\ExportProgressAsJsonChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValue.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValueConverter.cs" />
     <Compile Include="CmcLibNet.Export\DataSetExporter.cs" />
@@ -231,7 +245,15 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.112.0\build\net45\System.Data.SQLite.Core.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

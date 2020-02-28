@@ -16,7 +16,7 @@
         /// <summary>
         /// Maximum length of a THID.
         /// </summary>
-        internal static int ThidLength => 20;
+        internal static int ThidLength => 21;
         /// <summary>
         /// Maximum number of characters a large text field can contain.
         /// </summary>
@@ -41,5 +41,9 @@
         /// Maximum number of filters that can be defined on a cursor
         /// </summary>
         internal static int MaxFilters => 8;
+        /// <summary>
+        /// Default maximum number of characters returned for connections in a cursor
+        /// </summary>
+        internal static int DefaultMaxFieldSize => 93750;
     }
 }
