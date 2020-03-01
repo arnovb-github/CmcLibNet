@@ -506,6 +506,7 @@ namespace Vovin.CmcLibNet.Export
         protected internal List<ColumnDefinition> ColumnDefinitions
         {
             // TODO: this should probably better be a property of CommenceCursor
+            // it means substantial rewriting
 
             // create _headerLists just once!
             get
@@ -564,11 +565,6 @@ namespace Vovin.CmcLibNet.Export
                 return _exportHeaders;
             }
         }
-        ///// <summary>
-        ///// Keeps track of what row was read in the cursor.
-        ///// </summary>
-        //protected internal int CurrentRow { get; internal set; }
-
         #endregion
     }
 }

@@ -45,8 +45,10 @@ namespace Vovin.CmcLibNet.Export
         private void ExportXML(DataSet ds)
         {
             // interesting fact: even with a schema included, Excel can't deal with the resulting XML!
-            XmlWriterSettings xws = new XmlWriterSettings();
-            xws.Indent = true;
+            XmlWriterSettings xws = new XmlWriterSettings
+            {
+                Indent = true
+            };
             using (System.Xml.XmlWriter xw = System.Xml.XmlWriter.Create(_filename, xws))
             {
                 _ds.WriteXml(xw, XmlWriteMode.WriteSchema); // write XML schema as well.
