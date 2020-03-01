@@ -68,7 +68,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                     else
                     {
-                        string s = (v.DirectFieldValue != null) ? v.DirectFieldValue : string.Join(base._settings.TextDelimiterConnections, v.ConnectedFieldValues);
+                        string s = v.DirectFieldValue ?? string.Join(base._settings.TextDelimiterConnections, v.ConnectedFieldValues);
                         sb.Append("<td class=\"cmclibnet-value\" id=\"r" + _rowcounter + "c" + colcounter + "\">" + HtmlEncode(s) + "</td>");
                     }
                 } // foreach
