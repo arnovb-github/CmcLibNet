@@ -354,7 +354,7 @@ namespace Vovin.CmcLibNet.Export
                         {
                             //string canonical = GetCanonicalCommenceValue(retval[i], cd.FieldType);
                             string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
-                            retval[i] = CommenceValueConverter.toIso8601(canonical, cd.CommenceFieldDefinition.Type);
+                            retval[i] = CommenceValueConverter.ToIso8601(canonical, cd.CommenceFieldDefinition.Type);
                         }
                     }
                     break;

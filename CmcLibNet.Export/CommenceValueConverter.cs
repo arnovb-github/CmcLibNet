@@ -109,7 +109,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="canonicalValue">canonical Commence value.</param>
         /// <param name="fieldType">Commence fieldtype.</param>
         /// <returns></returns>
-        internal static string toIso8601(string canonicalValue, CommenceFieldType fieldType)
+        internal static string ToIso8601(string canonicalValue, CommenceFieldType fieldType)
         {
             // assumes Commence data in value are already in canonical format!
             if (string.IsNullOrEmpty(canonicalValue)) { return canonicalValue; }
