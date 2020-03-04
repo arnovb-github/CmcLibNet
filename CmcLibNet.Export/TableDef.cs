@@ -8,24 +8,16 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal class TableDef
     {
-        List<ColumnDefinition> _columnDefinitions = null;
-
         internal TableDef(string name, string category, bool primary = false)
         {
-            _columnDefinitions = new List<ColumnDefinition>();
-            this.Name = name;
-            this.Category = category;
-            this.Primary = primary;
+            ColumnDefinitions = new List<ColumnDefinition>();
+            Name = name;
+            Category = category;
+            Primary = primary;
         }
         internal bool Primary { get; set; }
         internal string Name { get; set; }
-        internal string Category { get; set; } 
-        internal List<ColumnDefinition> ColumnDefinitions
-        {
-            get
-            {
-                return _columnDefinitions;
-            }
-        }
+        internal string Category { get; set; }
+        internal List<ColumnDefinition> ColumnDefinitions { get; } = null;
     }
 }

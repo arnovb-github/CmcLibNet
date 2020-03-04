@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Vovin.CmcLibNet.Export
@@ -35,8 +34,10 @@ namespace Vovin.CmcLibNet.Export
 
         private void PrepareXmlFile(string fileName)
         {
-            _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8);
-            _xtw.Formatting = Formatting.Indented;
+            _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8)
+            {
+                Formatting = Formatting.Indented
+            }; // TODO the recommendation is to use XmlWriter, not XmlTextWriter
             _xtw.WriteStartDocument();
             _xtw.WriteStartElement(string.IsNullOrEmpty(_settings.CustomRootNode) ? "dataroot" : XmlConvert.EncodeLocalName(_settings.CustomRootNode));
         }
@@ -66,7 +67,7 @@ namespace Vovin.CmcLibNet.Export
                         {
                             _xtw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             // can we get away with writing the value or do we need to use CData?
-                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
+                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80) // TODO this is an error; fields can be limited to be smaller or larger and still not be large text fields
                             {
                                 _xtw.WriteCData(v.DirectFieldValue);
                             }
