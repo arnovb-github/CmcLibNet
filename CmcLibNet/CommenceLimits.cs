@@ -1,7 +1,7 @@
 ﻿namespace Vovin.CmcLibNet
 {
     /// <summary>
-    /// Internal Commence limits
+    /// Some internal Commence limits, non-exhaustive
     /// </summary>
     internal static class CommenceLimits
     {
