@@ -304,10 +304,9 @@ namespace Vovin.CmcLibNet.Database
         {
             IList<ICommenceConnection> retval = new List<ICommenceConnection>();
             string buffer = GetDDEValues(new string[] { "GetConnectionNames", categoryName, CMC_DELIM, CMC_DELIM2 });
-            if ((buffer != string.Empty) && (this.GetLastError() == string.Empty))
+            if (!string.IsNullOrEmpty(buffer) && string.IsNullOrEmpty(this.GetLastError())) // this will swallow the error if a DDE error occurred. Hmm.
             {
                 string[] pairs = buffer.Split(new string[] { CMC_DELIM }, StringSplitOptions.None);
-                if (pairs.Length <= 1) { return retval; } // a DDE error occurred, possibly because categoryName doesn't exist.
                 foreach (string p in pairs)
                 {
                     string[] pair = p.Split(new string[] { CMC_DELIM2 }, StringSplitOptions.None);
@@ -318,7 +317,7 @@ namespace Vovin.CmcLibNet.Database
                     });
                 }
             }
-            return retval?.ToArray();
+            return retval.ToArray();
         }
 
         /// <inheritdoc />
@@ -960,6 +959,7 @@ namespace Vovin.CmcLibNet.Database
             {
                 this.LastError = e.Message; // store the last error
                 retval = null; // if null, we know an exception occurred, we will not (re)throw it! TODO reevaluate this
+                this.Dispose();
             }
             return retval;
         }
