@@ -289,11 +289,11 @@ namespace Vovin.CmcLibNet.Export
                             }
                             // We assume here that connected values are newline separated,
                             // depending on the type of cursor, they may not be!
-                            // They will not be if the cursor:
+                            // They will be if the cursor:
                             // - is of type View
                             // - has connected fields set using the SetRelatedColumn method
                             //
-                            // they will be comma-separated when they were requested as direct fields on a cursor
+                            // they will be comma-separated when they were requested as direct fields on a Category-type cursor
                             // in that case, there is no meaningful way of splitting them,
                             // because there is no way to distinguish between commas in the field and separator
                             // That is just one of the quirks of Commence.
