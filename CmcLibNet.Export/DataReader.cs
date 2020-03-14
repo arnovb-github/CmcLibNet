@@ -289,14 +289,26 @@ namespace Vovin.CmcLibNet.Export
                             }
                             // We assume here that connected values are newline separated,
                             // depending on the type of cursor, they may not be!
-                            // They will be if the cursor:
+                            // They will not be if the cursor:
                             // - is of type View
                             // - has connected fields set using the SetRelatedColumn method
+                            //
+                            // they will be comma-separated when they were requested as direct fields on a cursor
+                            // in that case, there is no meaningful way of splitting them,
+                            // because there is no way to distinguish between commas in the field and separator
+                            // That is just one of the quirks of Commence.
                             // If a user just dumps a cursor obtained by GetCursor(<category>, <flag All>),
                             // he will get weird results.
                             // We include a check for this
                             else if (cursor.CursorType == CmcCursorType.Category && !cursor._relatedColumnsWereSet)
                             {
+                                // there *is* a situation when we do want to split on commas:
+                                // when the cursor contains thids in the requested related column.
+                                // It would actually be very useful in the special case of 'complex' exports.
+                                // We *could* isolate that particular situation,
+                                // and then split anyway, but then the (rest of the) row of CommenceValue
+                                // would contain inconsistent arrays for field ConnectedFieldValues.
+                                // So we are not going to do that.
                                 buffer = new string[] { rawdata[i][j] };
                             }
                             else
