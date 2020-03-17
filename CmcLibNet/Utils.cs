@@ -22,7 +22,7 @@ namespace Vovin.CmcLibNet
         /// <returns>double-quoted string.</returns>
         internal static string dq(string s)
         {
-            return $"\"{s}\"";
+            return string.Format("\"{0}\"", s);
         }
 
         /// <summary>
@@ -60,9 +60,8 @@ namespace Vovin.CmcLibNet
             if (!type.IsEnum) throw new InvalidOperationException("Type is not an Enum");
             foreach (var field in type.GetFields())
             {
-                var attribute = Attribute.GetCustomAttribute(field,
-                    typeof(DescriptionAttribute)) as DescriptionAttribute;
-                if (attribute != null)
+                if (Attribute.GetCustomAttribute(field,
+                    typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
                 {
                     if (attribute.Description == description)
                         return (T)field.GetValue(null);
@@ -117,63 +116,21 @@ namespace Vovin.CmcLibNet
             return sb.ToString();
         }
 
-        internal static string AddUniqueIdentifier(string testString, List<string> list, uint appendNumber, uint maxIterations, uint maxLength)
+        internal static IEnumerable<string> RenameDuplicates(IList<string> list)
         {
-            string retval = testString;
-            uint append = appendNumber;
-            // if the list items already contain a trailing number,
-            // all we want to do is increase that number instead of appending one
-            // so let's analyze the list items first
-            // No, let's limit that to  trailing number that contains (1), (2), etc.
-            // first analyze which list items have a trailing '(number)'part
-            string pattern = @"\(\d+\)$";
-            IEnumerable<string> existingStrings = GetStringsWithMatchingRegexPattern(list, pattern);
-            // get the one with the highest numer
-            if (existingStrings.Any())
+            var q = list.GroupBy(x => x)
+                .Select(g => new { Values = g, Count = g.Count() })
+                .Where(w => w.Count > 1);
+            foreach (var g in q)
             {
-                // extract the numbers
-                List<uint> numbers = new List<uint>();
-                foreach (string s in existingStrings)
+                int j = 1;
+                foreach (string s in g.Values)
                 {
-                    Regex r = new Regex(@"\d+\)$");
-                    Match match = r.Match(s);
-                    if (match.Success)
-                    {
-                        numbers.Add(Convert.ToUInt32(match.Value.Left(match.Value.Length-1)));
-                    }
+                    list[list.IndexOf(s)] = s + j.ToString();
+                    j++;
                 }
-                append = numbers.Max();
             }
-
-            // prevent eternal loop if specified
-            if (maxIterations > 0)
-            {
-                if (append > maxIterations) { throw new Exception("Could not get a unique name for column " + testString); }
-            }
-            if (list.Contains(retval))
-            {
-                append++;
-                retval = AppendBracketedString(testString,append.ToString());
-                // need to check for length
-                if (maxLength > 0)
-                {
-                    while (retval.Length > maxLength)
-                    {
-                        testString = testString.Left(testString.Length - 1);
-                        retval = AppendBracketedString(testString, append.ToString());
-                    }
-                }
-                else
-                {
-                    retval = AppendBracketedString(testString, append.ToString());
-                }
-                
-                return AddUniqueIdentifier(retval, list, append, maxIterations, maxLength); // recurse
-            }
-            else
-            {
-                return retval;
-            }
+            return list;
         }
 
         private static string AppendBracketedString(string s, string appendString)

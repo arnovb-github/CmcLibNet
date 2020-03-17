@@ -197,7 +197,8 @@ namespace Vovin.CmcLibNet.Export
             // did we get the correct number?
             if (cHeaders.Length != _cursor.ColumnCount)
             {
-                throw new ArgumentOutOfRangeException("Invalid number of custom headers. Should be " + _cursor.ColumnCount.ToString() + ", but received " + cHeaders.Length.ToString() + ".");
+                throw new ArgumentOutOfRangeException("Invalid number of custom headers. Should be " 
+                    + _cursor.ColumnCount.ToString() + ", but received " + cHeaders.Length.ToString() + ".");
             }
             // all are headers unique?
             string[] unique = cHeaders.Distinct().ToArray();
@@ -373,33 +374,6 @@ namespace Vovin.CmcLibNet.Export
             return retval;
         }
 
-        ///// <summary>
-        ///// Columns can have duplicate names. This is problematic with XML and JSON exports.
-        ///// This method creates unique labels by appending a number.
-        ///// This means the direct relationship with the underlying Commence field is lost.
-        ///// </summary>
-        ///// <param name="label">Label to test.</param>
-        ///// <param name="list">List to test for label.</param>
-        ///// <param name="counter">Number to append or increment.</param>
-        ///// <returns>Label with a number appended making it unique in list.</returns>
-        //private string GetUniqueStringForList(string label, List<string> list, int counter)
-        //{
-        //    string retval = label;
-        //    int append = counter;
-        //    // prevent eternal loop. Commence can have 250 fields so 255 is reasonable. TODO it would be better to not hard-code this number.
-        //    if (append > 255) { throw new Exception("Could not get a unique name for column " + label); }
-        //    if (list.Contains(retval))
-        //    {
-        //        retval = this._label + append.ToString();
-        //        append++;
-        //        return GetUniqueStringForList(retval, list, append); // recurse
-        //    }
-        //    else
-        //    {
-        //        return retval;
-        //    }
-        //}
-
         /// <summary>
         /// Dispose method
         /// </summary>
@@ -548,10 +522,8 @@ namespace Vovin.CmcLibNet.Export
                         switch (_settings.HeaderMode)
                         {
                             case HeaderMode.Columnlabel:
-                                //_label = cd.ColumnLabel; // store original label
-                                //string s = GetUniqueStringForList(cd.ColumnLabel, _exportHeaders, 1); // make sure we have unique columnlabels, or XML and JSON may complain.
-                                string label = Utils.AddUniqueIdentifier(cd.ColumnLabel, _exportHeaders, 1, 244, 20); // make sure we have unique columnlabels, or XML and JSON may complain.
-                                _exportHeaders.Add(label);
+                                //string label = Utils.AddUniqueIdentifier(cd.ColumnLabel, _exportHeaders, 1, 244, 20); // make sure we have unique columnlabels, or XML and JSON may complain.
+                                _exportHeaders.Add(cd.ColumnLabel);
                                 break;
                             case HeaderMode.Fieldname:
                                 _exportHeaders.Add(cd.ColumnName);
@@ -562,6 +534,11 @@ namespace Vovin.CmcLibNet.Export
                         } // switch
                     } // foreach
                 } // if
+                // make sure all exportheaders are unique
+                // if columns are renamed that will obvioulsy break the ability to export back into Commence.
+                // there is little we can do about that
+                // keep in mind that fieldnames are always unique within a cursor, they can just look ugly :)
+                _exportHeaders = Utils.RenameDuplicates(_exportHeaders).ToList();
                 return _exportHeaders;
             }
         }
