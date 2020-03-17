@@ -84,7 +84,8 @@ namespace Vovin.CmcLibNet.Export
                 {
                     case ExcelUpdateOptions.CreateNewWorksheet: // insert new worksheet in existing doc
                         // sheetname must be unique
-                        _sheetName = Utils.AddUniqueIdentifier(_sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MaxSheetNameLength);
+                        //_sheetName = Utils.AddUniqueIdentifier(_sheetName, existingSheets.Values.ToList(), 0, (uint)Math.Pow(2, 10), (uint)MaxSheetNameLength);
+                        _sheetName = _sheetName + (existingSheets.Count() + 1).ToString();
                         InsertNewSheet(_sheetName);
                         break;
                     case ExcelUpdateOptions.ReplaceWorksheet:
