@@ -959,7 +959,6 @@ namespace Vovin.CmcLibNet.Database
             {
                 this.LastError = e.Message; // store the last error
                 retval = null; // if null, we know an exception occurred, we will not (re)throw it! TODO reevaluate this
-                this.Dispose();
             }
             return retval;
         }
