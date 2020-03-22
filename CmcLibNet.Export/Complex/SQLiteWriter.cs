@@ -107,6 +107,9 @@ namespace Vovin.CmcLibNet.Export.Complex
             // We will discard the original cursor, so we need to store that information.
             originalColumnDefinitions = new ColumnDefinition[ColumnDefinitions.Count];
             ColumnDefinitions.CopyTo(originalColumnDefinitions, 0);
+
+            // in case of JSON exports we always want nested connected items
+            if (base._settings.ExportFormat == ExportFormat.Json) { base._settings.NestConnectedItems = true; }
         }
 
         // TODO for future support
@@ -553,7 +556,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     // no check if property exists
                     CommenceConnection cc = JsonConvert.DeserializeObject<CommenceConnection>(
                         dr.ExtendedProperties[CommenceConnectionDescriptionExtProp].ToString());
-                    if (dc.DataType == typeof(DateTime) && _settings.NestConnectedItems)
+                    if (_settings.NestConnectedItems) // it is fine to have the real columnname in nested exports
                     {
                         customAlias = GetAliasForColumn(dc);
                     }
