@@ -89,26 +89,13 @@ namespace Vovin.CmcLibNet.Export
             {
                 ps.EnableConstantDisplayAndPower(true, "Performing time-consuming Commence export");
                 cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
-                if (!settings.PreserveAllConnections && settings.NestConnectedItems && settings.ExportFormat == ExportFormat.Json)
+
+                using (_writer = this.GetExportWriter(cur, settings))
                 {
-                    /* Nested exports for Json.
-                     * Internally, all returned Commence data are first put into a ADO.NET dataset.
-                     * Then that dataset is serialized to the JSON .
-                     */
-                    using (_writer = new AdoNetWriter(cur, settings))
-                    {
-                        SubscribeToWriterEvents(_writer);
-                        _writer.WriteOut(fileName);
-                    }
+                    SubscribeToWriterEvents(_writer);
+                    _writer.WriteOut(fileName);
                 }
-                else
-                {
-                    using (_writer = this.GetExportWriter(cur, settings))
-                    {
-                        SubscribeToWriterEvents(_writer);
-                        _writer.WriteOut(fileName);
-                    }
-                }
+
             }
             finally
             {
@@ -235,7 +222,11 @@ namespace Vovin.CmcLibNet.Export
         /// <remarks>Defaults to XML.</remarks>
         internal BaseWriter GetExportWriter(ICommenceCursor cursor, IExportSettings settings)
         {
-            if (settings.PreserveAllConnections)
+            if (!settings.PreserveAllConnections && settings.NestConnectedItems && settings.ExportFormat == ExportFormat.Json)
+            {
+                return new AdoNetWriter(cursor, settings); // i think this can be taken out entirely
+            }
+                if (settings.PreserveAllConnections)
             {
                 return new Complex.SQLiteWriter(cursor, settings);
             }
@@ -261,7 +252,7 @@ namespace Vovin.CmcLibNet.Export
                     return new EventWriter(cursor, settings);
                 case ExportFormat.GoogleSheets:
                     // will probably always be too slow
-                    throw new NotImplementedException();
+                    throw new NotImplementedException("Exportformat not yet implemented.");
                 default:
                     return new XmlWriter(cursor, settings);
             }
