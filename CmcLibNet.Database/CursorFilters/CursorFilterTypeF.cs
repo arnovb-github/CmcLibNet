@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Extensions;
 
@@ -109,24 +108,6 @@ namespace Vovin.CmcLibNet.Database
         public override string ToString()
         {
             return base.ToString(FilterFormatters.FormatFFilter);
-            // before the base class ToString(Func<>) overload
-            //StringBuilder sb = new StringBuilder("[ViewFilter(");
-            //sb.Append(base.ClauseNumber.ToString() + ',');
-            //sb.Append(this.FiltertypeIdentifier + ',');
-            //sb.Append((base.Except) ? "NOT," : ",");
-            //if (this.SharedOptionSet)
-            //{
-            //    sb.Append("," + Utils.dq((this.Shared) ? "Shared" : "Local") + ",,");
-            //}
-            //else
-            //{
-            //    sb.Append(Utils.dq(this.FieldName) + ',');
-            //    sb.Append(Utils.dq(this.QualifierString) + ',');
-            //    SetFilterValue(sb);
-            //    sb.Append((this.MatchCase) ? "1" : "0");
-            //}
-            //sb.Append(")]");
-            //return sb.ToString();
         }
     }
 }

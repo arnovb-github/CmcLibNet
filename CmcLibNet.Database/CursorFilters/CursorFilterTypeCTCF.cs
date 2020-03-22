@@ -107,26 +107,6 @@ namespace Vovin.CmcLibNet.Database
         public override string ToString() // It would be better to overload ToString() in the base class and pass a delegate to it
         {
             return base.ToString(FilterFormatters.FormatCTCFFilter);
-            // before the base class ToString(Func<>) overload
-            //StringBuilder sb = new StringBuilder("[ViewFilter(");
-            //sb.Append(base.ClauseNumber.ToString() + ',');
-            //sb.Append(this.FiltertypeIdentifier + ',');
-            //sb.Append(base.Except ? "NOT," : ",");
-            //sb.Append(Utils.dq(this.Connection) + ',');
-            //sb.Append(Utils.dq(this.Category) + ',');
-            //if (this.SharedOptionSet)
-            //{
-            //    sb.Append("," + Utils.dq((this.Shared) ? "Shared" : "Local") + ",,");
-            //}
-            //else
-            //{
-            //    sb.Append(Utils.dq(this.FieldName) + ',');
-            //    sb.Append(Utils.dq(this.QualifierString) + ',');
-            //    SetFilterValue(sb);
-            //    sb.Append((this.MatchCase) ? "1" : "0");
-            //}
-            //sb.Append(")]");
-            //return sb.ToString();
         }
     }
 }
