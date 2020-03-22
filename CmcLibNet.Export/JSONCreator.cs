@@ -69,7 +69,7 @@ namespace Vovin.CmcLibNet.Export
                                 {
                                     dynamic citem = new JObject(); // create object for value plus additional details on the connection
                                     citem.Connection = v.ColumnDefinition.Connection;
-                                    citem.Category = v.ColumnDefinition.Category;
+                                    citem.ToCategory = v.ColumnDefinition.Category;
                                     citem[v.ColumnDefinition.FieldName] = value;
                                     citems.Add(citem);
                                 }
