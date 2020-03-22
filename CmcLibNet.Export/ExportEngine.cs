@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Export
     /// <param name="sender">sender object.</param>
     /// <param name="e">ExportProgressAsStringChangedArgs.</param>
     [ComVisible(false)] // there is a separate interface for COM
-    public delegate void ExportProgressAsStringChangedHandler(object sender, ExportProgressAsStringChangedArgs e);
+    public delegate void ExportProgressAsStringChangedHandler(object sender, ExportProgressChangedArgs e);
 
     /// <summary>
     /// Delegate for the ExportCompleted event to deal with batches of rows.
@@ -87,10 +87,9 @@ namespace Vovin.CmcLibNet.Export
 
             try
             {
-                ps.EnableConstantDisplayAndPower(true, "Performing lengthy Commence export");
-
+                ps.EnableConstantDisplayAndPower(true, "Performing time-consuming Commence export");
                 cur.MaxFieldSize = this.Settings.MaxFieldSize; // remember setting this size greatly impacts memory usage!
-                if (settings.NestConnectedItems && settings.ExportFormat == ExportFormat.Json)
+                if (!settings.PreserveAllConnections && settings.NestConnectedItems && settings.ExportFormat == ExportFormat.Json)
                 {
                     /* Nested exports for Json.
                      * Internally, all returned Commence data are first put into a ADO.NET dataset.
@@ -278,7 +277,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="sender">sender object.</param>
         /// <param name="e">ExportProgressAsJsonChangedArgs object.</param>
-        public virtual void HandleExportProgressChanged(object sender, ExportProgressAsStringChangedArgs e)
+        public virtual void HandleExportProgressChanged(object sender, ExportProgressChangedArgs e)
         {
             // just re-raise event
             OnExportProgressChanged(e); // outside assemblies can subscribe to this
@@ -297,7 +296,7 @@ namespace Vovin.CmcLibNet.Export
         /// Raise the ExportProgressChanged event.
         /// </summary>
         /// <param name="e">ExportProgressAsStringChangedArgs object.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressAsStringChangedArgs e)
+        protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
         {
             ExportProgressChanged?.Invoke(this, e);
         }

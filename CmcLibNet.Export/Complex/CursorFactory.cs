@@ -15,7 +15,7 @@ namespace Vovin.CmcLibNet.Export.Complex
             db = new CommenceDatabase();
         }
 
-        internal ICommenceCursor Create(CursorParameters cursorParameters)
+        internal ICommenceCursor Create(CursorDescriptor cursorParameters)
         {
             ICommenceCursor retval = null;
             if (db == null)
@@ -28,7 +28,7 @@ namespace Vovin.CmcLibNet.Export.Complex
             for (int i = 0; i < cursorParameters.Filters.Count(); i++)
             {
                 ICursorFilterTypeCTCF f = retval.Filters.Add(i + 1, FilterType.ConnectionToCategoryField);
-                // we already have the filter object defined, coopy
+                // we already have the filter object defined, copy them
                 foreach (PropertyInfo property in typeof(ICursorFilterTypeCTCF).GetProperties().Where(p => p.CanWrite))
                 {
                     property.SetValue(f, property.GetValue(cursorParameters.Filters[i], null), null);

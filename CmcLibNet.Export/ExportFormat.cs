@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Export
         GoogleSheets = 5,
         /// <summary>
         /// Just reads the data and emits a <see cref="IExportEngineEvents.ExportProgressChanged"/> event that you can subscribe to.
-        /// <para>The <see cref="ExportProgressAsStringChangedArgs.RowValues"/> property will contain serialized Json.</para>
+        /// <para>The <see cref="ExportProgressChangedArgs.RowValues"/> property will contain serialized Json.</para>
         /// <para>The filename argument is ignored when using this setting.</para>
         /// </summary>
         Event = 6,

@@ -7,12 +7,12 @@ namespace Vovin.CmcLibNet.Export.Complex
     /// <summary>
     /// Used to define cursors in ComplexWriter
     /// </summary>
-    internal class CursorParameters
+    internal class CursorDescriptor
     {
         // if we make this class serializable,
         // we could assign the serialized data to a custom property
         // in the dataset
-        internal CursorParameters(string categoryOrView)
+        internal CursorDescriptor(string categoryOrView)
         {
             CategoryOrView = categoryOrView;
         }
@@ -39,6 +39,6 @@ namespace Vovin.CmcLibNet.Export.Complex
                 SqlColumnMappings.Add(i, new SqlMap(dt.TableName, dt.Columns[i].ColumnName, !dt.Columns[i].AllowDBNull));
             }
         }
-        internal bool IsLinkTable { get; set; } // link tables are processed differently
+        internal bool IsTableWithConnectedThids { get; set; } // link tables are processed differently
     }
 }

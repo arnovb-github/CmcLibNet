@@ -13,9 +13,10 @@ namespace Vovin.CmcLibNet.Export
     public class ExportSettings : IExportSettings
     {
         private bool _canonical;
-        private bool _useThids = false;
+        private bool _useThids;
+        private bool _splitConnectedItems = true;
         private object[] _customHeaders = null;
-        private bool _iso8601compliant =  false;
+        private bool _iso8601compliant;
         private int _maxrows = (int)Math.Pow(2, 10); // 1024
         private int _maxfieldsize = (int)Math.Pow(2, 19); // roughly ~500.000
 
@@ -106,7 +107,17 @@ namespace Vovin.CmcLibNet.Export
         public bool IncludeConnectionInfo { get; set; }
 
         /// <inheritdoc />
-        public bool SplitConnectedItems { get; set; } = true;
+        public bool SplitConnectedItems
+        { get
+            {
+                if (this.PreserveAllConnections) { _splitConnectedItems = true; }
+                return _splitConnectedItems;
+            }
+            set
+            {
+                _splitConnectedItems = value;
+            }
+        }
         /// <inheritdoc />
         public int NumRows
         {
@@ -145,5 +156,7 @@ namespace Vovin.CmcLibNet.Export
         public string CustomRootNode { get; set; }
         /// <inheritdoc />
         public bool PreserveAllConnections { get; set; } = false;
+        /// <inheritdoc />
+        public bool WriteSchema { get; set; } = false;
     }
 }

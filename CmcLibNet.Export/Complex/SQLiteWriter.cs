@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -6,40 +7,46 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vovin.CmcLibNet.Database;
+using Vovin.CmcLibNet.Database.Metadata;
 using Vovin.CmcLibNet.Extensions;
 
 /* On the surface, this looks a lot like the AdoNet classes 
  * There difference is that those classes use an in-memory dataset
  * That is a problem when dealing with connections
- * Connected data size can be very large, much larger than we can handle 
- * even with a huge max_field_size on a cursor
+ * Connected data size can be very large, much larger than we can handle,
+ * even with a huge max_field_size on a cursor,
+ * There is also another problem: when you use a very large max_field_size,
+ * reading data from Commence slows to a crawl.
  * Therefore we use a different approach here:
- * -We still create a DataSet to represent our database structure
- * -We create a temporary SQLite database from the DataSet
+ * -We create a DataSet to represent the 'database' structure of the cursor.
+ * -We create a temporary SQLite database from the DataSet.
  *  Strictly speaking that is not necessary, we could do everything in-memory,
  *  but it may be nice to have in the future.
  * -We read the 'primary' cursor data (=the category on which cursor or view was set)
  *  and just read the direct fields.
- * -We then read the primary category again and retrieve just the connection id's
+ * -We then read the primary category again and retrieve just the connection id's,
  *  which we store in link tables.
  * -We then dump all requested connected categories to separate tables
  *  This read cannot be filtered unfortunately, because that would require a 'reverse' filter,
  *  and it is impossible to match (paired) connections that Commence returns.
- *  (They are simply returned in alphabetical order)
+ *  (These are simply returned in alphabetical order)
  *  In other words: you can request all connected thids for:
  *  CategoryA - Relates to - CategoryB
- *  but when you want to read CategoryB and filter for a connection back to CategoryA,
- *  you are out of luck.
+ *  but when you want to read CategoryB and filter it for a connection
+ *  back to CategoryA, you are out of luck.
  * -Using the DataSet, we use SQL and serializers to produce output.
  * 
  * This may seem backwards and slow, and while it is slow,
  * it is probably still the fastest way to retain all connections upon export.
  * The Commence data reading and processing by default happens asynchronously
- * and since the reading of Commence is a very slow process,
+ * and since the reading of Commence is a very slow process anyway,
  * we can do other heavy-lifting in the meantime.
  * 
- * A very important assumption we make here: the THID field is always in the first column.
- * We make sure of that ourselves, but that is vitally important to understand the code.
+ * A very important assumption we make here:
+ * 1. The THID field is always in the first column.
+ * We make sure of that ourselves, but that is important to understand the code.
+ * 2. The primary Commence category is the first table in the dataset
+ * Again, we make sure of that ourselves, just be aware of it.
  */
 namespace Vovin.CmcLibNet.Export.Complex
 {
@@ -48,53 +55,82 @@ namespace Vovin.CmcLibNet.Export.Complex
     /// </summary>
     internal sealed class SQLiteWriter : BaseWriter
     {
+
         #region Fields
-        private readonly string _commenceFieldType = "CommenceFieldType";
-        private readonly string _postFixId = "_ID";
-        private readonly string _conPrefix = "_con";
         private readonly string _fkParamName = "@fk";
         private readonly string _pkParamName = "@pk";
         private readonly string _databaseName = string.Empty;
-        private readonly string cs = string.Empty; // connection string
+        private readonly string _originalCursorCategory = string.Empty;
+        private readonly string _cs = string.Empty; // connection string
         private readonly char[] _thidDelimiter = new char[] { ':' };
+        private int _totalIterations;
+        private int _iteration;
         private bool disposed = false;
         // if a cursor isn't shared, we need to calculate the thid sequence differently
         // we could probably get away with just using RowID's for our purpose
         private bool _cursorShared;
         private string _fileName;
         private readonly ColumnDefinition[] originalColumnDefinitions;
-        // hold the Name field for involved categories, used in filtering
-        private IDictionary<string, string> categoryNamefield = new Dictionary<string, string>();
-        private DataSet ds;
+        private DataSet _ds;
         #endregion
 
         #region Constructors
         internal SQLiteWriter(ICommenceCursor cursor, IExportSettings settings) 
             : base(cursor, settings)
         {
+            // store original category name
+            _originalCursorCategory = cursor.Category;
             // put data in %AppData%
             _databaseName = Path.GetTempFileName();
 #if DEBUG
             _databaseName = @"E:\Temp\sqlite.db";
             File.Delete(_databaseName);
 #endif
-            
+
             // We could do some optimization to see if the database would fit in memory;
-            // an in-memory database will obviously perform better
-            // there is caveat in that any connection.Open() to an in-memory database seems to return a different database.
-            // I could not figure it out
+            // an in-memory SQLite database will obviously perform better
+            // there is caveat in that a SQLite In-memory database only exists while the connection is open.
             // It does not matter much because bottleneck will always be the Commence data reading
             // except for tiny exports, which will be fast (enough) anyway.
-            // Testing shows that performace penalty for using an on-disk Sqlite database
+            // Testing shows that performance penalty for using an on-disk Sqlite database
             // is negligible compared to the slow Commence reading operation.
             // Note that since it is a discardible database, we can turn off some settings and gain a little performance
-            cs = @"URI=file:" + _databaseName + ";PRAGMA synchronous = OFF; JOURNAL MODE = OFF";
+            // It is Write once, Read once (multiple queries), discard
+            // SYNCHRONOUS = OFF : synchronous is only useful when worrying about syste crash or power off
+            // JOURNAL MODE = OFF : do not keep a journal to do things like roll-backs
+            // FOREIGN_KEYS = ON : can make lokups faster if implemented. Requires the REFERENCES keyword to be useful.
+            // It is probably better to have a factory pattern that returns the appropriate string.
+            _cs = @"URI=file:" + _databaseName + ";PRAGMA SYNCHRONOUS = OFF; JOURNAL MODE = OFF; FOREIGN_KEYS = ON";
 
-            // we should probably backup the original ColumnDefinitions as it has vital info
-            // when it comes to custom headers and so on.
+            // Back up the original ColumnDefinitions as it contains the information on
+            // what fields were originally requested.
+            // We will discard the original cursor, so we need to store that information.
             originalColumnDefinitions = new ColumnDefinition[ColumnDefinitions.Count];
             ColumnDefinitions.CopyTo(originalColumnDefinitions, 0);
         }
+
+        // TODO for future support
+        internal SQLiteWriter(ICommenceCursor cursor, string MemocomConfigFile, IExportSettings settings)
+            : base(cursor, settings)
+        {
+            // we can immediately close the cursor, we're not using it
+            _cursor.Close();
+
+            // let's establish some of the checks that we have to do in processing the config file
+            // does it exist?
+            // is it XML?
+            // are the prerequiste parameters populated? Which ones are they?
+            // do the categories exist?
+            // do the fields exist?
+            // do the connections exist?
+            // (is the filter(s) valid?
+            // are there nested queries involved?
+            // if nested, are there circular references?
+
+            // then create a dataset
+            // then define cursors to read
+        }
+
         #endregion
 
         #region Finalizers
@@ -106,21 +142,11 @@ namespace Vovin.CmcLibNet.Export.Complex
 
         protected internal override void WriteOut(string fileName)
         {
-            // grab the Name field name of the primary category while we have an open cursor
-            // there is a method for that in ICommenceDatabase but the overhead is unneeded
-            using (ICommenceQueryRowSet qrs = _cursor.GetQueryRowSet(0))
-            {
-                // a Name field is always the first
-                categoryNamefield.Add(_cursor.Category, qrs.GetColumnLabel(0, CmcOptionFlags.Fieldname));
-            }
-
             _fileName = fileName;
-
             // create ADO.NET dataset to represent our data
-            ds = CreateDataSetFromCursor();
-
+            _ds = CreateDataSetFromCursor();
             // build a SQLite database from dataset
-            CreateSqliteDatabase(ds);
+            CreateSqliteDatabase(_ds);
 
             // we do:
             // - a run on the primary cursor with just direct fields
@@ -132,89 +158,107 @@ namespace Vovin.CmcLibNet.Export.Complex
             // but this way we can keep consistent
             // there is another benefit: max_field_size will now be better optimized
             _cursor.Close();
-
-            // a better way of doing this may be to use the dataset all along
-            // we could put both the Commence cursor parameters
-            // and the INSERT commands in it as Extended Properties
-            // not sure yet.
-            // when a table doesn't have cursor parameters it would not be processed
-            // so what would we do with are connections-only cursor that is not in the dataset?
-            // and how would we get to the INSERT syntax in that case?
-            foreach (var map in CursorDescriptors)
+            _totalIterations = this.CursorDescriptors.Count(); // used in progress reports
+            foreach (var cur in CursorDescriptors)
             {
-                CurrentCursorDescriptor = map;
+                CurrentCursorDescriptor = cur;
                 using (var cf = new CursorFactory())
                 {
-                    base._cursor = cf.Create(map);
+                    base._cursor = cf.Create(cur);
                     // we need to re-establish the columndefinitions,
                     // because the base reader needs them
                     ColumnParser cp = new ColumnParser(_cursor);
                     base.ColumnDefinitions = cp.ParseColumns();
                     _cursorShared = _cursor.Shared;
+                    _iteration++;
                     base.ReadCommenceData();
                 }
             }
         }
 
         #region Data processing methods
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
-            // create a command that can be prepared
-            using (var con = new SQLiteConnection(cs))
+            // it is interesting to note that the order actually matters for SQLite performance
+            // I think Commence will return stuff in an sequential fashion, but we'd need to check.
+            // We already know there will be gaps in the linktables.
+            using (var con = new SQLiteConnection(_cs))
             {
                 con.Open();
                 using (var transaction = con.BeginTransaction())
                 {
                     using (var cmd = new SQLiteCommand(con))
                     {
-
-                        // I think the entry point of siphoning off control to submethods should be here
-                        if (CurrentCursorDescriptor.IsLinkTable)
+                        if (CurrentCursorDescriptor.IsTableWithConnectedThids)
                         {
                             ProcessLinkTableData(cmd, e.RowValues);
                         }
                         else
                         {
-                            cmd.CommandText = GetCommandTextForDirectTable();
+                            cmd.CommandText = GetInsertQueryForDirectTable();
                             ProcessDirectTableData(cmd, e.RowValues);
                         }
                     } // using cmd
                     transaction.Commit();
                 } // using transaction
             } // using con
+
+            // report progress
+            ExportProgressChangedArgs args = new ExportProgressChangedArgs(
+                e.RowsProcessed,
+                e.RowsTotal,
+                _iteration,
+                _totalIterations);
+            base.OnExportProgressChanged(args);
         }
 
-        private int round = 0;
+        private int cursorsProcessed = 0;
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
             base._cursor.Close(); // very important or we'll leave hanging COM references!
-            // fires once for every cursor,
-            // but we do not want 3 reads
-            // we could simply count...
-            round++;
-            if (round < CursorDescriptors.Count()) { return; }
+            // fires for every cursor,
+            // but we want to wait until they are all processed
+            cursorsProcessed++;
+            if (cursorsProcessed < CursorDescriptors.Count()) { return; } // not done reading yet
 
-            using (var con = new SQLiteConnection(cs))
+            if (_settings.WriteSchema)
             {
-                foreach (DataTable dt in ds.Tables)
+                using (var con = new SQLiteConnection(_cs))
                 {
-                    string stm = GetSelectCommandForTable(dt); // we need a function for this
-                    using (var da = new SQLiteDataAdapter(stm, con))
+                    foreach (DataTable dt in _ds.Tables)
                     {
-                        da.Fill(ds, dt.TableName); // Fill will add a new column if it does not exist
+                        string stm = GetSQLiteSelectQueryForTable(dt); // we need a function for this
+                        using (var da = new SQLiteDataAdapter(stm, con))
+                        {
+                            da.Fill(_ds, dt.TableName); // FYI: Fill will add a new column if it does not exist
+                        }
                     }
+                    _ds.WriteXml(_fileName, XmlWriteMode.WriteSchema); // works well and is fast but no control over output
                 }
-                // TODO figure out a way of not including the sequence 'thid' if not requested by user.
-                ds.WriteXml(_fileName, XmlWriteMode.WriteSchema); // seems to work
+            }
+            else
+            {
+                switch (_settings.ExportFormat)
+                {
+                    case ExportFormat.Xml:
+                        var xw = new SQLiteToXmlSerializer(this._settings, _ds.Tables[0], _cs); // CODE SMELL
+                        xw.Serialize(_fileName);
+                        break;
+                    case ExportFormat.Json:
+                        var jw = new SQLiteToJsonSerializer(this._settings, _ds.Tables[0], _cs);
+                        jw.Serialize(_fileName);
+                        break;
+                }
             }
 
-            // this is where the actual export takes place
+            // bubble up event
             base.BubbleUpCompletedEvent(e);
         }
 
         private void ProcessDirectTableData(SQLiteCommand cmd, List<List<CommenceValue>> rowValues)
         {
             // this method only provides the parameters for the command
+            cmd.Prepare();
             for (int i = 0; i < rowValues.Count(); i++)
             {
                 for (int j = 0; j < rowValues[i].Count(); j++)
@@ -222,129 +266,52 @@ namespace Vovin.CmcLibNet.Export.Complex
                     string value = rowValues[i][j].DirectFieldValue;
                     // first column is special case
                     if (j == 0) { value = SequenceFromThid(value, _cursorShared).ToString(); }
-                    cmd.Parameters.AddWithValue($"@{j}", value);
+                    cmd.Parameters.AddWithValue($"@p{j}", value);
                 }
-                cmd.Prepare();
                 cmd.ExecuteNonQuery();
             }
         }
 
         private void ProcessLinkTableData(SQLiteCommand cmd, List<List<CommenceValue>> rowValues)
         {
-            IList<string> commandTexts = GetCommandTextsForLinkedTables().ToArray();
-            // this method requires that we set the CommandText on the command
-            CursorParameters cp = CurrentCursorDescriptor;
+            // the input this expects is a list of one or more columns in which every column contains 
+            // both the THID of the parent table
+            // and a CommenceValue with the connected THIDS
+            // think of it as a Commence view that only contains connected values
+
+            // this method requires that we get/set the CommandText on the command
+            //IList<string> commandTexts = GetInsertCommandTextsForLinkTables().ToArray();
+            var parentTable = _ds.Tables[CurrentCursorDescriptor.CategoryOrView];
             int pairedColumnIndex = 0;
-            // notice that we do this column-first, it is faster
-            for (int col = 0; col < rowValues[0].Count() - 1; col++) // notice the -1, because of the thid being 0
+            // notice that we do this column-first, it is faster.
+            for (int col = 0; col < rowValues[0].Count() - 1; col++) // notice the -1, because of the thid being 0.
             {
                 pairedColumnIndex++;
-                cmd.CommandText = commandTexts[col]; // Code smell; the order and/or count may be different
+                cmd.CommandText = parentTable
+                                    .ChildRelations[col] // requires that they match up. Fragile.
+                                    .ChildTable
+                                    .ExtendedProperties[LinkTableInsertCommandTextExtProp]
+                                    .ToString();
+                cmd.Prepare();
                 for (int row = 0; row < rowValues.Count(); row++)
                 {
                     // check if there are values to process
-                    if (rowValues[row][col].ConnectedFieldValues?.Count() == 0 
-                        || rowValues[row][pairedColumnIndex].IsEmpty) { continue; } // all fields must contain a value, skip row
+                    if (rowValues[row][pairedColumnIndex].ConnectedFieldValues is null) { continue; } // fields linktable all must contain a value, skip row
                     // cache thid of primary table
                     int pkVal = SequenceFromThid(rowValues[row][0].DirectFieldValue, _cursorShared);
                     // add parameters
-                    for (int i = 0; i < rowValues[row][pairedColumnIndex].ConnectedFieldValues.Count(); i++)
+                    for (int i = 0; i < rowValues[row][pairedColumnIndex].ConnectedFieldValues.Length; i++)
                     {
                         string s = rowValues[row][pairedColumnIndex].ConnectedFieldValues[i];
                         int fkVal = SequenceFromThid(s, _cursorShared);
                         cmd.Parameters.AddWithValue(_pkParamName, pkVal);
                         cmd.Parameters.AddWithValue(_fkParamName, fkVal);
+                        cmd.ExecuteNonQuery();
                     }
-                    cmd.Prepare();
-                    cmd.ExecuteNonQuery();
                 }
             }
         }
         #endregion
-
-        #region Properties
-        // it may be bettor to include the descriptors as part of the dataset
-        // using an extended property and serialized json
-        private IList<CursorParameters> CursorDescriptors { get; } = new List<CursorParameters>();
-        // allows us to keep track of what CursorDescriptor we are currently processing
-        private CursorParameters CurrentCursorDescriptor { get; set; }
-        #endregion
-
-        #region Helper Methods
-        private string GetSelectCommandForTable(DataTable dt)
-        {
-            StringBuilder sb = new StringBuilder("SELECT ");
-            List<string> cols = new List<string>();
-            foreach (DataColumn dc in dt.Columns)
-            {
-                // escape double quotes within a columnname
-                string colName = dc.ColumnName.Replace("\"", "\"\"");
-                // put colName itself between double quotes
-                colName = $"\"{colName}\"";
-                // same for alias
-                string alias = dc.Caption.Replace("\"", "\"\"");
-                alias = $"\"{alias}\""; // double-quote it
-                
-                // process special cases
-                if (dc.DataType == typeof(DateTime) && dc.ExtendedProperties.Count > 0
-                    && dc.ExtendedProperties[_commenceFieldType].Equals(CommenceFieldType.Date))
-                {
-                    colName = $"datetime({colName})";
-                }
-                else if (dc.DataType == typeof(DateTime) && dc.ExtendedProperties.Count > 0
-                    && dc.ExtendedProperties[_commenceFieldType].Equals(CommenceFieldType.Time))
-                {
-                    colName = $"datetime({colName})";
-                }
-                colName = $"{colName} AS {alias}" ;
-                cols.Add(colName);
-            }
-            sb.Append(string.Join(",", cols));
-            sb.Append($" FROM \"{dt.TableName}\"");
-            return sb.ToString();
-        }
-
-        private string GetCommandTextForDirectTable()
-        {
-            StringBuilder sb = new StringBuilder("INSERT INTO ");
-            sb.Append($"'{CurrentCursorDescriptor.SqlColumnMappings.First().Value.TableName}'");
-            sb.Append('(');
-            sb.Append(string.Join(",", CurrentCursorDescriptor.SqlColumnMappings.Select(s => $"'{s.Value.ColumnName}'")));
-            sb.Append(") VALUES(");
-            // just use numeric placeholders
-            int[] elements = new int[CurrentCursorDescriptor.SqlColumnMappings.Count];
-            for (int i = 0; i < elements.Length; i++)
-            {
-                elements[i] = i;
-            }
-            sb.Append(string.Join(",", elements.Select(s => $"@{s}")));
-            sb.Append(')');
-            return sb.ToString();
-        }
-
-        private IEnumerable<string> GetCommandTextsForLinkedTables()
-        {
-            var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
-                .Select(s => new { s.Connection, s.Category })
-                .Distinct()
-                .ToList();
-            foreach (var lt in linkTables)
-            {
-                // a link table always contains just 2 columns
-                StringBuilder sb = new StringBuilder("INSERT INTO ");
-                sb.Append($"'{_cursor.Category + lt.Connection + lt.Category}'"); // expects name of link table
-                sb.Append('(');
-                sb.Append($"'{_cursor.Category + _postFixId}'"); // primary key of primary category.
-                sb.Append(',');
-                sb.Append($"'{lt.Connection + lt.Category + _postFixId}'"); // the foreign key. This will fail for single connections
-                sb.Append(") VALUES (");
-                sb.Append(_pkParamName);
-                sb.Append(',');
-                sb.Append(_fkParamName);
-                sb.Append(')');
-                yield return sb.ToString();
-            }
-        }
 
         /// <summary>
         /// A pretty complex method. It translates the Commence cursor to a ADO.NET DataSet
@@ -372,7 +339,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 };
                 OverrideDefaultThidDataType(dc);
                 // store the Commence fieldtype so we can distinguish between Date end Time later on.
-                dc.ExtendedProperties.Add(_commenceFieldType, df.CommenceFieldDefinition.Type);
+                dc.ExtendedProperties.Add(CommenceFieldTypeDescriptionExtProp, df.CommenceFieldDefinition.Type);
                 dt.Columns.Add(dc);
             }
             dt.PrimaryKey = new DataColumn[] { dt.Columns[ColumnDefinitions[0].FieldName] };
@@ -403,7 +370,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     .Select(s => s.FieldName)
                     .Distinct()
                     .ToArray();
-                dt = new DataTable(_conPrefix + cat); // we need a prefix or we'd get an error on single-connected categories
+                dt = new DataTable(ConnectedCategoryPrefix + cat); // we need a prefix or we'd get an error on single-connected categories
                 InsertThidField(dt);
                 dt.PrimaryKey = new DataColumn[] { dt.Columns[0] };
                 foreach (var cf in connectedFields)
@@ -417,7 +384,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     };
                     OverrideDefaultThidDataType(dc);
                     // store the Commence fieldtype so we can distinguish between Date end Time later on.
-                    dc.ExtendedProperties.Add(_commenceFieldType, cd.CommenceFieldDefinition.Type);
+                    dc.ExtendedProperties.Add(CommenceFieldTypeDescriptionExtProp, cd.CommenceFieldDefinition.Type);
                     dt.Columns.Add(dc);
                 }
                 retval.Tables.Add(dt);
@@ -428,18 +395,26 @@ namespace Vovin.CmcLibNet.Export.Complex
             // it is important to understand that for any cursor, 
             // is is assumed that the THID is always the first element
             var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
-                .Select(s => new { s.Connection, s.Category })
-                .Distinct()
+                //.Select(s => new { s.Connection, s.Category })
+                .Select(s => new CommenceConnection()
+                {
+                    Name = s.Connection,
+                    ToCategory = s.Category
+                })
+                .DistinctBy(d => d.FullName) // notice the use of DistinctBy(), not Distinct()
                 .ToList();
             foreach (var lt in linkTables)
             {
-                dt = new DataTable(_cursor.Category + lt.Connection + lt.Category);
-                var dc = new DataColumn(_cursor.Category + _postFixId, typeof(int))
+                string name = LinkTableConstructor.TableName(_cursor.Category, lt.Name, lt.ToCategory);
+                dt = new DataTable(name);
+                string fkp = LinkTableConstructor.ForeignKeyOfPrimaryTable(_cursor.Category, PostFixId);
+                var dc = new DataColumn(fkp, typeof(int))
                 {
                     AllowDBNull = false
                 };
                 dt.Columns.Add(dc);
-                dc = new DataColumn(lt.Connection + lt.Category + _postFixId, typeof(int))
+                string fkc = LinkTableConstructor.ForeignKeyOfConnectedTable(lt.Name, lt.ToCategory, PostFixId);
+                dc = new DataColumn(fkc, typeof(int))
                 {
                     AllowDBNull = false
                 };
@@ -447,59 +422,63 @@ namespace Vovin.CmcLibNet.Export.Complex
                 // set compound primary key
                 dt.PrimaryKey = new DataColumn[2] { dt.Columns[0], dt.Columns[1] };
                 retval.Tables.Add(dt);
-                // add relationships to tie the linktable to the main table
-                // from lnk table to primary table
-                string rel1 = lt.Connection + lt.Category + _cursor.Category;
-                retval.Relations.Add(rel1,
+                // include the INSERT query
+                dt.ExtendedProperties.Add(LinkTableInsertCommandTextExtProp, GetInsertQueryForLinkTable(dt.TableName, fkp, fkc));
+
+                // set up the relations
+                string rel1 = lt.Name + lt.ToCategory + _cursor.Category;
+                DataRelation relPrimaryTableToLinkTable = retval.Relations.Add(rel1,
                     retval.Tables[dataSource].Columns[0],
-                    retval.Tables[dt.TableName].Columns[_cursor.Category + _postFixId],
-                    false).Nested = false;
+                    retval.Tables[dt.TableName].Columns[fkp],
+                    false);
+                relPrimaryTableToLinkTable.Nested = false;
+
+                // it may be handy to include the connection information in it,
+                // so that from the DataSet we can easily identify which Commence connection
+                // the relationship describes
+                relPrimaryTableToLinkTable.ExtendedProperties.Add(CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
+
                 // from link table to connected table
-                string rel2 = lt.Connection + lt.Category + lt.Category;
-                // test for single connections (these are only possible on a category itself)
+                string rel2 = lt.Name + lt.ToCategory + lt.ToCategory;
+                // test for single connections (these are only possible on a category itself. Maybe these should be reversed?)
                 if (!rel1.Equals(rel2))
                 {
-                    retval.Relations.Add(rel2,
-                        retval.Tables[dt.TableName].Columns[lt.Connection + lt.Category + _postFixId],
-                        retval.Tables[_conPrefix + lt.Category].Columns[0],
-                        false).Nested = false;
+                    // note that we DO NOT set the reverse Commence connection
+                    // That is because even though there may be a reverse connection (provided the connnection is paired),
+                    // there is no way to obtain that information from the Commence API.
+                    // In Commence, the name of the reverse connection can be any string,
+                    // we do not know anything about it at this point.
+                    DataRelation relConnectedTableToLinkTable = retval.Relations.Add(rel2,
+                        retval.Tables[ConnectedCategoryPrefix + lt.ToCategory].Columns[0],
+                        retval.Tables[dt.TableName].Columns[fkc],
+                        false);
+                    relConnectedTableToLinkTable.Nested = false;
+                    relConnectedTableToLinkTable.ExtendedProperties.Add(CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
+                    // include the SELECT query
+                    dt.ExtendedProperties.Add(LinkTableSelectCommandTextExtProp,
+                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, ConnectedCategoryPrefix + lt.ToCategory));
                 }
-            }
+                else
+                {
+                    // we have a single connection on the category itself,
+                    // so we must alter the select query to reflect that we are in fact reading a connection
+                    dt.ExtendedProperties.Add(LinkTableSelectCommandTextExtProp,
+                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, ConnectedCategoryPrefix + lt.ToCategory, true));
+                }
+            } // foreach
             return retval;
-        }
-
-        // Notice we make it an Int32
-        // This is because that way we can make SQLite much faster
-        // it means that we must not store the entire thid (which is a string)
-        // but only the last portion
-        private void InsertThidField(DataTable dt)
-        {
-            DataColumn dc = new DataColumn(ColumnDefinitions[0].FieldName, typeof(int))
-            {
-                AllowDBNull = false
-            };
-            dt.Columns.Add(dc);
-        }
-
-        private void OverrideDefaultThidDataType(DataColumn dc)
-        {
-            if (dc.ColumnName.Equals(ColumnParser.thidIdentifier))
-            {
-                dc.DataType = typeof(int);
-                dc.AllowDBNull = false;
-            } // we will use int as datatype even tho a thid is a string
         }
 
         private void CreateSqliteDatabase(DataSet ds)
         {
-            using (var con = new SQLiteConnection(cs))
+            using (var con = new SQLiteConnection(_cs))
             {
                 con.Open();
                 using (var transaction = con.BeginTransaction())
                 {
                     foreach (DataTable dt in ds.Tables)
                     {
-                        string ct = GetSqlCreateTableCommand(dt);
+                        string ct = GetSqlCreateTableQuery(dt);
                         using (var cmd = new SQLiteCommand(ct, con))
                         {
                             cmd.ExecuteNonQuery();
@@ -510,17 +489,236 @@ namespace Vovin.CmcLibNet.Export.Complex
             } // using con
         }
 
-        private string GetSqlCreateTableCommand(DataTable dt)
+        #region Query methods
+        internal static string GetSQLiteSelectQueryForTable(DataTable dt)
+        {
+            StringBuilder sb = new StringBuilder($"SELECT ");
+            List<string> cols = new List<string>();
+            foreach (DataColumn dc in dt.Columns)
+            {
+                cols.Add(GetSQLiteSelectColumnSyntax(dc));
+            }
+            sb.Append(string.Join(",", cols));
+            sb.Append($" FROM {SanitizeSqlIdentifier(dt.TableName)}");
+            return sb.ToString();
+        }
+
+        private string GetSelectQueryForLinkTable(
+                DataRelation dr,
+                string fkPrimary,
+                string fkConnected,
+                string connectedTableName,
+                bool isSingleConnection = false)
+        {
+            // would this work with two relations to same table? 
+            // Yes, because they are distinct objects
+            IDictionary<DataTable, SQLiteCommand> retval = new Dictionary<DataTable, SQLiteCommand>();
+            StringBuilder sb = new StringBuilder("SELECT ");
+
+            // get a datatable with only the requested connected fields from Commence
+            // this method call will also deserialize to CommenceConnection
+            var leftTable = GetDataTableWithOnlyRequestedFields(dr); // table with the connected data, not the linktable
+            IList<string> colNames = new List<string>();
+
+            /* Query should look like this:
+                * SELECT b.Title FROM Books AS b
+                JOIN AuthorBook AS ab ON ab.BookID = b.BookID
+                JOIN Authors AS a ON ab.AuthorID = a.AuthorID
+                WHERE a.AuthorID = @id
+                */
+            foreach (DataColumn dc in leftTable.Columns)
+            {
+                // SELECT queries rely on aliases
+                // if we have a date of time column, there is no field name in the select query;
+                // (it will be: function(columnname) AS alias)
+                // not a problem, we can check for that.
+                // However, if nested connections were requested,
+                // we do not want the entire connection description in the fieldname
+                string customAlias = string.Empty;
+                if (dc.DataType == typeof(DateTime) && _settings.NestConnectedItems)
+                {
+                    customAlias = GetAliasForColumn(dc);
+                }
+
+                if (!isSingleConnection)
+                {
+                    colNames.Add(GetSQLiteSelectColumnSyntax("b.", dc, customAlias));
+                }
+                // for data requested if for a Commence category with a single connection to itself
+                // this is typically very rare (I've never used one in 20 years)
+                // in the output, the fields would look like belonging to the primary category (and they do);
+                // we have to make it explicit that they are in fact coming from a connection
+                else
+                {
+                    // no check if property exists
+                    CommenceConnection cc = JsonConvert.DeserializeObject<CommenceConnection>(
+                        dr.ExtendedProperties[CommenceConnectionDescriptionExtProp].ToString());
+                    if (dc.DataType == typeof(DateTime) && _settings.NestConnectedItems)
+                    {
+                        customAlias = GetAliasForColumn(dc);
+                    }
+                    else
+                    {
+                        customAlias = cc.Name + cc.ToCategory + GetAliasForColumn(dc);
+                    }
+                    colNames.Add(GetSQLiteSelectColumnSyntax("b.", dc, customAlias));
+                }
+            }
+            sb.Append(string.Join(",", colNames));
+            sb.Append(" FROM ");
+            sb.Append(SanitizeSqlIdentifier(leftTable.TableName));
+            sb.Append(" AS b");
+            // linktable to connected table
+            sb.Append(" JOIN ");
+            sb.Append(SanitizeSqlIdentifier(dr.ChildTable.TableName));
+            sb.Append(" AS ab ON ab.");
+            sb.Append(SanitizeSqlIdentifier(fkConnected));
+            sb.Append("=b.");
+            sb.Append(SanitizeSqlIdentifier(leftTable.PrimaryKey[0].ColumnName));
+            // linktable to primary table
+            sb.Append(" JOIN ");
+            sb.Append(SanitizeSqlIdentifier(dr.ParentTable.TableName)); // should be primary table
+            sb.Append(" AS a ON a.");
+            sb.Append(SanitizeSqlIdentifier(dr.ParentTable.PrimaryKey[0].ColumnName));
+            sb.Append("=ab.");
+            sb.Append(SanitizeSqlIdentifier(fkPrimary));
+            sb.Append($" WHERE a.{SanitizeSqlIdentifier(dr.ParentTable.PrimaryKey[0].ColumnName)} = @id");
+            return sb.ToString();
+        }
+
+        internal static string GetSQLiteSelectColumnSyntax(DataColumn dc, string customAlias = "")
+        {
+            string colName = SanitizeSqlIdentifier(dc.ColumnName);
+            string alias = string.IsNullOrEmpty(customAlias) 
+                ? SanitizeSqlIdentifier(dc.Caption)
+                : SanitizeSqlIdentifier(customAlias);
+            // process special cases
+            // refer: https://www.sqlitetutorial.net/sqlite-date-functions/sqlite-date-function/
+            if (dc.DataType == typeof(DateTime)
+                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
+            {
+                colName = $"date({colName})"; // returns YYYY-MM-DD
+            }
+            else if (dc.DataType == typeof(DateTime)
+                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
+            {
+                colName = $"time({colName})"; // returns HH:MM:SS
+            }
+            colName = $"{colName} AS {alias}";
+            return colName;
+        }
+
+        internal static string GetSQLiteSelectColumnSyntax(string prefix, DataColumn dc, string customAlias)
+        {
+            string colName = SanitizeSqlIdentifier(dc.ColumnName);
+            string alias = string.IsNullOrEmpty(customAlias)
+                ? SanitizeSqlIdentifier(dc.Caption)
+                : SanitizeSqlIdentifier(customAlias);
+            // process special cases
+            // refer: https://www.sqlitetutorial.net/sqlite-date-functions/sqlite-date-function/
+            if (dc.DataType == typeof(DateTime)
+                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
+            {
+                return colName = $"date({prefix}{colName}) AS {alias}"; // returns YYYY-MM-DD
+            }
+            else if (dc.DataType == typeof(DateTime)
+                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
+            {
+                return colName = $"time({prefix}{colName})  AS {alias}"; // returns HH:MM:SS
+            }
+            return colName = $"{prefix}{colName} AS {alias}";
+        }
+
+        private string GetInsertQueryForDirectTable()
+        {
+            StringBuilder sb = new StringBuilder("INSERT INTO ");
+            sb.Append($"'{CurrentCursorDescriptor.SqlColumnMappings.First().Value.TableName}'");
+            sb.Append('(');
+            sb.Append(string.Join(",", CurrentCursorDescriptor.SqlColumnMappings.Select(s => $"'{s.Value.ColumnName}'")));
+            sb.Append(") VALUES(");
+            // just use numeric placeholders
+            int[] elements = new int[CurrentCursorDescriptor.SqlColumnMappings.Count];
+            for (int i = 0; i < elements.Length; i++)
+            {
+                elements[i] = i;
+            }
+            sb.Append(string.Join(",", elements.Select(s => $"@p{s}")));
+            sb.Append(')');
+            return sb.ToString();
+        }
+        
+        private IEnumerable<string> GetInsertQueriesForLinkTables()
+        {
+            var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
+                .Select(s => new { s.Connection, s.Category })
+                .Distinct()
+                .ToList();
+            foreach (var lt in linkTables)
+            {
+                // a link table always contains just 2 columns
+                StringBuilder sb = new StringBuilder("INSERT INTO ");
+                string s = LinkTableConstructor.TableName(_cursor.Category, lt.Connection, lt.Category);
+                sb.Append(SanitizeSqlIdentifier(s)); // expects name of link table
+                sb.Append('(');
+                s = LinkTableConstructor.ForeignKeyOfPrimaryTable(_cursor.Category, PostFixId);
+                sb.Append(SanitizeSqlIdentifier(s)); // primary key of primary category.
+                sb.Append(',');
+                s = LinkTableConstructor.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, PostFixId);
+                sb.Append(SanitizeSqlIdentifier(s)); // the foreign key.
+                sb.Append(") VALUES (");
+                sb.Append(_pkParamName);
+                sb.Append(',');
+                sb.Append(_fkParamName);
+                sb.Append(')');
+                yield return sb.ToString();
+            }
+        }
+
+        private string GetInsertQueryForLinkTable(
+                string tableName,
+                string fkPrimary,
+                string fkCconnected)
+        {
+            // a link table always contains just 2 columns
+            StringBuilder sb = new StringBuilder("INSERT INTO ");
+            sb.Append(SanitizeSqlIdentifier(tableName));
+            sb.Append('(');
+            sb.Append(SanitizeSqlIdentifier(fkPrimary)); // primary key of primary category.
+            sb.Append(',');
+            sb.Append(SanitizeSqlIdentifier(fkCconnected)); // the foreign key.
+            sb.Append(") VALUES (");
+            sb.Append(_pkParamName);
+            sb.Append(',');
+            sb.Append(_fkParamName);
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        private void OverrideDefaultThidDataType(DataColumn dc)
+        {
+            if (dc.ColumnName.Equals(ColumnParser.ThidIdentifier))
+            {
+                dc.DataType = typeof(int);
+                dc.AllowDBNull = false;
+            } // we will use int as datatype even tho a thid is a string
+        }
+
+        private string GetSqlCreateTableQuery(DataTable dt)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("CREATE TABLE "); // note the single quote to escape weird names
-            sb.Append($"'{dt.TableName}'");
+            sb.Append("CREATE TABLE ");
+            sb.Append(SanitizeSqlIdentifier(dt.TableName));
             sb.Append('(');
             var columnCommands = GetSqlCreateColumnCommands(dt.Columns).ToArray();
             sb.Append(string.Join(",", columnCommands));
             sb.Append(",PRIMARY KEY(");
-            sb.Append(string.Join(",", dt.PrimaryKey.Select(s => $"'{s.ColumnName}'")).ToArray());
-            sb.Append(")) WITHOUT ROWID"); // we supply our own primary keys so no need for a rowid
+            sb.Append(string.Join(",", dt.PrimaryKey.Select(s => SanitizeSqlIdentifier(s.ColumnName))).ToArray());
+            // TODO should we include logic for including a 'REFERENCES' keyword?
+            sb.Append(")) WITHOUT ROWID"); // we supply our own primary keys so no need for a rowid. Does not work nicely with LinqPad.
             return sb.ToString();
         }
 
@@ -531,21 +729,77 @@ namespace Vovin.CmcLibNet.Export.Complex
             {
                 sb.Clear();
                 sb.Append($"'{c.ColumnName}'");
-                //sb.Append(' ');
+                sb.Append(' ');
                 // type
-                //sb.Append(c.DataType.Name); // leave the translation to Sqlite. Not sure if this will work
                 // nullable
                 if (!c.AllowDBNull)
                 {
-                    sb.Append(" INTEGER NOT NULL");
+                    sb.Append("INTEGER NOT NULL"); // only thid fields
+                }
+                else
+                {
+                    sb.Append(c.DataType.Name);
                 }
                 // we do not set primary key here!
                 yield return sb.ToString();
             }
         }
 
+        // When the dataset is constructed, fields from different connections
+        // that belong to the same category are aggregated,
+        // so we need a way to figure out what fields were originally requested for what connection.
+        // The original cursor's columndefinition still holds that information.
+        private DataTable GetDataTableWithOnlyRequestedFields(DataRelation relation)
+        {
+            
+            DataTable dt = null;
+            CommenceConnection cc = null;
+            if (relation.ExtendedProperties.ContainsKey(CommenceConnectionDescriptionExtProp))
+            {
+                cc = JsonConvert.DeserializeObject<CommenceConnection>(relation.ExtendedProperties[CommenceConnectionDescriptionExtProp].ToString());
+            }
+            if (cc is null) { return dt; }
+
+            IEnumerable<ColumnDefinition> columnDefinitions = originalColumnDefinitions.Where(w => w.IsConnection
+                    && w.Connection.Equals(cc.Name)
+                    && w.Category.Equals(cc.ToCategory)).ToArray();
+            if (columnDefinitions.Any())
+            {
+                // the whole point of this method is selecting a subset of its fields
+                // what we can do is use the existing columns in it more easily create our own columns
+                // the connected table is not in the relationship, but it is in the connection.
+                string tableName = ConnectedCategoryPrefix + cc.ToCategory; // fragile
+                DataTable fullTable = relation.DataSet.Tables[tableName];
+                dt = fullTable.Clone();
+                var requestedFields = columnDefinitions.Select(s => s.FieldName).ToArray();
+                foreach (DataColumn column in fullTable.Columns)
+                {
+                    // remove unneeded columns
+                    if (!requestedFields.Contains(column.ColumnName) && !fullTable.PrimaryKey.Contains(column))
+                    {
+                        dt.Columns.Remove(column.ColumnName);
+                    }
+                }
+            }
+            return dt;
+        }
+        #endregion
+
+        #region Helper methods
+
+        // Notice we make it an int
+        // This is because that way we can make SQLite faster
+        // it means that we must not store the entire thid (which is a string)
+        // but only the sequence number bit
+        private void InsertThidField(DataTable dt)
+        {
+            DataColumn dc = new DataColumn(ColumnDefinitions[0].FieldName, typeof(int))
+            {
+                AllowDBNull = false
+            };
+            dt.Columns.Add(dc);
+        }
         // a thid comes in the form of a:b:c (shared item) or a:b:c:d (local item, technically this is a rowid)
-        // the last element is always the sequence field, in hexadecimal notation
         private int SequenceFromThid(string thid, bool shared)
         {
             if (!shared)
@@ -573,20 +827,14 @@ namespace Vovin.CmcLibNet.Export.Complex
 
         internal void PopulateCursorDescriptors(DataTable dt, string categoryName, bool isPrimary)
         {
-            // would it be wise to collect some metadata here?
-            // specifically, the connection counts for all involved categories?
-            // it could help speed up the reading process because in some cases, filters coud be applied
-            // if we would ever allow nested exports, this may get a little complicated
-
-            CursorParameters cp;
-            CmcCursorType cursorType = string.IsNullOrEmpty(_cursor.View) ? CmcCursorType.Category : CmcCursorType.View;
+            CursorDescriptor cp;
+            CmcCursorType cursorType = ((CommenceCursor)_cursor).CursorType; // ICommenceCursor doesn't expose this property
             // for the creation of the filters, we need the name fields of all involved categories
             // we also must count if we do not exceed 8 filters
             // if we do, do not apply filtering at all
             if (isPrimary)
             {
-                // this will lose the current filter if it is on a category!!
-                // The question is: do we care? Probably only when exporting a Cursor to file from CommenceCursor
+                // this will lose the current filter if it is on a category!
                 // create a cursor with all direct fields
                 var directFields = dt.Columns
                     .Cast<DataColumn>()
@@ -594,7 +842,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     .Select(s => s.ColumnName)
                     .ToArray();
 
-                cp = new CursorParameters(categoryName)
+                cp = new CursorDescriptor(categoryName)
                 {
                     Fields = directFields,
                     CursorType = cursorType,
@@ -603,9 +851,10 @@ namespace Vovin.CmcLibNet.Export.Complex
                 cp.CreateSqlMapping(dt);
                 CursorDescriptors.Add(cp);
 
-                // create a second cursor with the connected fields
-                // so we read less data
-                // but you can do SetColumn on a cursor just once. There is no UnsetColumn
+                // create a second cursor with only the connected fields so we read less data.
+                // You can SetColumn on a cursor just once. There is no UnsetColumn
+                // Note that we do retain the cursor type,
+                // if we would not do that, we'd read the entire category
                 var distinctConnections = ColumnDefinitions.Where(w => w.IsConnection)
                     .Select(s => new { s.Connection, s.Category })
                     .Distinct()
@@ -622,17 +871,17 @@ namespace Vovin.CmcLibNet.Export.Complex
                         // we screate a custom SqlMap object here
                         // because there is no corresponding table in the dataset
                         dict.Add(i, new SqlMap(_cursor.Category + distinctConnections[i].Connection + distinctConnections[i].Category,
-                            distinctConnections[i].Category + _postFixId,
+                            distinctConnections[i].Category + PostFixId,
                             true));
                     }
 
                     // capture the parameters
-                    cp = new CursorParameters(categoryName)
+                    cp = new CursorDescriptor(categoryName)
                     {
                         Fields = conFields,
                         MaxFieldSize = CommenceLimits.MaxItems * (CommenceLimits.ThidLength + 2), // 11.500.000
                         CursorType = cursorType,
-                        IsLinkTable = true,
+                        IsTableWithConnectedThids = true,
                         SqlColumnMappings = dict
                     };
                     CursorDescriptors.Add(cp);
@@ -645,7 +894,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 // but we cannot because Commence exposes no mechanism of matching paired connections
                 // Therefore, if a category has multiple connections to the same other category
                 // you cannot determine which 'reverse' filter to apply
-                // We can apply a filter if just a single connection exists
+                // We could apply a filter if just a single connection exists
                 // between the primary category and the connected category
 
                 // what we will do instead is take all the connections and filter them all.
@@ -653,11 +902,11 @@ namespace Vovin.CmcLibNet.Export.Complex
                 IList<ICursorFilterTypeCTCF> filters = GetFilters(categoryName, _cursor.Category).ToArray();
 
                 // capture the parameters
-                cp = new CursorParameters(categoryName)
+                cp = new CursorDescriptor(categoryName)
                 {
                     Fields = dt.Columns
                         .Cast<DataColumn>()
-                        .Where(w => w.ColumnName != ColumnParser.thidIdentifier)
+                        .Where(w => w.ColumnName != ColumnParser.ThidIdentifier)
                         .Select(c => c.ColumnName)
                         .ToList(),
                     MaxFieldSize = (int)Math.Pow(2, 15), // 32.768‬
@@ -697,6 +946,32 @@ namespace Vovin.CmcLibNet.Export.Complex
                 }
             }
         }
+
+        internal static string SanitizeSqlIdentifier(string s)
+        {
+            if (s is null)
+            {
+                throw new ArgumentNullException();
+            }
+            // escape double quotes
+            s = s.Replace("\"", "\"\"");
+            // double quote return value
+            return string.Format("\"{0}\"", s);
+        }
+
+        private string GetAliasForColumn(DataColumn dc)
+        {
+            if (dc.DataType == typeof(DateTime))
+            {
+                return dc.ColumnName;
+            }
+            else
+            {
+                return string.IsNullOrEmpty(dc.Caption)
+                                ? dc.ColumnName
+                                : dc.Caption;
+            }
+        }
         #endregion
 
         #region IDisposable
@@ -730,6 +1005,18 @@ namespace Vovin.CmcLibNet.Export.Complex
             // Call the base class implementation.
             base.Dispose(disposing);
         }
-#endregion
+        #endregion
+
+        #region Properties
+        private IList<CursorDescriptor> CursorDescriptors { get; } = new List<CursorDescriptor>();
+        // allows us to keep track of what CursorDescriptor we are currently processing
+        private CursorDescriptor CurrentCursorDescriptor { get; set; }
+        private static string CommenceFieldTypeDescriptionExtProp { get; } = "CommenceFieldTypeDescription";
+        internal static string CommenceConnectionDescriptionExtProp { get; } = "CommenceConnectionDescription";
+        private static string LinkTableInsertCommandTextExtProp { get; } = "InsertCommandText";
+        internal static string LinkTableSelectCommandTextExtProp { get; } = "SelectCommandText";
+        internal static string ConnectedCategoryPrefix { get; } = "_connectedCategory";
+        internal static string PostFixId { get; } = "_ID";
+        #endregion
     }
 }

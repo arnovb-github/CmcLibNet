@@ -4,8 +4,14 @@ using System.Runtime.InteropServices;
 namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
-    /// interface for ExportSettings.
+    /// Interface for ExportSettings.
     /// </summary>
+    /// <remarks>Some setttings will negate others or be ignored when not applicable or be manipulated internally.
+    /// This is not always fully documented.
+    /// <para>You should NOT create code that relies on the settings you provided. 
+    /// For example: if you set both <see cref="MaxFieldSize"/> and <see cref="NumRows"/> to a huge number,
+    /// the assembly will balance them out so as to prevent out-of-memory exceptions.</para>
+    /// </remarks>
     [ComVisible(true)]
     [Guid("2C8B94A9-10AA-49F8-90C7-056492031E17")]
     public interface IExportSettings
@@ -54,7 +60,7 @@ namespace Vovin.CmcLibNet.Export
         /// <para>The recommended way to ignore connected items is simply to create a custom cursor or view that does not include them.</para></remarks>
         bool SkipConnectedItems { get; set; }
         /// <summary>
-        /// CSS file to be associated with an HTML export.
+        /// External CSS file to be associated with an HTML export. It will not be in-lined.
         /// Only applies to HTML exports. Default is empty (no CSSFile).
         /// </summary>
         string CSSFile { get; set; }
@@ -75,19 +81,14 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         bool HeadersOnFirstRow { get; set; }
         /// <summary>
-        /// Make values ISO8601-compliant.
+        /// Make values ISO8601-compliant. Overrides <see cref="Canonical"/>.
         /// </summary>
         bool ISO8601Compliant { get; set; }
-        ///// <summary>
-        ///// XML Schema Definition file associated with XML export. This property is not intended for use in your code. It is exposed publicly to fulfill COM Interop requirements. Setting this property has no effect.
-        ///// </summary>
-        //[Obsolete]
-        //string XSDFile { get; set; }
         /// <summary>
-        /// Treat connections as distinct nodes/elements. Formatting options will be ignored.
+        /// Treat connections as distinct nodes/elements. Formatting options may be ignored. Default is <code>false</code>.
         /// </summary>
         /// <remarks>
-        /// Only applies to <see cref="ExportFormat.Json"/>. <see cref="ExportFormat.Xml"/> nests items by default.
+        /// Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
         /// </remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
@@ -95,20 +96,33 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <remarks>Should only be used as a last resort, as this can take a *very* long time.
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
-        /// This setting will request the connected items one by one. <seealso cref="PreserveAllConnections"/></para></remarks>
+        /// This setting will request the connected items one by one. <seealso cref="PreserveAllConnections"/></para>
+        /// </remarks>
         bool UseDDE { get; set; }
         /// <summary>
-        /// Include all connected items
+        /// Include all connected items.
+        /// Overrides <see cref="Canonical"/>, <see cref="ISO8601Compliant"/>, <see cref="SkipConnectedItems"/>,
+        /// <see cref="SplitConnectedItems"/>. 
         /// </summary>
-        /// <remarks>Use this if connected data is truncated. Will be significantly slower due to multiple data reads.</remarks>
+        /// <remarks>Use this if connected data is truncated. Will be significantly slower due to multiple data reads.
+        /// <para>Changes the order of columns in the cursor; direct columns will come first, then connected columns.</para>
+        /// </remarks>
         bool PreserveAllConnections { get; set; }
+        /// <summary>
+        /// Get serialized XML with a XmlSchema (XSD).
+        /// Only applies with <see cref="PreserveAllConnections"/> in combination with <see cref="ExportFormat.Xml"/>. 
+        /// Default is <code>false</code>.
+        /// </summary>
+        /// <remarks>Uses ADO.NET built-in serialization. Allows for importing into SQL Server and performing your own query logic.</remarks>
+        bool WriteSchema { get; set; }
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// </summary>
         /// <remarks>
         /// When set to <c>true</c>, any connected value is an object containing information about the connection,
-        /// when set to <c>false</c>, the values will be just an array. Only applies to <see cref="ExportFormat.Json"/>.
+        /// when set to <c>false</c>, the values will be just an array..
         /// </remarks>
+        // TODO: incorporate this in XML exports?
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
         /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>. Default is <c>true</c>.
@@ -149,14 +163,6 @@ namespace Vovin.CmcLibNet.Export
         [Obsolete]
         bool DeleteExcelFileBeforeExport { get; set; }
         /// <summary>
-        /// Read Commence data async. Async reads tend to be slightly faster (5-10%), but it depends on a number of things,
-        /// such as <see cref="NumRows"/> and <see cref="MaxFieldSize"/>.
-        /// Default is <c>true</c>.
-        /// </summary>
-        /// <remarks>When <c>true</c>, errors are collected in a <see cref="System.AggregateException"/>. They are harder to debug.
-        /// Set this to <c>false</c> if you want the immediate exception.</remarks>
-        bool ReadCommenceDataAsync { get; set; }
-        /// <summary>
         /// Update options when exporting to Microsoft Excel
         /// </summary>
         ExcelUpdateOptions XlUpdateOptions { get; set; }
@@ -170,10 +176,20 @@ namespace Vovin.CmcLibNet.Export
         /// <item><term><see cref="ExportFormat.Json"/></term><description>Custom top-level node name</description></item>
         /// <item><term><see cref="ExportFormat.Xml"/></term><description>Custom root element name</description></item>
         /// </list>
-        /// <para>If left empty, it defaults to the datasource name.
+        /// <para>Defaults to the datasource name.
         /// For a view, this is the viewname,
         /// for a category or cursor this is the (primary) category name.</para>
         /// </remarks>
         string CustomRootNode { get; set; }
+        /// <summary>
+        /// Read Commence data in an asynchronous way. Async reads tend to be slightly faster, but it depends on a number of things,
+        /// such as <see cref="NumRows"/> and <see cref="MaxFieldSize"/>.
+        /// <para>When you export to <see cref="ExportFormat.Excel"/> or use <see cref="PreserveAllConnections"/> there is a performance gain.</para>
+        /// <para>Default is <c>true</c>.</para>
+        /// </summary>
+        /// <remarks>When <c>true</c>, errors are collected in a <see cref="System.AggregateException"/>. They are harder to debug.
+        /// Set this to <c>false</c> if you want the immediate exception.
+        /// </remarks>
+        bool ReadCommenceDataAsync { get; set; }
     }
 }

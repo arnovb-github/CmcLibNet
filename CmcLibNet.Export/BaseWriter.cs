@@ -107,7 +107,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="sender">sender.</param>
         /// <param name="e">ExportProgressChangedArgs.</param>
-        protected internal abstract void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e);
+        protected internal abstract void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e);
 
         /// <summary>
         /// Method that deals with any finalization of the export,
@@ -421,7 +421,7 @@ namespace Vovin.CmcLibNet.Export
         /// Handler used to bubble up the ExportProgressChanged event
         /// </summary>
         /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressAsStringChangedArgs e)
+        protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
         {
             ExportProgressAsStringChangedHandler handler = ExportProgressChanged;
             if (handler == null) { return; } // no subscriptions
@@ -461,9 +461,9 @@ namespace Vovin.CmcLibNet.Export
         /// Derived classes can use this method to bubble up the ExportProgressChanged event
         /// </summary>
         /// <param name="e">ExportProgressChangedArgs</param>
-        protected void BubbleUpProgressEvent(ExportProgressChangedArgs e)
+        protected void BubbleUpProgressEvent(CursorDataReadProgressChangedArgs e)
         {
-            OnExportProgressChanged(new ExportProgressAsStringChangedArgs(e.RowsProcessed, e.RowsTotal));
+            OnExportProgressChanged(new ExportProgressChangedArgs(e.RowsProcessed, e.RowsTotal));
         }
 
         protected void BubbleUpCompletedEvent(ExportCompleteArgs e)

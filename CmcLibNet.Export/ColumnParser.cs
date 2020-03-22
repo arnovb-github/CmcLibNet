@@ -15,7 +15,6 @@ namespace Vovin.CmcLibNet.Export
         /// Delimiter Commence returns in columnlabels when requested from a view.
         /// </summary>
         private readonly string connDelim = "%%";
-        internal static string thidIdentifier = "THID"; // a bit dangerous, a database *could* have a field already named THID
 
         /// <summary>
         /// Collection of <see cref="ColumnDefinition"/> objects that hold information on a column.
@@ -73,11 +72,11 @@ namespace Vovin.CmcLibNet.Export
             // this is a little tricky
             if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                ColumnDefinition cd = new ColumnDefinition(db, 0, thidIdentifier)
+                ColumnDefinition cd = new ColumnDefinition(db, 0, ThidIdentifier)
                 {
-                    FieldName = thidIdentifier,
-                    CustomColumnLabel = thidIdentifier,
-                    ColumnLabel = thidIdentifier,
+                    FieldName = ThidIdentifier,
+                    CustomColumnLabel = ThidIdentifier,
+                    ColumnLabel = ThidIdentifier,
                     Category = _cursor.Category,
                     CommenceFieldDefinition = new CommenceFieldDefinition() // provide empty definition to prevent DDEException on GetFieldDefinition
                 };
@@ -197,7 +196,8 @@ namespace Vovin.CmcLibNet.Export
             {
                 // we can split on the delimiter, the last element will be the fieldname in the connected category
                 string[] s = connectedColumn.Split(new string[] { connDelim }, StringSplitOptions.None);
-                delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.ConnectedField);
+                //delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.ConnectedField);
+                delim = GetDelimiter(RelatedColumnType.ConnectedField);
                 retval = new RelatedColumn(s[0], s[1], s[2], RelatedColumnType.ConnectedField, delim);
             }
             if (connectedColumn.Contains(' ')) // this can be shorter
@@ -206,57 +206,98 @@ namespace Vovin.CmcLibNet.Export
                     if (connectedColumn.StartsWith(c.Name) && connectedColumn.EndsWith(c.ToCategory)
                         && connectedColumn.Length == c.Name.Length + c.ToCategory.Length + 1)
                     {
-                        delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.Connection);
+                        //delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.Connection);
+                        delim = GetDelimiter(RelatedColumnType.Connection);
                         retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
                     }
                 }
             return retval;
         }
+
+        // old implementation, which was probably too convoluted.
+        ///// <summary>
+        ///// Returns the delimiter Commence will use when returning column data.
+        ///// </summary>
+        ///// <param name="cur">CommenceCursor.</param>
+        ///// <param name="rct">RelatedColumnType enum value.</param>
+        ///// <returns>delimiter.</returns>
+        //private string GetDelimiter(CommenceCursor cur, RelatedColumnType rct)
+        //{
+        //    /* Delimiter depends on cursor type and underlying view (if cursor is on view)
+        //     * Luckily, it does not matter if the thids flag is used or not
+        //     */
+        //    string retval = "\n";
+        //    // check cursor type
+        //    switch (cur.CursorType)
+        //    {
+        //        case CmcCursorType.Category:
+
+        //            switch (rct)
+        //            {
+        //                case RelatedColumnType.Connection:
+        //                    retval = ", "; // note the trailing space
+        //                    break;
+        //                case RelatedColumnType.ConnectedField:
+        //                    retval = "\n";
+        //                    break;
+        //            }
+        //            break;
+
+        //        case CmcCursorType.View:
+
+        //            switch (cur.ViewType)
+        //            {
+        //                // process only viewtypes on which a cursor can be created
+        //                case CommenceViewType.Book:
+        //                    retval = ", ";
+        //                    break;
+        //                case CommenceViewType.Grid:
+        //                case CommenceViewType.Report:
+        //                    retval = "\n";
+        //                    break;
+        //            }
+        //            break;
+        //    }
+        //    return retval;
+        //}
+
+
         /// <summary>
         /// Returns the delimiter Commence will use when returning column data.
         /// </summary>
-        /// <param name="cur">CommenceCursor.</param>
         /// <param name="rct">RelatedColumnType enum value.</param>
         /// <returns>delimiter.</returns>
-        private string GetDelimiter(CommenceCursor cur, RelatedColumnType rct)
+        // simplified implementation
+        private string GetDelimiter(RelatedColumnType rct)
         {
             /* Delimiter depends on cursor type and underlying view (if cursor is on view)
-             * Luckily, it does not matter if the thids flag is used or not
-             */ 
-            string retval = "\n";
-            // check cursor type
-            switch (cur.CursorType)
+            * Luckily, changing flags doesn't alter this behaviour, it is complex enough as it is.
+            *
+            * If you would redefine the columns, you get different results.
+            * For example:
+            * If you do SetColumn(n, "ConnectionName CategoryName, 0) 
+            * then that column will be comma-separated
+            * If you do SetRelatedColumn(n, "ConnectionName", "CategoryName", "FieldName", 0), 
+            * then that column will be newline-separated
+            * (i.o.w., it will then act just like a Category type cursor)
+            * That means that within the same View, you can have different delimiters.
+            * Commence is such a mess in that respect :(
+            */
+            switch (rct)
             {
-                case CmcCursorType.Category:
-                    
-                    switch (rct)
-                    {
-                        case RelatedColumnType.Connection:
-                            retval = ", "; // note the trailing space
-                            break;
-                        case RelatedColumnType.ConnectedField:
-                            retval = "\n";
-                            break;
-                    }
-                    break;
-
-                case CmcCursorType.View:
-                    
-                    switch (cur.ViewType)
-                    {
-                        // process only viewtypes on which a cursor can be created
-                        case CommenceViewType.Book:
-                            retval = ", ";
-                            break;
-                        case CommenceViewType.Grid:
-                        case CommenceViewType.Report:
-                            retval = "\n";
-                            break;
-                    }
-                    break;
+                case RelatedColumnType.Connection:
+                    return ", "; // note the trailing space
+                case RelatedColumnType.ConnectedField:
+                    return "\n";
+                default:
+                    return "\n";
             }
-            return retval;
         }
+
+        #endregion
+
+        #region Properties
+        internal static string ThidIdentifier { get; } = "THID"; // TODO is this a good place for this? It is a little obscure 
         #endregion
     }
 }

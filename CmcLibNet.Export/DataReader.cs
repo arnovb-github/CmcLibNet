@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Export
     internal class DataReader
     {
         // delegates
-        internal delegate void DataProgressChangedHandler(object sender, ExportProgressChangedArgs e);
+        internal delegate void DataProgressChangedHandler(object sender, CursorDataReadProgressChangedArgs e);
         internal delegate void DataReadCompleteHandler(object sender, ExportCompleteArgs e);
         
         // events
@@ -22,13 +22,13 @@ namespace Vovin.CmcLibNet.Export
         internal event DataReadCompleteHandler DataReadCompleted;
         
         // fields
-        private readonly CommenceCursor cursor = null;
-        private readonly IExportSettings settings = null;
+        private readonly CommenceCursor cursor;
+        private readonly IExportSettings settings;
         private readonly int numRows; // maximum number of rows to read per iteration
-        private readonly List<ColumnDefinition> columnDefinitions = null;
+        private readonly List<ColumnDefinition> columnDefinitions;
         private readonly int totalRows = 0;
         private readonly string pattern = "(?<!\r)\n";
-        private readonly Regex regex = null;
+        private readonly Regex regex;
         private readonly bool useThids;
 
         #region Constructors
@@ -64,7 +64,7 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Event raising methods
-        protected virtual void OnDataProgressChanged(ExportProgressChangedArgs e)
+        protected virtual void OnDataProgressChanged(CursorDataReadProgressChangedArgs e)
         {
             DataProgressChanged?.Invoke(this, e);
         }
@@ -76,10 +76,7 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         #region Data fetching methods
-        /// <summary>
-        /// collect Commence rowvalues as jagged array,
-        /// then raises an event with that array.
-        /// </summary>
+        // collect Commence rowvalues as jagged array,
         internal void GetDataByAPI()
         {
             int rowsProcessed = 0;
@@ -97,7 +94,7 @@ namespace Vovin.CmcLibNet.Export
                 rowsProcessed += numRows;
                 var data = ProcessDataBatch(rawdata);
                 // raise 'progress' event
-                ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, rowsProcessed > totalRows ? totalRows : rowsProcessed, totalRows);
+                CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, rowsProcessed > totalRows ? totalRows : rowsProcessed, totalRows);
                 OnDataProgressChanged(args); // raise event after each batch of rows
             }
             // raise 'done' event
@@ -106,7 +103,7 @@ namespace Vovin.CmcLibNet.Export
         }
 
         /// <summary>
-        /// Reads data using DDE. This is extremely show and should only ever be used as a last resort
+        /// Reads data using DDE. This is extremely show and should only ever be used as a last resort.
         /// </summary>
         /// <param name="mocktables"></param>
         internal void GetDataByDDE(List<TableDef> mocktables)
@@ -226,7 +223,7 @@ namespace Vovin.CmcLibNet.Export
                     
                 } // foreach tabledef
                 rows.Add(rowvalues);
-                ExportProgressChangedArgs args = new ExportProgressChangedArgs(rows, i, totalRows); // progress within the cursor
+                CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(rows, i, totalRows); // progress within the cursor
                 OnDataProgressChanged(args);
             } // i
             db = null;
@@ -235,7 +232,7 @@ namespace Vovin.CmcLibNet.Export
         }
         #endregion
 
-        #region Supporting methods
+        #region Helper methods
         /// <summary>
         /// Takes raw cursor data and returns a list of CommenceValue lists
         /// </summary>
@@ -315,10 +312,14 @@ namespace Vovin.CmcLibNet.Export
                             {
                                 switch (cd.CommenceFieldDefinition.Type)
                                 {
-                                    case Database.CommenceFieldType.Text:
+                                    case CommenceFieldType.Text:
+                                    case CommenceFieldType.URL:
+                                        // any non-Name text field in Commence will accept a \n
                                         // we use a regex to split values at "\n" *but not* "\r\n"
                                         // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
                                         // in that case, your only option is to suppress the splitting in ExportSettings
+                                        // what we *should* do is change every instance of a single \n to '\r\n' first
+                                        // that would be safer, but we cannot distinguish between them.
                                         buffer = regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
                                         break;
                                     default:
@@ -450,7 +451,7 @@ namespace Vovin.CmcLibNet.Export
                     if (CTS.Token.IsCancellationRequested) { break; }
 
                     var data = ProcessDataBatch(value.Data);
-                    ExportProgressChangedArgs args = new ExportProgressChangedArgs(data, value.RowsProcessed, totalRows);
+                    CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
             }, TaskCreationOptions.LongRunning); // longrunning is probably overkill here
