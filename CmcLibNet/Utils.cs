@@ -84,7 +84,7 @@ namespace Vovin.CmcLibNet
             if (string.IsNullOrEmpty(str)) { return str; }
             string pattern = @"[^.\d\w]";
             // returns a string that contains only alfanumeric characters, everything else replaced
-            return Regex.Replace(str, pattern, replaceInvalidCharsWith.ToString());
+            return Regex.Replace(str, pattern, replaceInvalidCharsWith);
         }
 
         /// <summary>
