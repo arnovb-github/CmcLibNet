@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             StringBuilder sb = new StringBuilder();
             List<JObject> list = _jc.SerializeRowValues(e.RowValues);

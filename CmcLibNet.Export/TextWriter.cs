@@ -58,7 +58,7 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             foreach (List<CommenceValue> row in e.RowValues)
             {

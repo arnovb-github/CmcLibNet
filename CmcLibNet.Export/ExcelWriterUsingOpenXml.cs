@@ -47,7 +47,7 @@ namespace Vovin.CmcLibNet.Export
             base.BubbleUpCompletedEvent(e);
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             // we just always append at this point
             AppendRows(e.RowValues);

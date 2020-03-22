@@ -28,14 +28,14 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             // construct data, create eventargs, raise event
             JsonCreator jc = new JsonCreator(this);
             List<JObject> list = jc.SerializeRowValues(e.RowValues);
             var jsonString = "[" + string.Join(",", list.Select(o => o.ToString())) + "]";
             // do custom bubbling up
-            ExportProgressAsStringChangedArgs args = new ExportProgressAsStringChangedArgs(
+            ExportProgressChangedArgs args = new ExportProgressChangedArgs(
                 e.RowsProcessed,
                 e.RowsTotal,
                 jsonString);

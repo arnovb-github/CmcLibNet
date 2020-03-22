@@ -49,7 +49,7 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             StringBuilder sb = new StringBuilder();
             

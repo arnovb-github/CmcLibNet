@@ -44,7 +44,7 @@ namespace Vovin.CmcLibNet.Export
             base.BubbleUpCompletedEvent(e);
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             // at this point EPPlus has no idea what to do with e.RowValues
             // we need to translate our values to something it understands

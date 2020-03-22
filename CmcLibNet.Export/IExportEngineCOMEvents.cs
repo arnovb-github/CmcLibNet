@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="sender">sender.</param>
         /// <param name="e">ExportProgressAsStringChangedArgs.</param>
         [DispId(1)]
-        void ExportProgressChanged(object sender, ExportProgressAsStringChangedArgs e);
+        void ExportProgressChanged(object sender, ExportProgressChangedArgs e);
 
         /// <summary>
         /// Export completed

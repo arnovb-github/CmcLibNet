@@ -42,7 +42,7 @@ namespace Vovin.CmcLibNet.Export
             _xtw.WriteStartElement(string.IsNullOrEmpty(_settings.CustomRootNode) ? "dataroot" : XmlConvert.EncodeLocalName(_settings.CustomRootNode));
         }
 
-        protected internal override void HandleProcessedDataRows(object sender, ExportProgressChangedArgs e)
+        protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
             AppendToXml(e.RowValues);
             BubbleUpProgressEvent(e);
