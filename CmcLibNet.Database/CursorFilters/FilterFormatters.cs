@@ -14,11 +14,11 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(f.FiltertypeIdentifier);
             sb.Append(',');
             sb.Append(f.Except ? "NOT," : ",");
-            sb.Append(Utils.dq(f.Connection));
+            sb.Append(Utils.Dq(f.Connection));
             sb.Append(',');
-            sb.Append(Utils.dq(f.Category));
+            sb.Append(Utils.Dq(f.Category));
             sb.Append(',');
-            sb.Append(Utils.dq(Utils.GetClarifiedItemName(f.Item, f.ClarifySeparator, f.ClarifyValue)));
+            sb.Append(Utils.Dq(Utils.GetClarifiedItemName(f.Item, f.ClarifySeparator, f.ClarifyValue)));
             sb.Append(")]");
             return sb.ToString();
         }
@@ -34,24 +34,24 @@ namespace Vovin.CmcLibNet.Database
             sb.Append((f.Except) ? "NOT," : ",");
             if (f.SharedOptionSet)
             {
-                sb.Append("," + Utils.dq((f.Shared) ? "Shared" : "Local"));
+                sb.Append("," + Utils.Dq((f.Shared) ? "Shared" : "Local"));
                 sb.Append(",,"); // two!
             }
             else
             {
-                sb.Append(Utils.dq(f.FieldName));
+                sb.Append(Utils.Dq(f.FieldName));
                 sb.Append(',');
-                sb.Append(Utils.dq(f.QualifierString));
+                sb.Append(Utils.Dq(f.QualifierString));
                 sb.Append(',');
                 if (f.Qualifier == FilterQualifier.Between) // TODO code smell, this value may not be set by COM clients
                 {
-                    sb.Append(Utils.dq(f.FilterBetweenStartValue));
+                    sb.Append(Utils.Dq(f.FilterBetweenStartValue));
                     sb.Append(',');
-                    sb.Append(Utils.dq(f.FilterBetweenEndValue));
+                    sb.Append(Utils.Dq(f.FilterBetweenEndValue));
                 }
                 else
                 {
-                    sb.Append(Utils.dq(f.FieldValue));
+                    sb.Append(Utils.Dq(f.FieldValue));
                     sb.Append(',');
                     sb.Append((f.MatchCase) ? "1" : "0");
                 }
@@ -69,15 +69,15 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(f.FiltertypeIdentifier);
             sb.Append(',');
             sb.Append((f.Except) ? "NOT" : ",");
-            sb.Append(Utils.dq(f.Connection));
+            sb.Append(Utils.Dq(f.Connection));
             sb.Append(',');
-            sb.Append(Utils.dq(f.Category));
+            sb.Append(Utils.Dq(f.Category));
             sb.Append(',');
-            sb.Append(Utils.dq(f.Connection2));
+            sb.Append(Utils.Dq(f.Connection2));
             sb.Append(',');
-            sb.Append(Utils.dq(f.Category2));
+            sb.Append(Utils.Dq(f.Category2));
             sb.Append(',');
-            sb.Append(Utils.dq(Utils.GetClarifiedItemName(f.Item, f.ClarifySeparator, f.ClarifyValue)));
+            sb.Append(Utils.Dq(Utils.GetClarifiedItemName(f.Item, f.ClarifySeparator, f.ClarifyValue)));
             sb.Append(")]");
             return sb.ToString();
         }
@@ -91,30 +91,30 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(f.FiltertypeIdentifier);
             sb.Append(',');
             sb.Append(f.Except ? "NOT," : ",");
-            sb.Append(Utils.dq(f.Connection));
+            sb.Append(Utils.Dq(f.Connection));
             sb.Append(',');
-            sb.Append(Utils.dq(f.Category));
+            sb.Append(Utils.Dq(f.Category));
             sb.Append(',');
             if (f.SharedOptionSet)
             {
-                sb.Append("," + Utils.dq((f.Shared) ? "Shared" : "Local"));
+                sb.Append("," + Utils.Dq((f.Shared) ? "Shared" : "Local"));
                 sb.Append(",,"); // two!
             }
             else
             {
-                sb.Append(Utils.dq(f.FieldName));
+                sb.Append(Utils.Dq(f.FieldName));
                 sb.Append(',');
-                sb.Append(Utils.dq(f.QualifierString));
+                sb.Append(Utils.Dq(f.QualifierString));
                 sb.Append(',');
                 if (f.Qualifier == FilterQualifier.Between)  // TODO code smell, this value may not be set by COM clients
                 {
-                    sb.Append(Utils.dq(f.FilterBetweenStartValue));
+                    sb.Append(Utils.Dq(f.FilterBetweenStartValue));
                     sb.Append(',');
-                    sb.Append(Utils.dq(f.FilterBetweenEndValue));
+                    sb.Append(Utils.Dq(f.FilterBetweenEndValue));
                 }
                 else
                 {
-                    sb.Append(Utils.dq(f.FieldValue));
+                    sb.Append(Utils.Dq(f.FieldValue));
                     sb.Append(',');
                     sb.Append((f.MatchCase) ? "1" : "0");
                 }

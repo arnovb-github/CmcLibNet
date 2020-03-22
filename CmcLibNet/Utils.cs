@@ -5,8 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Vovin.CmcLibNet.Database;
-using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet
 {
@@ -20,7 +18,7 @@ namespace Vovin.CmcLibNet
         /// </summary>
         /// <param name="s">string.</param>
         /// <returns>double-quoted string.</returns>
-        internal static string dq(string s)
+        internal static string Dq(string s)
         {
             return string.Format("\"{0}\"", s);
         }
