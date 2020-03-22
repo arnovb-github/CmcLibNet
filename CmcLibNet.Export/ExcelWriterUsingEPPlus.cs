@@ -14,14 +14,16 @@ namespace Vovin.CmcLibNet.Export
         private string _sheetName = string.Empty;
         private readonly int MaxSheetNameLength = 31;// as per Microsoft documentation
         private readonly int MaxExcelCellSize = (int)Math.Pow(2, 15) - 1; // as per Microsoft documentation
-        private readonly DataTable _dataTable;
+        private readonly List<ColumnDefinition> columnDefinitions = null;
+        private readonly DataTable _dataTable = null;
         private FileInfo _fi = null;
 
         internal ExcelWriterUsingEPPlus(ICommenceCursor cursor, IExportSettings settings) 
             : base(cursor, settings)
         {
+            columnDefinitions = new List<ColumnDefinition>(_settings.UseThids ? base.ColumnDefinitions.Skip(1) : base.ColumnDefinitions);
             string s = string.IsNullOrEmpty(settings.CustomRootNode) ? _dataSourceName : settings.CustomRootNode;
-            _dataTable = PrepareDataTable(s, base.ColumnDefinitions);
+            _dataTable = PrepareDataTable(s, columnDefinitions);
             _sheetName = Utils.EscapeString(s, "_").Left(MaxSheetNameLength);
             settings.Canonical = true; // override custom setting
             settings.SplitConnectedItems = false; // override custom setting
@@ -96,10 +98,10 @@ namespace Vovin.CmcLibNet.Export
 
         private void SetNumberFormatStyles(ExcelWorksheet ws, int startRow)
         {
-            for (int j = 0; j < base.ColumnDefinitions.Count(); j++)
+            for (int j = 0; j < columnDefinitions.Count(); j++)
             {
                 int column = j + 1;
-                ColumnDefinition cd = base.ColumnDefinitions[j];
+                ColumnDefinition cd = columnDefinitions[j];
                 ExcelRange range = ws.Cells[startRow, column, ws.Dimension.End.Row, column];
                 switch (cd.CommenceFieldDefinition.Type)
                 {
@@ -133,7 +135,7 @@ namespace Vovin.CmcLibNet.Export
                     if (cv.ConnectedFieldValues != null
                         && cv.ConnectedFieldValues.Length > 0)
                     {
-                        // notice the left trimming, EPPlus doesn't do it for you
+                        // notice the trimming, EPPlus doesn't do it for you
                         yield return cv.ConnectedFieldValues[0].Left(MaxExcelCellSize); // we turned off splitting, so all values are in first element
                     }
                     else
@@ -150,6 +152,7 @@ namespace Vovin.CmcLibNet.Export
             return rowvalues.ToArray();
         }
 
+        // todo: new worksheet option
         protected internal override void WriteOut(string fileName)
         {
             _fi = new FileInfo(fileName);
