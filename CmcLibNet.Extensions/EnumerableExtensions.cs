@@ -17,9 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vovin.CmcLibNet.Extensions
 {
@@ -64,7 +61,6 @@ namespace Vovin.CmcLibNet.Extensions
         /// If null, the default equality comparer for <c>TSource</c> is used.</param>
         /// <returns>A sequence consisting of distinct elements from the source sequence,
         /// comparing them by the specified key projection.</returns>
-
         public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
@@ -80,6 +76,32 @@ namespace Vovin.CmcLibNet.Extensions
                         yield return element;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns elements from end of an array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> collection, int n)
+        {
+            if (collection == null)
+                throw new ArgumentNullException(nameof(collection));
+            if (n < 0)
+                throw new ArgumentOutOfRangeException(nameof(n), $"{nameof(n)} must be 0 or greater");
+
+            LinkedList<T> temp = new LinkedList<T>();
+
+            foreach (var value in collection)
+            {
+                temp.AddLast(value);
+                if (temp.Count > n)
+                    temp.RemoveFirst();
+            }
+
+            return temp;
         }
     }
 }
