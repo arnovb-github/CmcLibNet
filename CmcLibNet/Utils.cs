@@ -77,14 +77,14 @@ namespace Vovin.CmcLibNet
         /// Replace all non-letter and non-digit characters.
         /// </summary>
         /// <param name="str">Input string</param>
-        /// <param name="replaceInvalidCharsWith">Replacement string.</param>
+        /// <param name="replacement">Replacement string.</param>
         /// <returns></returns>
-        internal static string EscapeString(string str, string replaceInvalidCharsWith)
+        internal static string EscapeString(string str, string replacement)
         {
             if (string.IsNullOrEmpty(str)) { return str; }
             string pattern = @"[^.\d\w]";
             // returns a string that contains only alfanumeric characters, everything else replaced
-            return Regex.Replace(str, pattern, replaceInvalidCharsWith);
+            return Regex.Replace(str, pattern, replacement);
         }
 
         /// <summary>
@@ -129,27 +129,6 @@ namespace Vovin.CmcLibNet
                 }
             }
             return list;
-        }
-
-        private static string AppendBracketedString(string s, string appendString)
-        {
-            StringBuilder sb = new StringBuilder(s);
-            sb.Append("(");
-            sb.Append(appendString);
-            sb.Append(")");
-            return sb.ToString();
-        }
-
-        private static IEnumerable<string> GetStringsWithMatchingRegexPattern(IEnumerable<string> list, string pattern)
-        {
-            Regex r = new Regex(pattern);
-            foreach (string s in list)
-            {
-                if (r.IsMatch(s))
-                {
-                    yield return s;
-                }
-            }
         }
 
         internal static string GetClarifiedItemName(string itemName, string clarifySeparator, string clarifyValue)
