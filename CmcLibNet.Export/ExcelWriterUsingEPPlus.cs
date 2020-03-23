@@ -98,7 +98,7 @@ namespace Vovin.CmcLibNet.Export
         {
             for (int j = 0; j < base.ColumnDefinitions.Count(); j++)
             {
-                int column = j + 1;
+                int column = j + 1; // columns in Excel are 1-based
                 ColumnDefinition cd = base.ColumnDefinitions[j];
                 ExcelRange range = ws.Cells[startRow, column, ws.Dimension.End.Row, column];
                 switch (cd.CommenceFieldDefinition.Type)
