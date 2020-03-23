@@ -71,6 +71,7 @@ namespace Vovin.CmcLibNet.Export.Complex
         private bool _cursorShared;
         private string _fileName;
         private readonly ColumnDefinition[] originalColumnDefinitions;
+        private readonly OriginalCursorProperties _ocp;
         private DataSet _ds;
         #endregion
 
@@ -78,8 +79,9 @@ namespace Vovin.CmcLibNet.Export.Complex
         internal SQLiteWriter(ICommenceCursor cursor, IExportSettings settings) 
             : base(cursor, settings)
         {
-            // store original category name
-            _originalCursorCategory = cursor.Category;
+            // store original cursor details, used in serializers
+            _ocp = new OriginalCursorProperties(cursor);
+
             // put data in %AppData%
             _databaseName = Path.GetTempFileName();
 #if DEBUG
@@ -248,7 +250,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                         xw.Serialize(_fileName);
                         break;
                     case ExportFormat.Json:
-                        var jw = new SQLiteToJsonSerializer(this._settings, _ds.Tables[0], _cs);
+                        var jw = new SQLiteToJsonSerializer(this._settings, _ocp, _ds.Tables[0], _cs);
                         jw.Serialize(_fileName);
                         break;
                 }

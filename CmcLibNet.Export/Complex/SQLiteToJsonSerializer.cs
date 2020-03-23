@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -13,12 +12,15 @@ namespace Vovin.CmcLibNet.Export.Complex
         private readonly string _cs;
         private readonly IExportSettings _settings;
         private readonly DataTable _primaryTable;
+        private readonly OriginalCursorProperties _ocp;
 
         internal SQLiteToJsonSerializer(IExportSettings settings,
+                OriginalCursorProperties ocp,
                 DataTable primaryTable,
                 string connectionString)
         {
             _settings = settings;
+            _ocp = ocp;
             _cs = connectionString;
             _primaryTable = primaryTable;
         }
@@ -59,9 +61,15 @@ namespace Vovin.CmcLibNet.Export.Complex
                                 {
                                     wr.Formatting = Formatting.Indented;
                                     wr.WriteStartObject();
-                                    wr.WritePropertyName(string.IsNullOrEmpty(_settings.CustomRootNode)
+                                    wr.WritePropertyName("CommenceDataSource");
+                                    wr.WriteValue(string.IsNullOrEmpty(_settings.CustomRootNode)
                                     ? _primaryTable.TableName
                                     : _settings.CustomRootNode);
+                                    wr.WritePropertyName("CommenceCategory");
+                                    wr.WriteValue(_ocp.Category);
+                                    wr.WritePropertyName("CommenceDataSourceType");
+                                    wr.WriteValue(_ocp.Type);
+                                    wr.WritePropertyName("Items");
                                     wr.WriteStartArray();
                                     bool includeThids = ((ExportSettings)_settings).UserRequestedThids;
                                     while (reader.Read())

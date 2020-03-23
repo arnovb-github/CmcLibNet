@@ -122,6 +122,7 @@
     <Compile Include="CmcLibNet.Export\Complex\CursorDescriptor.cs" />
     <Compile Include="CmcLibNet.Export\Complex\CursorFactory.cs" />
     <Compile Include="CmcLibNet.Export\Complex\LinkTableConstructor.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\OriginalCursorProperties.cs" />
     <Compile Include="CmcLibNet.Export\Complex\SQLiteToJsonSerializer.cs" />
     <Compile Include="CmcLibNet.Export\Complex\SQLiteToXmlSerializer.cs" />
     <Compile Include="CmcLibNet.Export\Complex\SQLiteWriter.cs" />
