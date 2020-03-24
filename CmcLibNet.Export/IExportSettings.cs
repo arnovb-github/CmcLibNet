@@ -27,7 +27,6 @@ namespace Vovin.CmcLibNet.Export
         /// <item><term>Number</term><description>123456.78 no separator, period for decimal delimiter.  Note that when a field is defined as 'Show as currency' in the Commence UI, numerical values are prepended with a '$' sign.</description></item>
         /// <item><term>Checkbox</term><description>TRUE or FALSE (English)</description></item>
         /// </list>
-        /// This option is ignored in when using <see cref="NestConnectedItems"/>, in that case ADO.NET data types are returned.
         /// </remarks>
         bool Canonical { get; set; }
         /// <summary>
@@ -65,7 +64,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         string CSSFile { get; set; }
         /// <summary>
-        /// Text-delimiter used in a Text export. Only applies to Text and HTML exports. Default is tab.
+        /// Text-delimiter used in a Text export. Only applies to Text and HTML exports. Default is tab character.
         /// </summary>
         string TextDelimiter { get; set; }
         /// <summary>
@@ -85,7 +84,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         bool ISO8601Compliant { get; set; }
         /// <summary>
-        /// Treat connections as distinct nodes/elements. Formatting options may be ignored. Default is <code>false</code>.
+        /// Treat connections as distinct nodes/elements. Formatting options may be ignored. Default is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
@@ -111,21 +110,18 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Get serialized XML with a XmlSchema (XSD).
         /// Only applies with <see cref="PreserveAllConnections"/> in combination with <see cref="ExportFormat.Xml"/>. 
-        /// Default is <code>false</code>.
+        /// Default is <c>false</c>.
         /// </summary>
         /// <remarks>Uses ADO.NET built-in serialization. Allows for importing into SQL Server and performing your own query logic.</remarks>
         bool WriteSchema { get; set; }
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// </summary>
-        /// <remarks>
-        /// When set to <c>true</c>, any connected value is an object containing information about the connection,
-        /// when set to <c>false</c>, the values will be just an array..
-        /// </remarks>
         // TODO: incorporate this in XML exports?
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
-        /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>. Default is <c>true</c>.
+        /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
+        /// Default is <c>true</c>.
         /// If set to <c>false</c>, connected values are not split and you will get the data as Commence returns them.
         /// </summary>
         /// <remarks>This setting may be overridden internally if there is no meaningful way of splitting the items.
@@ -139,11 +135,6 @@ namespace Vovin.CmcLibNet.Export
         /// <para>On a regular cursor, i.e. with the connections defined as 'direct columns' (the default behaviour),
         /// connected items are returned by Commence as comma delimited strings without a text-qualifier,
         /// making it impossible to split them meaningfully.</para>
-        /// <para>When a cursor is created with the <see cref="UseThids"/> flag, thids will only be returned on 'direct' connection columns in a cursor.
-        /// They can therefore not be split when the cursor is of type <see cref="Vovin.CmcLibNet.Database.CmcCursorType.Category"/>
-        /// *unless* only the name field of the connection is present in the cursor.
-        /// Including logic for that scenario unfortunately blows my mind.
-        /// If you want thids *and* split them, create a view, or just split them yourselves.</para>
         /// </remarks>
         bool SplitConnectedItems { get; set; }
         /// <summary>
@@ -163,7 +154,7 @@ namespace Vovin.CmcLibNet.Export
         [Obsolete]
         bool DeleteExcelFileBeforeExport { get; set; }
         /// <summary>
-        /// Update options when exporting to Microsoft Excel
+        /// Update options when exporting to Microsoft Excel. See <see cref="ExcelUpdateOptions"/>.
         /// </summary>
         ExcelUpdateOptions XlUpdateOptions { get; set; }
         /// <summary>
@@ -178,11 +169,11 @@ namespace Vovin.CmcLibNet.Export
         /// </list>
         /// <para>Defaults to the datasource name.
         /// For a view, this is the viewname,
-        /// for a category or cursor this is the (primary) category name.</para>
+        /// for a category or cursor this is the category name.</para>
         /// </remarks>
         string CustomRootNode { get; set; }
         /// <summary>
-        /// Read Commence data in an asynchronous way. Async reads tend to be slightly faster, but it depends on a number of things,
+        /// Read Commence data in an asynchronous way. Async can be slightly faster, but it depends on a number of things,
         /// such as <see cref="NumRows"/> and <see cref="MaxFieldSize"/>.
         /// <para>When you export to <see cref="ExportFormat.Excel"/> or use <see cref="PreserveAllConnections"/> there is a performance gain.</para>
         /// <para>Default is <c>true</c>.</para>
