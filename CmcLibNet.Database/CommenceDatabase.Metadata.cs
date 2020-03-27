@@ -8,6 +8,7 @@ using System.Text;
 using System.Timers;
 using System.Xml;
 using System.Xml.Serialization;
+using Vovin.CmcLibNet.Attributes;
 using Vovin.CmcLibNet.Database.Metadata;
 using Vovin.CmcLibNet.Extensions;
 
@@ -444,7 +445,7 @@ namespace Vovin.CmcLibNet.Database
             // we need fieldnames to be  comma delimited string, so we can feed it to a new string array
             // our fieldnames are trapped in object array args,
             // so we first cast that
-            string[] fieldNames = ToStringArray(fields);
+            string[] fieldNames = Utils.ToStringArray(fields);
             // create a comma-delimited string from fieldnames and pass that into a new string[] array.
             // how is that for unnecessary overhead? :)
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
@@ -682,7 +683,8 @@ namespace Vovin.CmcLibNet.Database
                 vd.Type = buffer[1];
                 vd.Category = buffer[2];
                 vd.FileName = buffer[3];
-                vd.ViewType = Utils.GetValueFromEnumDescription<CommenceViewType>(vd.Type);
+                //vd.ViewType = Utils.GetValueFromEnumDescription<CommenceViewType>(vd.Type);
+                vd.ViewType = Utils.EnumFromAttributeValue<CommenceViewType, StringValueAttribute>(nameof(StringValueAttribute.StringValue), vd.Type);
             }
             return vd;
         }
@@ -770,7 +772,7 @@ namespace Vovin.CmcLibNet.Database
             // we need fieldnames to be  comma delimited string, so we can feed it to a new string array
             // our fieldnames are trapped in object array args,
             // so we first cast that
-            string[] fieldNames = ToStringArray(fields);
+            string[] fieldNames = Utils.ToStringArray(fields);
             // create a comma-delimited string from fieldnames and pass that into a new string[] array.
             // how is that for unnecessary overhead? :)
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
@@ -817,7 +819,7 @@ namespace Vovin.CmcLibNet.Database
             // we need fieldnames to be  comma delimited string, so we can feed it to a new string array
             // our fieldnames are trapped in object array args,
             // so we first cast that
-            string[] fieldNames = ToStringArray(fields);
+            string[] fieldNames = Utils.ToStringArray(fields);
             // create a comma-delimited string from fieldnames and pass that into a new string[] array.
             // how is that for unnecessary overhead? :)
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
@@ -851,7 +853,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool ViewFilter(int clauseNumber, string filterType, bool notFlag, object args)
         {
-            string[] fltParams = ToStringArray(args);
+            string[] fltParams = Utils.ToStringArray(args);
             //object retval = DDERequest(buildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join("\",\"", fltParams) }));
             object retval = DDERequest(BuildDDERequestCommand(new string[] { "ViewFilter", clauseNumber.ToString(), filterType, (notFlag) ? "NOT" : "", String.Join(",", EncodeDdeArguments(fltParams)) }));
             return (retval == null) ? false : true;
@@ -1024,10 +1026,10 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool FireTrigger(string trigger, object[] args)
         {
-            string[] trgParams = ToStringArray(args);
+            string[] trgParams = Utils.ToStringArray(args);
             if (trgParams.Length > 9)
             {
-                this.LastError = "Too many parameters for FireTrigger.";
+                this.LastError = "Too many parameters for FireTrigger command.";
                 return false;
             }
             //return DDEExecute(buildDDERequestCommand(new string[] { "FireTrigger", trigger, string.Join("\",\"", trgParams) }));
@@ -1037,7 +1039,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public bool LogPhoneCall(object[] args)
         {
-            string[] ciPairs = ToStringArray(args);
+            string[] ciPairs = Utils.ToStringArray(args);
             //return DDEExecute(buildDDERequestCommand(new string[] { "LogPhoneCall", string.Join("\",\"", ciPairs) }));
             return DDEExecute(BuildDDERequestCommand(new string[] { "LogPhoneCall", string.Join(",", EncodeDdeArguments(ciPairs)) }));
         }
@@ -1328,9 +1330,6 @@ namespace Vovin.CmcLibNet.Database
                 sb.Append("()]");
                 return sb.ToString();
             }
-            // the following line suggests we already tried the aproach of encoding all arguments?
-            // do not yet delete it!
-            //sb.Append("(\"" + String.Join("\",\"", args.Skip(1)) + "\")]"); // note the skip of the first argument
             IEnumerable<string> arguments = args.Skip(1); // note the skip of the first argument
             if (EncodeDDEArguments) { arguments = EncodeDdeArguments(arguments); }
             sb.Append("(");
@@ -1395,46 +1394,6 @@ namespace Vovin.CmcLibNet.Database
             }
             return retval;
         }
-
-        /// <summary>
-        /// Creates object array from string array.
-        /// </summary>
-        /// <param name="input">string array</param>
-        /// <returns>object array that can be consumed by COM clients such as VBScript.</returns>
-        private object[] ToObjectArray(string[] input) // TODO move to Utils
-        {
-            object[] objArray = new object[input.Length];
-            input.CopyTo(objArray, 0);
-            return objArray;
-        }
-
-        /// <summary>
-        /// Creates string array from object.
-        /// </summary>
-        /// <param name="arg">object</param>
-        /// <returns>string array</returns>
-        private string[] ToStringArray(object arg) // TODO move to Utils
-        {
-            if (arg is System.Collections.IEnumerable collection)
-            {
-                return collection
-                  .Cast<object>()
-                  .Select(x => x.ToString())
-                  .ToArray();
-            }
-
-            if (arg == null)
-            {
-                return new string[] { };
-            }
-
-            return new string[] { arg.ToString() };
-        }
-
-        private string GetFieldTypeAsString(CommenceFieldType ft)
-        {
-            return ft.GetEnumDescription();
-        }
         #endregion
 
         #region Properties
@@ -1445,5 +1404,3 @@ namespace Vovin.CmcLibNet.Database
         #endregion
     }
 }
-
-

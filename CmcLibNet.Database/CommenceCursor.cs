@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Attributes;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -69,7 +70,8 @@ namespace Vovin.CmcLibNet.Database
             if (CursorType == CmcCursorType.View) 
             {
                 _viewName = pName;
-                _viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
+                //_viewType = Utils.GetValueFromEnumDescription<CommenceViewType>(viewType);
+                _viewType = Utils.EnumFromAttributeValue<CommenceViewType, StringValueAttribute>(nameof(StringValueAttribute.StringValue),viewType);
             }
             _cur = cmc.GetCursor((int)pCursorType, pName, (int)pCursorFlags); // notice the type conversion
             _rcwReleasePublisher = rcwReleasePublisher;

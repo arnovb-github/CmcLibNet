@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Attributes;
 using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
@@ -51,9 +52,11 @@ namespace Vovin.CmcLibNet.Database
                 _filterQualifierString = string.Empty;
                 foreach (FilterQualifier fq in Enum.GetValues(typeof(FilterQualifier)))
                 {
-                    if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
+                    string description = fq.GetAttributePropertyValue<string,
+                        StringValueAttribute>(nameof(StringValueAttribute.StringValue));
+                    if (string.Compare(value, description, true) == 0)
                     {
-                        _filterQualifierString = fq.GetEnumDescription();
+                        _filterQualifierString = description;
                         _filterQualifier = fq;
                         break;
                     }
@@ -73,7 +76,8 @@ namespace Vovin.CmcLibNet.Database
             set
             {
                 _filterQualifier = value;
-                _filterQualifierString = value.GetEnumDescription();
+                _filterQualifierString = value.GetAttributePropertyValue<string,
+                        StringValueAttribute>(nameof(StringValueAttribute.StringValue));
             }
         }
 

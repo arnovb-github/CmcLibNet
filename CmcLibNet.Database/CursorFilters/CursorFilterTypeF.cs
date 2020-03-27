@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Attributes;
 using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
@@ -43,6 +44,7 @@ namespace Vovin.CmcLibNet.Database
         // b) they will already be used to using strings when composing a filter in Item Detail Form scripting.
         public string QualifierString
         {
+            
             get
             { 
                 return _filterQualifierString;
@@ -50,11 +52,14 @@ namespace Vovin.CmcLibNet.Database
             set
             {
                 _filterQualifierString = string.Empty;
+                string description = string.Empty;
                 foreach (FilterQualifier fq in Enum.GetValues(typeof(FilterQualifier)))
                 {
-                    if (string.Compare(value, fq.GetEnumDescription(), true) == 0)
+                    description = fq.GetAttributePropertyValue<string,
+                        StringValueAttribute>(nameof(StringValueAttribute.StringValue));
+                    if (string.Compare(value, description, true) == 0)
                     {
-                        _filterQualifierString = fq.GetEnumDescription();
+                        _filterQualifierString = description;
                         _filterQualifier = fq; // also set Qualifier property
                         break;
                     }
@@ -74,7 +79,8 @@ namespace Vovin.CmcLibNet.Database
             set
             {
                 _filterQualifier = value;
-                _filterQualifierString = value.GetEnumDescription();
+                _filterQualifierString = value.GetAttributePropertyValue<string,
+                        StringValueAttribute>(nameof(StringValueAttribute.StringValue));
             }
         }
 

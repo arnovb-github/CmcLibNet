@@ -81,6 +81,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmcLibNet.Attributes\CursorCreatableAttribute.cs" />
     <Compile Include="CmcLibNet.Attributes\StringValueAttibute.cs" />
     <Compile Include="CmcLibNet.Database\CmcCursorBookmark.cs" />
     <Compile Include="CmcLibNet.Database\CmcCursorType.cs" />

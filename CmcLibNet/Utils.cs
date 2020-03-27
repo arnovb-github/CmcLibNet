@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -14,7 +13,7 @@ namespace Vovin.CmcLibNet
     internal static class Utils
     {
         /// <summary>
-        /// Encloses a string with double-quotes. Does not check if string is already quoted.
+        /// Encloses a string with double-quotes.
         /// </summary>
         /// <param name="s">string.</param>
         /// <returns>double-quoted string.</returns>
@@ -26,8 +25,8 @@ namespace Vovin.CmcLibNet
         /// <summary>
         /// Creates string array from object.
         /// </summary>
-        /// <param name="arg">object</param>
-        /// <returns>string array</returns>
+        /// <param name="arg">object.</param>
+        /// <returns>string array.</returns>
         internal static string[] ToStringArray(object arg)
         {
             if (arg is System.Collections.IEnumerable collection)
@@ -46,31 +45,52 @@ namespace Vovin.CmcLibNet
         }
 
         /// <summary>
-        /// Return enum value from description.
+        /// Returns first enum value that matches the value of the property of an attribute to an enum.
         /// </summary>
-        /// <typeparam name="T">Enum.</typeparam>
-        /// <param name="description">Description of enum value to search for.</param>
-        /// <returns>Enum value matching description.</returns>
-        /// <exception cref="InvalidOperationException">No enum provided.</exception>
-        public static T GetValueFromEnumDescription<T>(string description)
+        /// <typeparam name="TEnum">Enum to inspect.</typeparam>
+        /// <typeparam name="TAttr">Attribute to inspect.</typeparam>
+        /// <param name="attrPropertyName">Property of attribute to search in.</param>
+        /// <param name="propertyValue">Property value to search for.</param>
+        /// <returns>Enum value.</returns>
+        /// <exception cref="ArgumentException"></exception>
+        internal static TEnum EnumFromAttributeValue<TEnum, TAttr>(string attrPropertyName, object propertyValue)
+            where TEnum : struct
+            where TAttr : Attribute
         {
-            var type = typeof(T);
-            if (!type.IsEnum) throw new InvalidOperationException("Type is not an Enum");
-            foreach (var field in type.GetFields())
+            Type enumType = typeof(TEnum);
+            Type attrType = typeof(TAttr);
+
+            if (!enumType.IsEnum)
             {
-                if (Attribute.GetCustomAttribute(field,
-                    typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+                throw new ArgumentException($"{enumType.FullName} is not an enum.");
+            }
+            var propertyInfoAttributePropertyName = attrType.GetProperty(attrPropertyName);
+            if (propertyInfoAttributePropertyName is null)
+            {
+                throw new ArgumentException($"Attribute with property {attrPropertyName} not found in enum {enumType.FullName}.");
+            }
+
+            foreach (var field in enumType.GetFields())
+            {
+                var attribute = Attribute.GetCustomAttribute(field, attrType);
+                if (attribute == null)
                 {
-                    if (attribute.Description == description)
-                        return (T)field.GetValue(null);
+                    continue;
                 }
-                else
+
+                object attributePropertyValue = propertyInfoAttributePropertyName.GetValue(attribute);
+
+                if (attributePropertyValue == null)
                 {
-                    if (field.Name == description)
-                        return (T)field.GetValue(null);
+                    continue;
+                }
+
+                if (attributePropertyValue.Equals(propertyValue))
+                {
+                    return (TEnum)field.GetValue(null);
                 }
             }
-            return default(T); // returns the default value. May be hard to debug!
+            throw new ArgumentException($"No {attrType.FullName} attribute with property {attrPropertyName} in enum '{enumType.FullName} has value {propertyValue}.");
         }
 
         /// <summary>

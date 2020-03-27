@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Attributes;
 using Vovin.CmcLibNet.Database.Metadata;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -38,7 +39,7 @@ namespace Vovin.CmcLibNet.Database
         {
             _app = new CommenceApp(); // when we call this first, the next line does not fail when called from COM.
             // we also want this call to CommenceApp because it contains the check to see if commence.exe is running.
-            _db = _app.Db; // THIS FAILS WHEN CALLED FROM COM WHEN NO INSTANCE OF CommenceApp EXISTS. CommenceApp isn't instantiated. Works from .NET without a CommenceApp instance.
+            _db = _app.Db;
             /* We create a publisher object so any classes created from this instance can use it.
              * The idea is that this way, COM clients can create and close the several COM-visible components (CommenceApp, Export) safely.
              * It would be easier to use a static event notifying all classes that consume a COM resource to release it.
@@ -98,14 +99,11 @@ namespace Vovin.CmcLibNet.Database
             IViewDef vd = null;
             if (pCursorType == CmcCursorType.View)
             {
-                List<string> unsupported = new List<string>(new string[] { "Add Item", "Item Detail", "Multi-View", "Report Viewer", "Document", "Gantt Chart", "Calendar" });
-                vd = GetViewDefinition(pName);
-                if (vd != null && unsupported.Contains(vd.Type))
+                 vd = GetViewDefinition(pName);
+                if (!((ViewDef)vd).ViewType
+                    .GetAttributePropertyValue<bool, CursorCreatableAttribute>(nameof(CursorCreatableAttribute.CursorCreatable)))
                 {
-                    throw new NotSupportedException("View is of type: " + vd.Type + 
-                        "\nNo cursor can be created on views of the following types:\n\n" + 
-                        string.Join(", ", unsupported) + 
-                        ".\nEither the view type is unsupported for Commence cursors altogether, or it may produce inconsistent results. Use a view of type Report or Grid instead.");
+                    throw new NotSupportedException($"Commence does not support cursors on views of type {vd.Type}. Use a view of type Report or Grid instead.");
                 }
                 try
                 {

@@ -14,7 +14,7 @@ namespace Vovin.CmcLibNet.Attributes
         /// <summary>
         /// Holds the stringvalue for a value in an enum.
         /// </summary>
-        public string StringValue { get; protected set; }
+        public string StringValue { get; set; }
 
         #endregion
 

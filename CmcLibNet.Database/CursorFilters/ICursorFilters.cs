@@ -44,7 +44,7 @@ namespace Vovin.CmcLibNet.Database
         /// <returns><c>true</c> on success, <c>false</c> on error.</returns>
         bool RemoveFilterByClauseNumber(int clauseNumber);
         /// <summary>
-        /// Apply the specified filters.
+        /// Apply filters and return number of affected items.
         /// </summary>
         /// <returns>Number of items in cursor after applying filters.</returns>
         int Apply();
