@@ -107,8 +107,11 @@ namespace Vovin.CmcLibNet.Export
                 {
                     try
                     {
-                        _sw.Flush();
-                        _sw.Close();
+                        if (_sw.BaseStream != null) // If the StreamWriter is closed, the BaseStream property will return null.
+                        {
+                            _sw.Flush();
+                            _sw.Close();
+                        }
                     }
                     catch { }
                     try
