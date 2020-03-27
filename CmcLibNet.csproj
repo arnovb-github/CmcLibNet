@@ -95,7 +95,7 @@
     <Compile Include="CmcLibNet.Database\CommenceViewType.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\FilterQualifier.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\FilterType.cs" />
-    <Compile Include="CmcLibNet.Database\CursorFilters\FilterValuesAttribute.cs" />
+    <Compile Include="CmcLibNet.Attributes\FilterValuesAttribute.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CommenceFieldMetaData.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CommenceFormMetaData.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CommenceViewMetaData.cs" />

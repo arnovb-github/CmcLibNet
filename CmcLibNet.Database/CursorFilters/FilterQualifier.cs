@@ -112,7 +112,7 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// "Blank" filter. Applies to Name fields, Date fields, E-mail fields, Telephone fields, URL fields, Time fields.
         /// </summary>
-        [StringValue("Blank")] // TO-DO: should this be Is Blank?
+        [StringValue("Blank")] // Note: not "Is Blank" as stated in old documentation
         [FilterValues(0)]
         Blank,
         /// <summary>

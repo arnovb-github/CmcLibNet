@@ -5,6 +5,7 @@ namespace Vovin.CmcLibNet.Attributes
     /// <summary>
     /// Indicates if a Commence cursor can be created on the Commence View type.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
     public class CursorCreatableAttribute : Attribute
     {
         #region Properties
