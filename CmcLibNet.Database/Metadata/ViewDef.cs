@@ -17,7 +17,7 @@ namespace Vovin.CmcLibNet.Database.Metadata
         /// <summary>
         /// Using ViewType enum is a little more practical in some circumstances
         /// </summary>
-        internal CommenceViewType ViewType { get; set; } // the enum isn't public so internal.
+        internal  CommenceViewType ViewType { get; set; }
         /// <inheritdoc />
         public string Name { get; internal set; }
         /// <inheritdoc />
