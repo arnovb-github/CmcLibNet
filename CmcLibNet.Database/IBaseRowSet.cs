@@ -45,13 +45,22 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="nRow">The (0-based) index of the row.</param>
         /// <param name="flags">Logical OR of following option flags:
-        /// CmcOptionFlags.Canonical - return field value in canonical form</param>
+        /// CmcOptionFlags.Canonical - return field value in canonical form.</param>
         /// <returns>Object array of strings containing the row's values, <c>null</c> on error.</returns>
 		/// <remarks>The return type is an object array, not a string array, even though Commence always returns values as string.
 		/// That may seem counterintuitive. The reason for this is COM. I have not found a way to marshal a string array as variant.
 		/// It is possible to marshal a string[], but accessing it will raise a type mismatch error in VBScript.
         /// </remarks>
         object[] GetRow(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
+        /// <summary>
+        /// Returns an entire row's field values. Note that this method returns an array, whereas the native Commence method returns a delimited string.
+        /// </summary>
+        /// <param name="nRow">The (0-based) index of the row.</param>
+        /// <param name="delim">Delimiter in case the default delimiter does not suffice.</param>
+        /// <param name="flags">Logical OR of following option flags:
+        /// CmcOptionFlags.Canonical - return field value in canonical form.</param>
+        /// <returns>Object array of strings containing the row's values, <c>null</c> on error.</returns>
+        object[] GetRow(int nRow, string delim, CmcOptionFlags flags = CmcOptionFlags.Default);
         /// <summary>
         /// Gets the shared/local status of the row
         /// </summary>

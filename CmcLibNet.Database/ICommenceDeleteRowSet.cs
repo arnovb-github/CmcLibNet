@@ -9,6 +9,7 @@ namespace Vovin.CmcLibNet.Database
     [Guid("72F4E7E6-2ED1-491D-851F-50EDA90CCF4D")]
     public interface ICommenceDeleteRowSet : IBaseRowSet
     {
+        #region Redefined signatures from IBaseRowSet required for COM
         /// <inheritdoc />
         new int RowCount { get; }
         /// <inheritdoc />
@@ -21,6 +22,13 @@ namespace Vovin.CmcLibNet.Database
         new int GetColumnIndex(string pLabel, CmcOptionFlags flags = CmcOptionFlags.Default);
         /// <inheritdoc />
         new object[] GetRow(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
+        /// <inheritdoc />
+        new object[] GetRow(int nRow, string delim, CmcOptionFlags flags = CmcOptionFlags.Default);
+        /// <inheritdoc />
+        new bool GetShared(int nRow);
+        /// <inheritdoc />
+        new void Close();
+        #endregion
         /// <summary>
         /// Returns a unique identifier for a row.
         /// </summary>
@@ -28,10 +36,6 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <returns>Returns a unique ID string (less than 100 chars) on success, <c>null</c> on error.</returns>
         string GetRowID(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
-        /// <inheritdoc />
-        new bool GetShared(int nRow);
-        /// <inheritdoc />
-        new void Close();
         /// <summary>
         /// Mark a row for deletion.
         /// </summary>

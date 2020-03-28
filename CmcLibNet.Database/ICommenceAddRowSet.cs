@@ -10,6 +10,7 @@ namespace Vovin.CmcLibNet.Database
     [Guid("68063DB8-A8C4-49F3-AFD7-4E8F7ED1A426")]
     public interface ICommenceAddRowSet : IBaseRowSet
     {
+        #region Redefined signatures from IBaseRowSet required for COM
         /// <inheritdoc />
         new int RowCount { get; }
         /// <inheritdoc />
@@ -23,9 +24,12 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         new object[] GetRow(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
         /// <inheritdoc />
+        new object[] GetRow(int nRow, string delim, CmcOptionFlags flags = CmcOptionFlags.Default);
+        /// <inheritdoc />
         new bool GetShared(int nRow);
         /// <inheritdoc />
         new void Close();
+        #endregion
         /// <summary>
         /// Sets the shared status of the row. Shared items cannot be made unshared.
         /// </summary>

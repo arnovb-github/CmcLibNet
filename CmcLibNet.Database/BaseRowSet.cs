@@ -7,23 +7,13 @@
     {
         #region Fields
         /// <summary>
-        /// Delimiters used in Commence DDE conversations
-        /// By defining them here, consumers do not have to supply them with every DDE call that uses them.
+        /// Delimiter used in GetRow().
         /// </summary>
-        protected internal static readonly string CMC_DELIM = @"@@##~~&&";
+        private static readonly string _cmcDelim = @"@@##~~&&";
         /// <summary>
-        /// Secondary delimiter.
+        /// For use in <see cref="System.String.Split(char[], System.StringSplitOptions)"/>
         /// </summary>
-        protected internal static readonly string CMC_DELIM2 = @"@@/\~_&&";
-        /// <summary>
-        /// String.Split requires a string array.
-        /// </summary>
-        protected internal readonly string[] _splitter = new string[] { CMC_DELIM };
-        /// <summary>
-        /// String.Split requires a string array.
-        /// </summary>
-        protected internal readonly string[] _splitter2 = new string[] { CMC_DELIM2 };
-        // Flag: Has Dispose already been called?
+        private readonly char[] _splitter = _cmcDelim.ToCharArray();
         bool disposed = false;
         #endregion
 
@@ -54,6 +44,8 @@
         /// <inheritdoc />
         public abstract object[] GetRow(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default);
         /// <inheritdoc />
+        public abstract object[] GetRow(int nRow, string delim, CmcOptionFlags flags = CmcOptionFlags.Default);
+        /// <inheritdoc />
         public abstract bool GetShared(int nRow);
         /// <inheritdoc />
         public abstract void Close(); // just an alias for Dispose for COM users
@@ -62,7 +54,13 @@
         /// <summary>
         /// Returns the primary delimiter used in this assembly.
         /// </summary>
-        protected string Delim { get { return CMC_DELIM; } }
+        protected string Delim => _cmcDelim;
+
+        /// <summary>
+        ///  For use in <see cref="System.String.Split(char[], System.StringSplitOptions)"/>
+        /// </summary>
+        // We do not use an auto-property because it would introduce overhead
+        protected char[] Splitter =>_splitter;
 
         /// <summary>
         /// Dispose method
@@ -92,7 +90,6 @@
             //
             disposed = true;
         }
-
         //// we *could* bring all methods and properties that all ICommenceXRowset share to the base class
         //// by using the below implementation. Would make the code more DRY
         //// It would work but is very hard to debug because of the dynamic keyword.
