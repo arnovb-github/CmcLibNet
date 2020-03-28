@@ -150,7 +150,6 @@ namespace Vovin.CmcLibNet.Export
             return rowvalues.ToArray();
         }
 
-        // todo: new worksheet option
         protected internal override void WriteOut(string fileName)
         {
             _fi = new FileInfo(fileName);

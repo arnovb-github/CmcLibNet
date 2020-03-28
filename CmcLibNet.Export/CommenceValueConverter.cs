@@ -28,8 +28,6 @@ namespace Vovin.CmcLibNet.Export
         /// <returns>string.</returns>
         internal static string ToCanonical(string regularCommenceValue, Vovin.CmcLibNet.Database.CommenceFieldType fieldType)
         {
-            // TODO: should we include a check if a canonical value was passed in?
-
             // Assumes we get a value from Commence, *not* some random string value.
             // The Commence value will be formatted according to system regional settings,
             // because that is the format Commence will display and return them.

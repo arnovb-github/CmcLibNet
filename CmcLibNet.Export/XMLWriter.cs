@@ -8,7 +8,7 @@ namespace Vovin.CmcLibNet.Export
     // Writes data to XML file.
     internal class XmlWriter : BaseWriter
     {
-        XmlTextWriter _xtw = null; // the writer object.
+        System.Xml.XmlWriter _xw;
         bool disposed = false;
 
         #region Constructors
@@ -26,7 +26,7 @@ namespace Vovin.CmcLibNet.Export
         {
             if (base.IsFileLocked(new FileInfo(fileName)))
             {
-                throw new IOException("File '" + fileName + "' in use.");
+                throw new IOException("File '" + fileName + "' is in use.");
             }
             PrepareXmlFile(fileName);
             base.ReadCommenceData(); // call data reading engine
@@ -34,12 +34,15 @@ namespace Vovin.CmcLibNet.Export
 
         private void PrepareXmlFile(string fileName)
         {
-            _xtw = new XmlTextWriter(fileName, System.Text.Encoding.UTF8)
+            XmlWriterSettings xws = new XmlWriterSettings
             {
-                Formatting = Formatting.Indented
-            }; // TODO the recommendation is to use XmlWriter, not XmlTextWriter
-            _xtw.WriteStartDocument();
-            _xtw.WriteStartElement(string.IsNullOrEmpty(_settings.CustomRootNode) ? "dataroot" : XmlConvert.EncodeLocalName(_settings.CustomRootNode));
+                Encoding = System.Text.Encoding.UTF8,
+                Indent = true
+            };
+
+            _xw = System.Xml.XmlWriter.Create(fileName, xws);
+            _xw.WriteStartDocument();
+            _xw.WriteStartElement(string.IsNullOrEmpty(_settings.CustomRootNode) ? "dataroot" : XmlConvert.EncodeLocalName(_settings.CustomRootNode));
         }
 
         protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
@@ -53,7 +56,7 @@ namespace Vovin.CmcLibNet.Export
             // populate XMLWriter with data
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
-                _xtw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
+                _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
                 var citems = row.Where(s => s.ColumnDefinition.IsConnection)
                     .OrderBy(o => o.ColumnDefinition.FieldName)
                     .GroupBy(g => g.ColumnDefinition.ColumnName)
@@ -65,17 +68,17 @@ namespace Vovin.CmcLibNet.Export
                         // only write if we have something
                         if (!string.IsNullOrEmpty(v.DirectFieldValue))
                         {
-                            _xtw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
+                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             // can we get away with writing the value or do we need to use CData?
-                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars > 80) // TODO this is an error; fields can be limited to be smaller or larger and still not be large text fields
+                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
                             {
-                                _xtw.WriteCData(v.DirectFieldValue);
+                                _xw.WriteCData(v.DirectFieldValue);
                             }
                             else
                             {
-                                _xtw.WriteString(v.DirectFieldValue);
+                                _xw.WriteString(v.DirectFieldValue);
                             }
-                            _xtw.WriteEndElement();
+                            _xw.WriteEndElement();
                         }
                     } // if IsConnection
                 } // row
@@ -83,7 +86,7 @@ namespace Vovin.CmcLibNet.Export
                 {
                     WriteConnectedItems(citems);
                 }
-                _xtw.WriteEndElement();
+                _xw.WriteEndElement();
             } // rows
         }
 
@@ -98,13 +101,13 @@ namespace Vovin.CmcLibNet.Export
             try
             {
                 // write closing elements and close XMLWriter
-                _xtw.WriteEndElement();
-                _xtw.WriteEndDocument();
+                _xw.WriteEndElement();
+                _xw.WriteEndDocument();
             }
             finally
             {
-                _xtw.Flush();
-                _xtw.Close();
+                _xw.Flush();
+                _xw.Close();
             }
         }
 
@@ -114,12 +117,12 @@ namespace Vovin.CmcLibNet.Export
             foreach (IGrouping<string, CommenceValue> group in list)
             {
                 string connectionName = XmlConvert.EncodeLocalName(group.FirstOrDefault().ColumnDefinition.QualifiedConnection);
-                _xtw.WriteStartElement(connectionName);
+                _xw.WriteStartElement(connectionName);
                 // iterate over the connected value and grab every x-th connected value from the columns
                 for (int i = 0; i < group.FirstOrDefault().ConnectedFieldValues?.Length; i++)
                 {
                     string categoryName = group.FirstOrDefault().ColumnDefinition.Category;
-                    _xtw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
+                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
                     // now iterate over the different columns
                     for (int j = 0; j < group.Count(); j++)
                     {
@@ -127,22 +130,22 @@ namespace Vovin.CmcLibNet.Export
                         if (!string.IsNullOrEmpty(value))
                         {
                             string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
-                            _xtw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
+                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
                             // are we dealing with a large text field?
-                            if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars > 80)
+                            if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
                             {
-                                _xtw.WriteCData(value);
+                                _xw.WriteCData(value);
                             }
                             else
                             {
-                                _xtw.WriteString(value);
+                                _xw.WriteString(value);
                             }
-                            _xtw.WriteEndElement();
+                            _xw.WriteEndElement();
                         }
                     }
-                    _xtw.WriteEndElement();
+                    _xw.WriteEndElement();
                 }
-                _xtw.WriteEndElement();
+                _xw.WriteEndElement();
             }
         }
 
@@ -160,10 +163,10 @@ namespace Vovin.CmcLibNet.Export
             {
                 // Free any other managed objects here.
                 //
-                if (_xtw != null && _xtw.WriteState != WriteState.Closed)
+                if (_xw != null && _xw.WriteState != WriteState.Closed)
                 {
-                    _xtw.Flush();
-                    _xtw.Close();
+                    _xw.Flush();
+                    _xw.Close();
                 }
             }
 

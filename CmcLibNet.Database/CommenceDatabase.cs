@@ -25,13 +25,14 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(ICommenceDatabase))]
     public partial class CommenceDatabase : ICommenceDatabase
     {
+        #region Fields
         // this portion of the class contains the implementation of the ICommenceCursor interface of Commence.
         private FormOA.ICommenceDB _db;
         private CommenceApp _app; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
         private IRcwReleasePublisher _rcwReleasePublisher;
+        #endregion
 
         #region Constructors
-
         /// <summary>
         /// Public constructor.
         /// </summary>
@@ -190,7 +191,7 @@ namespace Vovin.CmcLibNet.Database
                 if (disposing)
                 {
                     Close();
-                    // TODO: dispose managed state (managed objects).
+                    // dispose managed state (managed objects).
                     if (DDETimer != null)
                     {
                         DDETimer.Stop();
@@ -199,20 +200,20 @@ namespace Vovin.CmcLibNet.Database
                     _conv = null;
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
                 if (_db != null)
                 {
                     while (Marshal.ReleaseComObject(_db) > 0) { };
                     _db = null;
                 }
 
-                // TODO: set large fields to null.
+                // set large fields to null.
 
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
         /// <summary>
         /// Finalizer
         /// </summary>
@@ -230,7 +231,7 @@ namespace Vovin.CmcLibNet.Database
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
+            // uncomment the following line if the finalizer is overridden above.
             GC.SuppressFinalize(this);
         }
         #endregion

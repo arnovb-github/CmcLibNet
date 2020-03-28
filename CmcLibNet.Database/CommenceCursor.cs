@@ -509,7 +509,6 @@ namespace Vovin.CmcLibNet.Database
             // therefore, we have to check if any columns were set previously.
 
             // No columns were explicitly set
-            // TODO: if no columns were explicitly set, a default cursor still holds all fields.
             if (!_directColumnsWereSet && !_relatedColumnsWereSet)
             {
                 col = -1; // -1 because we 1 is added and we want to start at 0.

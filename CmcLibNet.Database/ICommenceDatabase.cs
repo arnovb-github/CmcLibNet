@@ -213,7 +213,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="delim2">Second delimiter, up to 8 chars.</param>
         /// <returns>Array of <see cref="ICommenceConnection"/> objects</returns>
         //[return: MarshalAs(UnmanagedType.Struct, SafeArraySubType = VarEnum.VT_ARRAY)]
-        object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null); // TODO move to interface so we can have 'overloads' of same signature
+        object GetConnectionNames(string categoryName, string delim1 = null, string delim2 = null);
 
         /// <summary>
         /// Gets a list of connection names to the specified category.
@@ -477,7 +477,7 @@ namespace Vovin.CmcLibNet.Database
         /// <item><term>204 (0xCC)</term><description> Filter 4 has been invalidated.</description></item>
         /// </list>
         /// </returns>
-		string GetLastError(); // TODO: create something like a log of failed DDE calls, say 100 or so?
+		string GetLastError();
 
         /// <summary>
         /// Returns information about the active view and selected letter template at the time the Tools-Send Letter or Customize-Database-Letter Template command was executed.

@@ -224,7 +224,7 @@ namespace Vovin.CmcLibNet.Database
         /// <remarks>This method is only available to .NET applications.</remarks>
         /// <returns>ICommenceQueryRowSet object on success.</returns>
         [ComVisible(false)] // overload, only available for .Net
-        CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSet(CmcOptionFlags flags = CmcOptionFlags.Default); // TO-DO fix this, it cannot distinguish between the former method with an optional parameter!!!!?
+        CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSet(CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
         /// Create a rowset object with a particular row loaded.

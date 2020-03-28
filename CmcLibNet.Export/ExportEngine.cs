@@ -146,7 +146,7 @@ namespace Vovin.CmcLibNet.Export
             // A default cursor on a category contains all fields *and* connections.
             // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
             // We optimize here by only including direct fields in the cursor
-            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel) // TODO: get rid of the HeaderMode check
+            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
             {
                 using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
                 {

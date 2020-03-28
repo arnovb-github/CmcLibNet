@@ -247,7 +247,6 @@ namespace Vovin.CmcLibNet.Database
             } // foreach
 
             // successfully applied filters, now set logic
-            // not very elegant, could do with refactoring? TODO
             if (sb != null)
             {
                 sb.Append(string.Join(",",logic));

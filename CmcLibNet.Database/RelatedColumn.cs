@@ -34,7 +34,6 @@ namespace Vovin.CmcLibNet.Database
         #region Methods
         public bool Equals(RelatedColumn other)
         {
-
             // Check whether the compared object is null.
             if (ReferenceEquals(other, null)) return false;
 
@@ -51,8 +50,7 @@ namespace Vovin.CmcLibNet.Database
             if (obj == null)
                 return false;
 
-            RelatedColumn rc = obj as RelatedColumn;
-            if (rc == null)
+            if (!(obj is RelatedColumn rc))
                 return false;
             else
                 return Equals(rc);

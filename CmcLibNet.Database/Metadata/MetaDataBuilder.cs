@@ -31,8 +31,10 @@ namespace Vovin.CmcLibNet.Database.Metadata
         {
             DatabaseSchema ds = null;
             IDBDef d = _db.GetDatabaseDefinition();
-            ds = new DatabaseSchema(d);
-            ds.Size = GetDatabaseSize(_db.Path);
+            ds = new DatabaseSchema(d)
+            {
+                Size = GetDatabaseSize(_db.Path)
+            };
             var categoryNames = _db.GetCategoryNames();
             ds.Categories = GetCategoryMetadata(categoryNames).ToList();
             var files = this.FormXmlFiles;
@@ -75,9 +77,11 @@ namespace Vovin.CmcLibNet.Database.Metadata
             foreach (string formName in forms)
             {
                 var formFile = FormXmlFiles.FirstOrDefault(w => w.Category.Equals(categoryName) && w.Name.Equals(formName));
-                CommenceFormMetaData f = new CommenceFormMetaData(formName);
-                f.Category = categoryName;
-                f.Path = formFile?.Path;
+                CommenceFormMetaData f = new CommenceFormMetaData(formName)
+                {
+                    Category = categoryName,
+                    Path = formFile?.Path
+                };
 
                 if (MetaDataOptions.IncludeFormScript)
                 {
@@ -149,8 +153,10 @@ namespace Vovin.CmcLibNet.Database.Metadata
                         {
                             if (reader.Name.ToLower() == "form") //see if we're at the FORM node
                             {
-                                FormXmlMetaData item = new FormXmlMetaData();
-                                item.Path = f;
+                                FormXmlMetaData item = new FormXmlMetaData
+                                {
+                                    Path = f
+                                };
                                 if (reader.AttributeCount > 0) //only interested in the start tag; we could achieve the same with IsStartElement but that takes longer
                                 {
                                     reader.MoveToAttribute("Name");
