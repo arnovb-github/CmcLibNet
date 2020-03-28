@@ -13,7 +13,7 @@
         /// <summary>
         /// For use in <see cref="System.String.Split(char[], System.StringSplitOptions)"/>
         /// </summary>
-        private readonly char[] _splitter = _cmcDelim.ToCharArray();
+        private readonly string[] _splitter = new string[] { _cmcDelim };
         bool disposed = false;
         #endregion
 
@@ -60,7 +60,7 @@
         ///  For use in <see cref="System.String.Split(char[], System.StringSplitOptions)"/>
         /// </summary>
         // We do not use an auto-property because it would introduce overhead
-        protected char[] Splitter =>_splitter;
+        protected string[] Splitter =>_splitter;
 
         /// <summary>
         /// Dispose method
