@@ -180,7 +180,7 @@ namespace Vovin.CmcLibNet.Database
             try
             {
                 retval = _qrs.GetRow(nRow, delim, (int)flags)
-                    .Split(delim.ToCharArray(), StringSplitOptions.None)
+                    .Split(new string[] { delim }, StringSplitOptions.None)
                     .ToArray<object>();
             }
             catch (COMException)
