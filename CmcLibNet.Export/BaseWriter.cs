@@ -479,8 +479,13 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         protected internal List<ColumnDefinition> ColumnDefinitions
         {
-            // TODO: this should probably better be a property of CommenceCursor
-            // it means substantial rewriting
+            // TODO: this should probably  be a property of CommenceCursor,
+            // but that would mean substantial rewriting.
+            // Also, there is the issue that a cursor can have its columns changed.
+            // In that case, you would have to query Commence again,
+            // which would mean another series of superexpensive COM-calls.
+            // We want to avoid that at all cost.
+            // Setting some type of 'freeze' point to prevent that would not be trivial.
 
             // create _headerLists just once!
             get
