@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using OfficeOpenXml;
 using System.Data;
-using System.Xml;
-using System.Xml.Schema;
 using System.IO;
-using Newtonsoft.Json;
+using System.Xml;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -36,9 +35,9 @@ namespace Vovin.CmcLibNet.Export
                 case ExportFormat.Json:
                     ExportJson(_ds);
                     break;
-                //case ExportFormat.Excel:
-                //    ExportExcel(_ds);
-                //    break;
+                case ExportFormat.Excel:
+                    DataSetToExcel(_ds, _filename);
+                    break;
             }
         }
 
@@ -68,18 +67,19 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        //private void ExportExcel(DataSet ds)
-        //{
-        //    //Microsoft.Office.Interop.Excel.Application xl = new Microsoft.Office.Interop.Excel.Application();
-        //    //Microsoft.Office.Interop.Excel.XmlMap xmlMap1 = ds.GetXmlSchema();
-        //    string x = ds.GetXmlSchema();
-        //    using (StreamWriter writer = File.CreateText(@"e:\temp\schema.xsd"))
-        //    {
-        //        writer.Write(x);
-        //        writer.Close();
-        //    }
-            
-        //}
+        private static void DataSetToExcel(DataSet dataSet, string filePath)
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                foreach (DataTable dataTable in dataSet.Tables)
+                {
+                    ExcelWorksheet workSheet = pck.Workbook.Worksheets.Add(dataTable.TableName);
+                    workSheet.Cells["A1"].LoadFromDataTable(dataTable, true);
+                }
+
+                pck.SaveAs(new FileInfo(filePath));
+            }
+        }
         #endregion
     }
 }

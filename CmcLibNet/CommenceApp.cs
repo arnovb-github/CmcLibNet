@@ -158,30 +158,15 @@ namespace Vovin.CmcLibNet
         }
  
         /// <inheritdoc />
-        public string Name
-        {
-            get { return _cmc.Name; }
-        }
+        public string Name => _cmc.Name;
         /// <inheritdoc />
-        public string Path
-        {
-            get { return _cmc.Path; }
-        }
+        public string Path => _cmc.Path;
         /// <inheritdoc />
-        public string Version
-        { 
-            get { return _cmc.Version; }
-        }
+        public string Version => _cmc.Version;
         /// <inheritdoc />
-        public string VersionExt
-        {
-            get { return _cmc.VersionExt; }
-        }
+        public string VersionExt => _cmc.VersionExt;
         /// <inheritdoc />
-        public string RegisteredUser
-        {
-            get { return _cmc.RegisteredUser; }
-        }
+        public string RegisteredUser => _cmc.RegisteredUser;
         #endregion
 
         #region Methods
@@ -239,7 +224,6 @@ namespace Vovin.CmcLibNet
         {
             if (_cmc != null)
             {
-                //Marshal.FinalReleaseComObject(_cmc); // kill all COM references to Commence.DB. No calls to Commence can be made after this.
                 while (Marshal.ReleaseComObject(_cmc) > 0) { }; // kill current references to Commence.DB. No calls to Commence can be made after this.
                 _cmc = null;
             }

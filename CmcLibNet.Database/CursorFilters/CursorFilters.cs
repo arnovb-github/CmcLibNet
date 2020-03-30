@@ -302,10 +302,7 @@ namespace Vovin.CmcLibNet.Database
 
         #region Properties
         /// <inheritdoc />
-        public int Count
-        {
-            get { return _filters.Count; }
-        }
+        public int Count => _filters.Count;
         #endregion
     }
 }

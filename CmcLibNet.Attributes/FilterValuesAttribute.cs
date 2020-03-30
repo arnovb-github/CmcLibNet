@@ -24,6 +24,6 @@ namespace Vovin.CmcLibNet.Attributes
         /// <summary>
         /// Number of dependencies
         /// </summary>
-        public int Number { get; private set; }
+        public int Number { get; }
     }
 }

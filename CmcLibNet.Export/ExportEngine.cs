@@ -226,7 +226,7 @@ namespace Vovin.CmcLibNet.Export
             {
                 return new AdoNetWriter(cursor, settings); // i think this can be taken out entirely
             }
-                if (settings.PreserveAllConnections)
+            if (settings.PreserveAllConnections)
             {
                 return new Complex.SQLiteWriter(cursor, settings);
             }

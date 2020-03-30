@@ -226,8 +226,11 @@ namespace Vovin.CmcLibNet.Export.Complex
             cursorsProcessed++;
             if (cursorsProcessed < CursorDescriptors.Count()) { return; } // not done reading yet
 
+            // TODO allow Excel exports as well
             if (_settings.WriteSchema)
             {
+                // TODO refactor
+                
                 using (var con = new SQLiteConnection(_cs))
                 {
                     foreach (DataTable dt in _ds.Tables)
