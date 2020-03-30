@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -226,23 +227,11 @@ namespace Vovin.CmcLibNet.Export.Complex
             cursorsProcessed++;
             if (cursorsProcessed < CursorDescriptors.Count()) { return; } // not done reading yet
 
-            // TODO allow Excel exports as well
             if (_settings.WriteSchema)
             {
-                // TODO refactor
-                
-                using (var con = new SQLiteConnection(_cs))
-                {
-                    foreach (DataTable dt in _ds.Tables)
-                    {
-                        string stm = GetSQLiteSelectQueryForTable(dt); // we need a function for this
-                        using (var da = new SQLiteDataAdapter(stm, con))
-                        {
-                            da.Fill(_ds, dt.TableName); // FYI: Fill will add a new column if it does not exist
-                        }
-                    }
-                    _ds.WriteXml(_fileName, XmlWriteMode.WriteSchema); // works well and is fast but no control over output
-                }
+                FillDataSet();
+                DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
+                dse.Export();
             }
             else
             {
@@ -255,6 +244,11 @@ namespace Vovin.CmcLibNet.Export.Complex
                     case ExportFormat.Json:
                         var jw = new SQLiteToJsonSerializer(this._settings, _ocp, _ds.Tables[0], _cs);
                         jw.Serialize(_fileName);
+                        break;
+                    case ExportFormat.Excel:
+                        FillDataSet();
+                        DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
+                        dse.Export(); // TODO: fails if in use
                         break;
                 }
             }
@@ -497,6 +491,20 @@ namespace Vovin.CmcLibNet.Export.Complex
             } // using con
         }
 
+        private void FillDataSet()
+        {
+            using (var con = new SQLiteConnection(_cs))
+            {
+                foreach (DataTable dt in _ds.Tables)
+                {
+                    string stm = GetSQLiteSelectQueryForTable(dt); // we need a function for this
+                    using (var da = new SQLiteDataAdapter(stm, con))
+                    {
+                        da.Fill(_ds, dt.TableName); // FYI: Fill will add a new column if it does not exist
+                    }
+                }
+            }
+        }
         #region Query methods
         internal static string GetSQLiteSelectQueryForTable(DataTable dt)
         {

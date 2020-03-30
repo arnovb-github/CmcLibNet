@@ -29,11 +29,11 @@ namespace Vovin.CmcLibNet.Export
         {
             switch (_settings.ExportFormat)
             {
-                case ExportFormat.Xml:
-                    ExportXML(_ds);
+                case ExportFormat.Xml: // never used
+                    DataSetToXML(_ds);
                     break;
                 case ExportFormat.Json:
-                    ExportJson(_ds);
+                    DataSetToJson(_ds);
                     break;
                 case ExportFormat.Excel:
                     DataSetToExcel(_ds, _filename);
@@ -41,12 +41,13 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private void ExportXML(DataSet ds)
+        private void DataSetToXML(DataSet ds)
         {
             // interesting fact: even with a schema included, Excel can't deal with the resulting XML!
             XmlWriterSettings xws = new XmlWriterSettings
             {
-                Indent = true
+                Indent = true,
+                Encoding = System.Text.Encoding.UTF8
             };
             using (System.Xml.XmlWriter xw = System.Xml.XmlWriter.Create(_filename, xws))
             {
@@ -54,7 +55,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private void ExportJson(DataSet ds)
+        private void DataSetToJson(DataSet ds)
         {
             // we want a quick and easy way to get nested json.
             XmlDocument doc = new XmlDocument();
