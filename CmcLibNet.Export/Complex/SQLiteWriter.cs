@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -46,8 +45,6 @@ using Vovin.CmcLibNet.Extensions;
  * A very important assumption we make here:
  * 1. The THID field is always in the first column.
  * We make sure of that ourselves, but that is important to understand the code.
- * 2. The primary Commence category is the first table in the dataset
- * Again, we make sure of that ourselves, just be aware of it.
  */
 namespace Vovin.CmcLibNet.Export.Complex
 {
@@ -229,7 +226,7 @@ namespace Vovin.CmcLibNet.Export.Complex
 
             if (_settings.WriteSchema)
             {
-                FillDataSet();
+                FillDataSet(); // may be too large
                 DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
                 dse.Export();
             }
@@ -238,17 +235,17 @@ namespace Vovin.CmcLibNet.Export.Complex
                 switch (_settings.ExportFormat)
                 {
                     case ExportFormat.Xml:
-                        var xw = new SQLiteToXmlSerializer(this._settings, _ds.Tables[0], _cs); // CODE SMELL
+                        var xw = new SQLiteToXmlSerializer(this._settings, _ds.Tables[_ocp.Name], _cs);
                         xw.Serialize(_fileName);
                         break;
                     case ExportFormat.Json:
-                        var jw = new SQLiteToJsonSerializer(this._settings, _ocp, _ds.Tables[0], _cs);
+                        var jw = new SQLiteToJsonSerializer(this._settings, _ocp, _ds.Tables[_ocp.Name], _cs);
                         jw.Serialize(_fileName);
                         break;
-                    case ExportFormat.Excel:
-                        FillDataSet();
+                    case ExportFormat.Excel: // largely untested
+                        FillDataSet(); // may be too large
                         DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
-                        dse.Export(); // TODO: fails if in use
+                        dse.Export(); // TODO: fails if in use, does not respect Excel options yet
                         break;
                 }
             }
