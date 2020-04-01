@@ -2,9 +2,8 @@
 
 namespace Vovin.CmcLibNet.Export.Complex
 {
-    // class to assist in creating consistent columnnames for SQLite link table
-    // this just captures an internal convention in this assembly
-    internal static class LinkTableConstructor
+    // class for helping to keep dataset creation and use consistent
+    internal static class DataSetHelper
     {
         private static StringBuilder sb = new StringBuilder();
 
@@ -53,6 +52,15 @@ namespace Vovin.CmcLibNet.Export.Complex
             sb.Append(postFix);
             return sb.ToString();
         }
-        
+
+        #region Properties
+        internal static string CommenceFieldTypeDescriptionExtProp => "CommenceFieldTypeDescription";
+        internal static string CommenceConnectionDescriptionExtProp => "CommenceConnectionDescription";
+        internal static string CommenceCategoryNameExtProp => "CommenceCategoryName";
+        internal static string LinkTableInsertCommandTextExtProp => "InsertCommandText";
+        internal static string LinkTableSelectCommandTextExtProp => "SelectCommandText";
+        internal static string ConnectedCategoryPrefix => "_connectedCategory";
+        internal static string PostFixId => "_ID";
+        #endregion
     }
 }

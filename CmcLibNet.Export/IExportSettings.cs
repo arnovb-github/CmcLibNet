@@ -30,7 +30,7 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool Canonical { get; set; }
         /// <summary>
-        /// Include additional column holding the item's THID and return THIDS instead of Name field values for connected items. (XML and Json). For text-based exports, connected items are not returned as thids. Default is <c>false</c>.
+        /// Include additional column holding the item's THID and return THIDs instead of Name field values for connected items. (XML and Json). For text-based exports, connected items are not returned as thids. Default is <c>false</c>.
         /// </summary>
         /// <remarks>Ignored for custom cursors; create them with the thid flag if you want thids.
         /// </remarks>
@@ -40,11 +40,11 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         HeaderMode HeaderMode { get; set;}
         /// <summary>
-        /// Use custom columnheaders. They must be unique and match the number of fields in the cursor.
+        /// Use custom columnheaders. THey must match the number of fields in the cursor.
         /// </summary>
         /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.
         /// <para>You must supply custom headers for all columns in the cursor, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</para>
-        /// <para>Type is <c>Object</c> for compatibility with COM.</para>
+        /// <para>Type is <c>object</c> for compatibility with COM.</para>
         /// </remarks>
         object[] CustomHeaders { get; set;}
         /// <summary>
@@ -101,7 +101,8 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Include all connected items.
         /// Overrides <see cref="Canonical"/>, <see cref="ISO8601Compliant"/>, <see cref="SkipConnectedItems"/>,
-        /// <see cref="SplitConnectedItems"/>. 
+        /// <see cref="SplitConnectedItems"/>, <see cref="ExcelUpdateOptions"/>.
+        /// Supported formats are <see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>, <see cref="ExportFormat.Excel"/>
         /// </summary>
         /// <remarks>Use this if connected data is truncated. Will be significantly slower due to multiple data reads.
         /// <para>Changes the order of columns in the cursor; direct columns will come first, then connected columns.</para>

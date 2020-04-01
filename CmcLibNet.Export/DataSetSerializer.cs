@@ -9,14 +9,14 @@ namespace Vovin.CmcLibNet.Export
     /// <summary>
     /// Exports data from a DataSet.
     /// </summary>
-    internal class DataSetExporter
+    internal class DataSetSerializer
     {
         DataSet _ds = null;
         IExportSettings _settings = null;
         readonly string _filename = string.Empty;
 
         #region Constructors
-        internal DataSetExporter(DataSet dataset, string fileName, IExportSettings settings)
+        internal DataSetSerializer(DataSet dataset, string fileName, IExportSettings settings)
         {
             _ds = dataset;
             _settings = settings;
@@ -57,14 +57,10 @@ namespace Vovin.CmcLibNet.Export
 
         private void DataSetToJson(DataSet ds)
         {
-            // we want a quick and easy way to get nested json.
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(_ds.GetXml());
             // see: http://stackoverflow.com/questions/21727144/convert-dataset-with-multiple-datatables-to-json
-            string jsonText = JsonConvert.SerializeObject(_ds, Newtonsoft.Json.Formatting.Indented);
             using (StreamWriter sw = new StreamWriter(_filename))
             {
-                sw.Write(jsonText);
+                sw.Write(JsonConvert.SerializeObject(_ds, Newtonsoft.Json.Formatting.Indented));
             }
         }
 
@@ -77,7 +73,6 @@ namespace Vovin.CmcLibNet.Export
                     ExcelWorksheet workSheet = pck.Workbook.Worksheets.Add(dataTable.TableName);
                     workSheet.Cells["A1"].LoadFromDataTable(dataTable, true);
                 }
-
                 pck.SaveAs(new FileInfo(filePath));
             }
         }

@@ -42,7 +42,7 @@ namespace Vovin.CmcLibNet.Export
 
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
         {
-            DataSetExporter dse = new DataSetExporter(this._ds, this._filename, base._settings);
+            DataSetSerializer dse = new DataSetSerializer(this._ds, this._filename, base._settings);
             try
             {
                 dse.Export();

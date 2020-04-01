@@ -78,6 +78,7 @@ namespace Vovin.CmcLibNet.Export
                 if (ValidCustomHeaders(_settings.CustomHeaders.Select(x => x.ToString()).ToArray()))
                 {
                     _customColumnHeaders = _settings.CustomHeaders.Select(x => x.ToString()).ToArray();
+                    _customColumnHeaders = Utils.RenameDuplicates(_customColumnHeaders.ToList()).ToArray();
                 }
             }
             _dataSourceName = (string.IsNullOrEmpty(_cursor.View)) ? _cursor.Category : _cursor.View;
@@ -197,15 +198,15 @@ namespace Vovin.CmcLibNet.Export
             // did we get the correct number?
             if (cHeaders.Length != _cursor.ColumnCount)
             {
-                throw new ArgumentOutOfRangeException("Invalid number of custom headers. Should be " 
-                    + _cursor.ColumnCount.ToString() + ", but received " + cHeaders.Length.ToString() + ".");
+                throw new ArgumentOutOfRangeException($"Invalid number of custom headers. Should be { _cursor.ColumnCount } but received {cHeaders.Length}.");
             }
+            // 2020-04-01 removed this check, it should not be a user's concern until he finds it in the output
             // all are headers unique?
-            string[] unique = cHeaders.Distinct().ToArray();
-            if (unique.Length != cHeaders.Length)
-            {
-                throw new ArgumentException("Custom headers cannot contain duplicates.");
-            }
+            //string[] unique = cHeaders.Distinct().ToArray();
+            //if (unique.Length != cHeaders.Length)
+            //{
+            //    throw new ArgumentException("Custom headers cannot contain duplicates.");
+            //}
             return true;
         }
 

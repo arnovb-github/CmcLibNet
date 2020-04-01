@@ -41,8 +41,8 @@ namespace Vovin.CmcLibNet.Export.Complex
             // collect some information before the dataread to prevent unnecessary calls
             var subQueries = _primaryTable.ChildRelations.Cast<DataRelation>().Select(s => new ChildTableQuery(
                 // no checks if keys exist
-                s.ChildTable.ExtendedProperties[SQLiteWriter.LinkTableSelectCommandTextExtProp].ToString(),
-                JsonConvert.DeserializeObject<CommenceConnection>(s.ExtendedProperties[SQLiteWriter.CommenceConnectionDescriptionExtProp].ToString()))
+                s.ChildTable.ExtendedProperties[DataSetHelper.LinkTableSelectCommandTextExtProp].ToString(),
+                JsonConvert.DeserializeObject<CommenceConnection>(s.ExtendedProperties[DataSetHelper.CommenceConnectionDescriptionExtProp].ToString()))
                 ).ToArray();
 
             using (var connection = new SQLiteConnection(_cs))
@@ -74,18 +74,8 @@ namespace Vovin.CmcLibNet.Export.Complex
                                 bool includeThids = ((ExportSettings)_settings).UserRequestedThids;
                                 while (reader.Read())
                                 {
-                                    // would there be a point to get the datatype from the columns?
                                     writer.WriteStartElement(null, "Item", null);
-                                    for (int col = 0; col < reader.FieldCount; col++)
-                                    {
-                                        // include thid as fieldvalue in output?
-                                        if (col == 0 && !includeThids) { continue; }
-                                        // we currently do not match up the datatypes in the DataTable with the returned values from SQLite
-                                        writer.WriteStartElement(null, XmlConvert.EncodeLocalName(reader.GetName(col)), null);
-                                        writer.WriteString(reader[col].ToString()); // WriteString() will escape most invalid chars
-                                        writer.WriteEndElement();
-                                    } // for
-
+                                    WriteNodes(reader, writer, includeThids);
                                     // next step is to get the connected values
                                     // we use a separate query for that
                                     // that is probably way too convoluted
@@ -103,6 +93,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                                         var subreader = sqCmd.ExecuteReader();
                                         while (subreader.Read())
                                         {
+                                            
                                             if (_settings.NestConnectedItems)
                                             {
                                                 WriteNestedNodes(subreader, writer, q.Connection, includeThids);
@@ -126,12 +117,19 @@ namespace Vovin.CmcLibNet.Export.Complex
 
         private void WriteNodes(SQLiteDataReader dr, System.Xml.XmlWriter writer, bool includeThids)
         {
+            string value;
             for (int col = 0; col < dr.FieldCount; col++)
             {
                 if (col == 0 && !includeThids) { continue; } // skip first row
+                value = dr[col].ToString();
+                // time and date fields have no original name
+                if (string.IsNullOrEmpty(dr.GetOriginalName(col))) // either a time or a date
+                {
+                    value = GetShortDateOrTime(value);
+                }
                 // we currently do not match up the datatypes in the DataTable with th returned values from SQLite
                 writer.WriteStartElement(null, XmlConvert.EncodeLocalName(dr.GetName(col)), null);
-                writer.WriteString(dr[col].ToString()); // WriteString will escape most (all?) invalid chars
+                writer.WriteString(value); // WriteString will escape most (all?) invalid chars
                 writer.WriteEndElement();
             } // for
         }
@@ -140,19 +138,16 @@ namespace Vovin.CmcLibNet.Export.Complex
         {
             writer.WriteStartElement(XmlConvert.EncodeLocalName(cc.Name));
             writer.WriteStartElement(XmlConvert.EncodeLocalName(cc.ToCategory));
-            for (int col = 0; col < dr.FieldCount; col++)
-            {
-                if (col == 0 && !includeThids) { continue; } // skip first row
-                // we currently do not match up the datatypes in the DataTable with th returned values from SQLite
-                string elementName = dr.GetOriginalName(col);
-                // time and date fields have no original name
-                if (string.IsNullOrEmpty(elementName)) {  elementName =  dr.GetName(col); } 
-                writer.WriteStartElement(null, XmlConvert.EncodeLocalName(elementName), null); 
-                writer.WriteString(dr[col].ToString()); // WriteString will escape most (all?) invalid chars
-                writer.WriteEndElement();
-            } // for
+            WriteNodes(dr, writer, includeThids);
             writer.WriteEndElement();
             writer.WriteEndElement();
+        }
+
+        private string GetShortDateOrTime(string value)
+        {
+            return value.ToString().Contains(':')
+                ? Convert.ToDateTime(value).ToShortTimeString()
+                : Convert.ToDateTime(value).ToShortDateString();
         }
     }
 }

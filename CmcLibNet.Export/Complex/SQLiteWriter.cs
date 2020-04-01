@@ -227,7 +227,7 @@ namespace Vovin.CmcLibNet.Export.Complex
             if (_settings.WriteSchema)
             {
                 FillDataSet(); // may be too large
-                DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
+                DataSetSerializer dse = new DataSetSerializer(_ds, _fileName, _settings);
                 dse.Export();
             }
             else
@@ -244,7 +244,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                         break;
                     case ExportFormat.Excel: // largely untested
                         FillDataSet(); // may be too large
-                        DataSetExporter dse = new DataSetExporter(_ds, _fileName, _settings);
+                        DataSetSerializer dse = new DataSetSerializer(_ds, _fileName, _settings);
                         dse.Export(); // TODO: fails if in use, does not respect Excel options yet
                         break;
                 }
@@ -289,7 +289,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 cmd.CommandText = parentTable
                                     .ChildRelations[col] // requires that they match up. Fragile.
                                     .ChildTable
-                                    .ExtendedProperties[LinkTableInsertCommandTextExtProp]
+                                    .ExtendedProperties[DataSetHelper.LinkTableInsertCommandTextExtProp]
                                     .ToString();
                 cmd.Prepare();
                 for (int row = 0; row < rowValues.Count(); row++)
@@ -315,7 +315,7 @@ namespace Vovin.CmcLibNet.Export.Complex
         /// <summary>
         /// A pretty complex method. It translates the Commence cursor to a ADO.NET DataSet
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DataSet.</returns>
         private DataSet CreateDataSetFromCursor()
         {
             string dataSource = string.IsNullOrEmpty(_cursor.View) ? _cursor.Category : _cursor.View;
@@ -338,7 +338,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 };
                 OverrideDefaultThidDataType(dc);
                 // store the Commence fieldtype so we can distinguish between Date end Time later on.
-                dc.ExtendedProperties.Add(CommenceFieldTypeDescriptionExtProp, df.CommenceFieldDefinition.Type);
+                dc.ExtendedProperties.Add(DataSetHelper.CommenceFieldTypeDescriptionExtProp, df.CommenceFieldDefinition.Type);
                 dt.Columns.Add(dc);
             }
             dt.PrimaryKey = new DataColumn[] { dt.Columns[ColumnDefinitions[0].FieldName] };
@@ -351,10 +351,14 @@ namespace Vovin.CmcLibNet.Export.Complex
             // connections in Commence are case sensitive
             // but in ADO.NET a DateRelation's relationName is not
             // we do not support that at this moment
-            if (ColumnDefinitions.Select(s => s.Connection).Distinct(StringComparer.CurrentCultureIgnoreCase).Count() !=
-                ColumnDefinitions.Select(s => s.Connection).Distinct().Count())
+            var possibleDups = ColumnDefinitions.Select(s => new { s.Connection, s.Category });
+            foreach (var d in possibleDups)
             {
-                throw new DuplicateNameException("Commence contains case sensitive connections with same name. Exporting these is not supported.");
+                if (ColumnDefinitions.Where(w => w.Category.Equals(d.Category)).Select(s => s.Connection).Distinct(StringComparer.CurrentCultureIgnoreCase).Count() !=
+                    ColumnDefinitions.Where(w => w.Category.Equals(d.Category)).Select(s => s.Connection).Distinct().Count())
+                {
+                    throw new DuplicateNameException("Commence contains case sensitive connections with same name. Exporting these is not supported.");
+                }
             }
 
             // create the tables for the connected categories
@@ -369,7 +373,14 @@ namespace Vovin.CmcLibNet.Export.Complex
                     .Select(s => s.FieldName)
                     .Distinct()
                     .ToArray();
-                dt = new DataTable(ConnectedCategoryPrefix + cat); // we need a prefix or we'd get an error on single-connected categories
+                // we need a prefix or we'd get an error on single-connected categories
+                // the alternative would be to make single connections a special case,
+                // but that would hurt code consistency.
+                dt = new DataTable(DataSetHelper.ConnectedCategoryPrefix + cat);
+                // the end-user never sees the actual tablenames in the output
+                // except in the Excel export.
+                // That is why we will include a property that just holds the category name
+                dt.ExtendedProperties.Add(DataSetHelper.CommenceCategoryNameExtProp, cat); // TODO fix for single connections
                 InsertThidField(dt);
                 dt.PrimaryKey = new DataColumn[] { dt.Columns[0] };
                 foreach (var cf in connectedFields)
@@ -383,7 +394,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     };
                     OverrideDefaultThidDataType(dc);
                     // store the Commence fieldtype so we can distinguish between Date end Time later on.
-                    dc.ExtendedProperties.Add(CommenceFieldTypeDescriptionExtProp, cd.CommenceFieldDefinition.Type);
+                    dc.ExtendedProperties.Add(DataSetHelper.CommenceFieldTypeDescriptionExtProp, cd.CommenceFieldDefinition.Type);
                     dt.Columns.Add(dc);
                 }
                 retval.Tables.Add(dt);
@@ -404,15 +415,15 @@ namespace Vovin.CmcLibNet.Export.Complex
                 .ToList();
             foreach (var lt in linkTables)
             {
-                string name = LinkTableConstructor.TableName(_cursor.Category, lt.Name, lt.ToCategory);
+                string name = DataSetHelper.TableName(_cursor.Category, lt.Name, lt.ToCategory);
                 dt = new DataTable(name);
-                string fkp = LinkTableConstructor.ForeignKeyOfPrimaryTable(_cursor.Category, PostFixId);
+                string fkp = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
                 var dc = new DataColumn(fkp, typeof(int))
                 {
                     AllowDBNull = false
                 };
                 dt.Columns.Add(dc);
-                string fkc = LinkTableConstructor.ForeignKeyOfConnectedTable(lt.Name, lt.ToCategory, PostFixId);
+                string fkc = DataSetHelper.ForeignKeyOfConnectedTable(lt.Name, lt.ToCategory, DataSetHelper.PostFixId);
                 dc = new DataColumn(fkc, typeof(int))
                 {
                     AllowDBNull = false
@@ -422,7 +433,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 dt.PrimaryKey = new DataColumn[2] { dt.Columns[0], dt.Columns[1] };
                 retval.Tables.Add(dt);
                 // include the INSERT query
-                dt.ExtendedProperties.Add(LinkTableInsertCommandTextExtProp, GetInsertQueryForLinkTable(dt.TableName, fkp, fkc));
+                dt.ExtendedProperties.Add(DataSetHelper.LinkTableInsertCommandTextExtProp, GetInsertQueryForLinkTable(dt.TableName, fkp, fkc));
 
                 // set up the relations
                 string rel1 = lt.Name + lt.ToCategory + _cursor.Category;
@@ -435,7 +446,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 // it may be handy to include the connection information in it,
                 // so that from the DataSet we can easily identify which Commence connection
                 // the relationship describes
-                relPrimaryTableToLinkTable.ExtendedProperties.Add(CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
+                relPrimaryTableToLinkTable.ExtendedProperties.Add(DataSetHelper.CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
 
                 // from link table to connected table
                 string rel2 = lt.Name + lt.ToCategory + lt.ToCategory;
@@ -448,21 +459,22 @@ namespace Vovin.CmcLibNet.Export.Complex
                     // In Commence, the name of the reverse connection can be any string,
                     // we do not know anything about it at this point.
                     DataRelation relConnectedTableToLinkTable = retval.Relations.Add(rel2,
-                        retval.Tables[ConnectedCategoryPrefix + lt.ToCategory].Columns[0],
+                        retval.Tables[DataSetHelper.ConnectedCategoryPrefix + lt.ToCategory].Columns[0],
+                        //retval.Tables[lt.ToCategory].Columns[0],
                         retval.Tables[dt.TableName].Columns[fkc],
                         false);
                     relConnectedTableToLinkTable.Nested = false;
-                    relConnectedTableToLinkTable.ExtendedProperties.Add(CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
+                    relConnectedTableToLinkTable.ExtendedProperties.Add(DataSetHelper.CommenceConnectionDescriptionExtProp, JsonConvert.SerializeObject(lt));
                     // include the SELECT query
-                    dt.ExtendedProperties.Add(LinkTableSelectCommandTextExtProp,
-                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, ConnectedCategoryPrefix + lt.ToCategory));
+                    dt.ExtendedProperties.Add(DataSetHelper.LinkTableSelectCommandTextExtProp,
+                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, DataSetHelper.ConnectedCategoryPrefix + lt.ToCategory));
                 }
                 else
                 {
                     // we have a single connection on the category itself,
                     // so we must alter the select query to reflect that we are in fact reading a connection
-                    dt.ExtendedProperties.Add(LinkTableSelectCommandTextExtProp,
-                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, ConnectedCategoryPrefix + lt.ToCategory, true));
+                    dt.ExtendedProperties.Add(DataSetHelper.LinkTableSelectCommandTextExtProp,
+                        GetSelectQueryForLinkTable(relPrimaryTableToLinkTable, fkp, fkc, DataSetHelper.ConnectedCategoryPrefix + lt.ToCategory, true));
                 }
             } // foreach
             return retval;
@@ -565,7 +577,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 {
                     // no check if property exists
                     CommenceConnection cc = JsonConvert.DeserializeObject<CommenceConnection>(
-                        dr.ExtendedProperties[CommenceConnectionDescriptionExtProp].ToString());
+                        dr.ExtendedProperties[DataSetHelper.CommenceConnectionDescriptionExtProp].ToString());
                     if (_settings.NestConnectedItems) // it is fine to have the real columnname in nested exports
                     {
                         customAlias = GetAliasForColumn(dc);
@@ -608,14 +620,14 @@ namespace Vovin.CmcLibNet.Export.Complex
             // process special cases
             // refer: https://www.sqlitetutorial.net/sqlite-date-functions/sqlite-date-function/
             if (dc.DataType == typeof(DateTime)
-                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
-                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
+                && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
             {
                 colName = $"date({colName})"; // returns YYYY-MM-DD
             }
             else if (dc.DataType == typeof(DateTime)
-                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
-                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
+                && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
             {
                 colName = $"time({colName})"; // returns HH:MM:SS
             }
@@ -632,16 +644,16 @@ namespace Vovin.CmcLibNet.Export.Complex
             // process special cases
             // refer: https://www.sqlitetutorial.net/sqlite-date-functions/sqlite-date-function/
             if (dc.DataType == typeof(DateTime)
-                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
-                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
+                && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
             {
                 return colName = $"date({prefix}{colName}) AS {alias}"; // returns YYYY-MM-DD
             }
             else if (dc.DataType == typeof(DateTime)
-                && dc.ExtendedProperties.ContainsKey(CommenceFieldTypeDescriptionExtProp)
-                && dc.ExtendedProperties[CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
+                && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
+                && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
             {
-                return colName = $"time({prefix}{colName})  AS {alias}"; // returns HH:MM:SS
+                return colName = $"time({prefix}{colName}) AS {alias}"; // returns HH:MM:SS
             }
             return colName = $"{prefix}{colName} AS {alias}";
         }
@@ -674,13 +686,13 @@ namespace Vovin.CmcLibNet.Export.Complex
             {
                 // a link table always contains just 2 columns
                 StringBuilder sb = new StringBuilder("INSERT INTO ");
-                string s = LinkTableConstructor.TableName(_cursor.Category, lt.Connection, lt.Category);
+                string s = DataSetHelper.TableName(_cursor.Category, lt.Connection, lt.Category);
                 sb.Append(SanitizeSqlIdentifier(s)); // expects name of link table
                 sb.Append('(');
-                s = LinkTableConstructor.ForeignKeyOfPrimaryTable(_cursor.Category, PostFixId);
+                s = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
                 sb.Append(SanitizeSqlIdentifier(s)); // primary key of primary category.
                 sb.Append(',');
-                s = LinkTableConstructor.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, PostFixId);
+                s = DataSetHelper.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, DataSetHelper.PostFixId);
                 sb.Append(SanitizeSqlIdentifier(s)); // the foreign key.
                 sb.Append(") VALUES (");
                 sb.Append(_pkParamName);
@@ -713,7 +725,7 @@ namespace Vovin.CmcLibNet.Export.Complex
 
         private void OverrideDefaultThidDataType(DataColumn dc)
         {
-            if (dc.ColumnName.Equals(ColumnParser.ThidIdentifier))
+            if (dc.ColumnName.Equals(ColumnDefinition.ThidIdentifier))
             {
                 dc.DataType = typeof(int);
                 dc.AllowDBNull = false;
@@ -767,9 +779,9 @@ namespace Vovin.CmcLibNet.Export.Complex
             
             DataTable dt = null;
             CommenceConnection cc = null;
-            if (relation.ExtendedProperties.ContainsKey(CommenceConnectionDescriptionExtProp))
+            if (relation.ExtendedProperties.ContainsKey(DataSetHelper.CommenceConnectionDescriptionExtProp))
             {
-                cc = JsonConvert.DeserializeObject<CommenceConnection>(relation.ExtendedProperties[CommenceConnectionDescriptionExtProp].ToString());
+                cc = JsonConvert.DeserializeObject<CommenceConnection>(relation.ExtendedProperties[DataSetHelper.CommenceConnectionDescriptionExtProp].ToString());
             }
             if (cc is null) { return dt; }
 
@@ -781,7 +793,8 @@ namespace Vovin.CmcLibNet.Export.Complex
                 // the whole point of this method is selecting a subset of its fields
                 // what we can do is use the existing columns in it more easily create our own columns
                 // the connected table is not in the relationship, but it is in the connection.
-                string tableName = ConnectedCategoryPrefix + cc.ToCategory; // fragile
+                string tableName = DataSetHelper.ConnectedCategoryPrefix + cc.ToCategory; // fragile
+                //string tableName = cc.ToCategory;
                 DataTable fullTable = relation.DataSet.Tables[tableName];
                 dt = fullTable.Clone();
                 var requestedFields = columnDefinitions.Select(s => s.FieldName).ToArray();
@@ -884,7 +897,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                         // we screate a custom SqlMap object here
                         // because there is no corresponding table in the dataset
                         dict.Add(i, new SqlMap(_cursor.Category + distinctConnections[i].Connection + distinctConnections[i].Category,
-                            distinctConnections[i].Category + PostFixId,
+                            distinctConnections[i].Category + DataSetHelper.PostFixId,
                             true));
                     }
 
@@ -919,7 +932,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 {
                     Fields = dt.Columns
                         .Cast<DataColumn>()
-                        .Where(w => w.ColumnName != ColumnParser.ThidIdentifier)
+                        .Where(w => w.ColumnName != ColumnDefinition.ThidIdentifier)
                         .Select(c => c.ColumnName)
                         .ToList(),
                     MaxFieldSize = (int)Math.Pow(2, 15), // 32.768‬
@@ -1024,12 +1037,6 @@ namespace Vovin.CmcLibNet.Export.Complex
         private IList<CursorDescriptor> CursorDescriptors { get; } = new List<CursorDescriptor>();
         // allows us to keep track of what CursorDescriptor we are currently processing
         private CursorDescriptor CurrentCursorDescriptor { get; set; }
-        private static string CommenceFieldTypeDescriptionExtProp { get; } = "CommenceFieldTypeDescription";
-        internal static string CommenceConnectionDescriptionExtProp { get; } = "CommenceConnectionDescription";
-        private static string LinkTableInsertCommandTextExtProp { get; } = "InsertCommandText";
-        internal static string LinkTableSelectCommandTextExtProp { get; } = "SelectCommandText";
-        internal static string ConnectedCategoryPrefix { get; } = "_connectedCategory";
-        internal static string PostFixId { get; } = "_ID";
         #endregion
     }
 }

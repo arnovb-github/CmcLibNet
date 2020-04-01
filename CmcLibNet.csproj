@@ -86,6 +86,7 @@
     <Compile Include="CmcLibNet.Database\CmcCursorBookmark.cs" />
     <Compile Include="CmcLibNet.Database\CmcCursorType.cs" />
     <Compile Include="CmcLibNet.Database\CmcLinkMode.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceConversation.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\BaseCursorFilter.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\FilterFormatters.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\ICursorFilter.cs" />
@@ -122,7 +123,7 @@
     <Compile Include="CmcLibNet.Export\Complex\ChildTableQuery.cs" />
     <Compile Include="CmcLibNet.Export\Complex\CursorDescriptor.cs" />
     <Compile Include="CmcLibNet.Export\Complex\CursorFactory.cs" />
-    <Compile Include="CmcLibNet.Export\Complex\LinkTableConstructor.cs" />
+    <Compile Include="CmcLibNet.Export\Complex\DataSetHelper.cs" />
     <Compile Include="CmcLibNet.Export\Complex\OriginalCursorProperties.cs" />
     <Compile Include="CmcLibNet.Export\Complex\SQLiteToJsonSerializer.cs" />
     <Compile Include="CmcLibNet.Export\Complex\SQLiteToXmlSerializer.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="CmcLibNet.Export\Complex\SqlMap.cs" />
     <Compile Include="CmcLibNet.Export\CursorDataReadProgressChangedArgs.cs" />
     <Compile Include="CmcLibNet.Export\DataReader.cs" />
+    <Compile Include="CmcLibNet.Export\DataSetSerializer.cs" />
     <Compile Include="CmcLibNet.Export\ExcelUpdateOptions.cs" />
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingEPPlus.cs" />
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingOleDb.cs" />
@@ -161,7 +163,6 @@
     <Compile Include="CmcLibNet.Database\BaseRowSet.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\CategoryDef.cs" />
     <Compile Include="CmcLibNet.Database\CommenceAddRowSet.cs" />
-    <Compile Include="CmcLibNet.Database\CommenceConversationSingleton.cs" />
     <Compile Include="CmcLibNet.Database\CommenceCursor.cs" />
     <Compile Include="CmcLibNet.Database\CommenceDatabase.cs" />
     <Compile Include="CmcLibNet.Database\CommenceDatabase.Metadata.cs" />
@@ -183,7 +184,6 @@
     <Compile Include="CmcLibNet.Export\ColumnParser.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValue.cs" />
     <Compile Include="CmcLibNet.Export\CommenceValueConverter.cs" />
-    <Compile Include="CmcLibNet.Export\DataSetExporter.cs" />
     <Compile Include="CmcLibNet.Export\EventWriter.cs" />
     <Compile Include="CmcLibNet.Export\ExportSettings.cs" />
     <Compile Include="CmcLibNet.Export\HtmlWriter.cs" />

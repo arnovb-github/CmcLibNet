@@ -109,6 +109,8 @@ namespace Vovin.CmcLibNet.Export
                     return this.Category;
             }
         }
+
+        internal static string ThidIdentifier { get; } = "THID"; // TODO is this a good place for this? It is a little obscure 
         #endregion
 
     }

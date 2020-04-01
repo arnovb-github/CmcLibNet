@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -39,8 +40,8 @@ namespace Vovin.CmcLibNet.Export.Complex
             // collect some information before the dataread to prevent unnecessary calls
             var subQueries = _primaryTable.ChildRelations.Cast<DataRelation>().Select(s => new ChildTableQuery(
                // no checks if keys exist
-               s.ChildTable.ExtendedProperties[SQLiteWriter.LinkTableSelectCommandTextExtProp].ToString(),
-               JsonConvert.DeserializeObject<CommenceConnection>(s.ExtendedProperties[SQLiteWriter.CommenceConnectionDescriptionExtProp].ToString())
+               s.ChildTable.ExtendedProperties[DataSetHelper.LinkTableSelectCommandTextExtProp].ToString(),
+               JsonConvert.DeserializeObject<CommenceConnection>(s.ExtendedProperties[DataSetHelper.CommenceConnectionDescriptionExtProp].ToString())
             )).ToArray();
 
             using (var connection = new SQLiteConnection(_cs))
@@ -63,8 +64,8 @@ namespace Vovin.CmcLibNet.Export.Complex
                                     wr.WriteStartObject();
                                     wr.WritePropertyName("CommenceDataSource");
                                     wr.WriteValue(string.IsNullOrEmpty(_settings.CustomRootNode)
-                                    ? _primaryTable.TableName
-                                    : _settings.CustomRootNode);
+                                        ? _primaryTable.TableName
+                                        : _settings.CustomRootNode);
                                     wr.WritePropertyName("CommenceCategory");
                                     wr.WriteValue(_ocp.Category);
                                     wr.WritePropertyName("CommenceDataSourceType");
@@ -75,13 +76,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                                     while (reader.Read())
                                     {
                                         wr.WriteStartObject();
-                                        for (int col = 0; col < reader.FieldCount; col++)
-                                        {
-                                            // include thid as fieldvalue in output?
-                                            if (col == 0 && !includeThids) { continue; }
-                                            wr.WritePropertyName(reader.GetName(col));
-                                            wr.WriteValue(reader[col]);
-                                        } // for
+                                        WriteObjects(reader, wr, includeThids);
                                         SQLiteCommand sqCmd = new SQLiteCommand(connection);
                                         foreach (var sq in subQueries)
                                         {
@@ -105,8 +100,27 @@ namespace Vovin.CmcLibNet.Export.Complex
             } // using con
         } // method
 
+        private void WriteObjects(SQLiteDataReader reader, Newtonsoft.Json.JsonWriter wr, bool includeThids)
+        {
+            string value;
+            for (int col = 0; col < reader.FieldCount; col++)
+            {
+                // include thid as fieldvalue in output?
+                if (col == 0 && !includeThids) { continue; }
+                value = reader[col].ToString();
+                // time and date fields have no original name
+                if (string.IsNullOrEmpty(reader.GetOriginalName(col)))
+                {
+                    value = GetShortDateOrTime(value);
+                }
+                wr.WritePropertyName(reader.GetName(col));
+                wr.WriteValue(value);
+            } // for
+        }
+
         private void WriteConnectedObjects(ChildTableQuery ctq, SQLiteDataReader sdr, Newtonsoft.Json.JsonWriter wr, bool includeThids)
         {
+            //string value;
             wr.WritePropertyName(ctq.Connection.FullName);
             wr.WriteStartArray();
             while (sdr.Read())
@@ -119,19 +133,17 @@ namespace Vovin.CmcLibNet.Export.Complex
                     wr.WritePropertyName("ToCategory");
                     wr.WriteValue(ctq.Connection.ToCategory);
                 }
-                for (int col = 0; col < sdr.FieldCount; col++)
-                {
-                    if (col == 0 && !includeThids) { continue; } // skip first row
-                    string elementName = sdr.GetOriginalName(col);
-                    // time and date fields have no original name
-                    if (string.IsNullOrEmpty(elementName)) { elementName = sdr.GetName(col); }
-                    wr.WritePropertyName(elementName);
-                    wr.WriteValue(sdr[col].ToString());
-                } // for
+                WriteObjects(sdr, wr, includeThids);
                 wr.WriteEndObject();
             }
             wr.WriteEndArray();
         }
 
+        private string GetShortDateOrTime(string value)
+        {
+            return value.ToString().Contains(':')
+                ? Convert.ToDateTime(value).ToShortTimeString()
+                : Convert.ToDateTime(value).ToShortDateString();
+        }
     }
 }

@@ -72,11 +72,11 @@ namespace Vovin.CmcLibNet.Export
             // this is a little tricky
             if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
             {
-                ColumnDefinition cd = new ColumnDefinition(db, 0, ThidIdentifier)
+                ColumnDefinition cd = new ColumnDefinition(db, 0, ColumnDefinition.ThidIdentifier)
                 {
-                    FieldName = ThidIdentifier,
-                    CustomColumnLabel = ThidIdentifier,
-                    ColumnLabel = ThidIdentifier,
+                    FieldName = ColumnDefinition.ThidIdentifier,
+                    CustomColumnLabel = ColumnDefinition.ThidIdentifier,
+                    ColumnLabel = ColumnDefinition.ThidIdentifier,
                     Category = _cursor.Category,
                     CommenceFieldDefinition = new CommenceFieldDefinition() // provide empty definition to prevent DDEException on GetFieldDefinition
                 };
@@ -294,10 +294,6 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        #endregion
-
-        #region Properties
-        internal static string ThidIdentifier { get; } = "THID"; // TODO is this a good place for this? It is a little obscure 
         #endregion
     }
 }
