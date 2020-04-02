@@ -10,7 +10,7 @@ namespace Vovin.CmcLibNet.Export
     /// For use by external assemblies.
     /// </summary>
     /// <param name="sender">sender object.</param>
-    /// <param name="e">ExportProgressAsStringChangedArgs.</param>
+    /// <param name="e">ExportProgressChangedArgs.</param>
     [ComVisible(false)] // there is a separate interface for COM
     public delegate void ExportProgressChangedHandler(object sender, ExportProgressChangedArgs e);
 

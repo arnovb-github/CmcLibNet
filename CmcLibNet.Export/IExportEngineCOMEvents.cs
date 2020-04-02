@@ -4,7 +4,8 @@ namespace Vovin.CmcLibNet.Export
 {
     /// <summary>
     ///  Interface for COM clients to implement events raised by this asssembly.
-    ///  <remarks>When used in VBA (Microsoft Office macro's) you have to be quite specific as to how to implement the events:
+    /// </summary>
+    /// <remarks>When used in VBA (Microsoft Office macros) you have to be very specific as to how to implement the events:
     /// <code language="VB">
     /// 'Create a class module called 'Class1'
     /// 'Declare the assembly using the WithEvents keyword.
@@ -18,10 +19,9 @@ namespace Vovin.CmcLibNet.Export
     /// End Sub
     /// 
     /// 'Subscribe to the event
-    /// 'Note that you have to be very specific with the signature, you explicitly need the ByVal keyword
-    /// 'Don't leave ByVal out, and don't use ByRef.
-    /// 'Also note that the sender argument has to be of type Variant, not Object.
-    /// Private Sub cmclibnet_ExportProgressChanged(ByVal sender As Variant, ByVal args As ExportProgressAsStringChangedArgs)
+    /// 'The sender argument has to be of type Variant, not Object.
+    /// 'Also, do not leave ByVal out, and do not use ByRef.
+    /// Private Sub cmclibnet_ExportProgressChanged(ByVal sender As Variant, ByVal args As ExportProgressChangedArgs)
     ///     Debug.Print args.CurrentRow
     /// End Sub
     /// </code>
@@ -33,7 +33,6 @@ namespace Vovin.CmcLibNet.Export
     /// End Sub
     /// </code> 
     /// </remarks>
-    /// </summary>
     [ComVisible(true)]
     [Guid("521C2F4E-4596-4D04-BA57-0B0A6377F7F6")]
     // The ComInterfaceType.InterfaceIsIDispatch argument for the InterfaceTypeAttribute is important especially for VB6 clients.
@@ -44,7 +43,7 @@ namespace Vovin.CmcLibNet.Export
         /// Represents a batch of rows read from Commence.
         /// </summary>
         /// <param name="sender">sender.</param>
-        /// <param name="e">ExportProgressAsStringChangedArgs.</param>
+        /// <param name="e">ExportProgressChangedArgs.</param>
         [DispId(1)]
         void ExportProgressChanged(object sender, ExportProgressChangedArgs e);
 
