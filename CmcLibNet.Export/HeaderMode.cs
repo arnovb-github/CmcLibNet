@@ -10,7 +10,7 @@ namespace Vovin.CmcLibNet.Export
     public enum HeaderMode
     {
         /// <summary>
-        /// Use fieldnames as headers.
+        /// (Default) Use fieldnames as headers.
         /// </summary>
         Fieldname = 0,
         /// <summary>
@@ -19,8 +19,9 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         Columnlabel = 1, // remember the columnname can be empty, Commence then defaults to the fieldname.
         /// <summary>
-        /// Use custom headers. The number of supplied headers must be equal to the number of columns to export and they must be unique, regardless of whether SkipConnectedColumns is used.
+        /// Use custom headers. The number of supplied headers must be equal to the number of columns to export,
+        /// regardless of whether <see cref="IExportSettings.SkipConnectedItems"/> is set.
         /// </summary>
-        CustomLabel = 2 // must be correct number AND unique.
+        CustomLabel = 2
     }
 }

@@ -59,7 +59,7 @@ namespace Vovin.CmcLibNet.Export.Complex
         internal static string CommenceCategoryNameExtProp => "CommenceCategoryName";
         internal static string LinkTableInsertCommandTextExtProp => "InsertCommandText";
         internal static string LinkTableSelectCommandTextExtProp => "SelectCommandText";
-        internal static string ConnectedCategoryPrefix => "_connectedCategory";
+        internal static string ConnectedCategoryPrefix => "_connectedItems";
         internal static string PostFixId => "_ID";
         #endregion
     }

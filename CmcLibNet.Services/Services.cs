@@ -82,22 +82,7 @@ namespace Vovin.CmcLibNet.Services
             System.Windows.Forms.Clipboard.SetText(sb.ToString());
             return true;
         }
-        /// <inheritdoc />
-        public string FieldUsage(string categoryName, string fieldName)
-        {
-            throw new NotImplementedException("Not yet implemented");
-            // views
 
-            // view filters
-            // not possible
-
-            // items detail forms
-
-            // report viewer views
-
-            // agents
-            // not possible
-        }
         /// <inheritdoc />
         public void Close()
         {

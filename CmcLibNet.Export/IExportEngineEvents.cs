@@ -15,10 +15,10 @@
         /// <summary>
         /// ExportProgressChanged event raised for every batch of rows read.
         /// </summary>
-        event ExportProgressAsStringChangedHandler ExportProgressChanged;
+        event ExportProgressChangedHandler ExportProgressChanged;
 
         /// <summary>
-        /// ExportCompleted event
+        /// ExportCompleted event.
         /// </summary>
         event ExportCompletedHandler ExportCompleted;
         

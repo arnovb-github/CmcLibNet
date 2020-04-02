@@ -36,6 +36,7 @@ namespace Vovin.CmcLibNet
         PalmPilot = 0x0008,
         /// <summary>
         /// Make Commence return data in canonical (i.e. consistent) format.
+        /// </summary>
         /// <remarks>
         /// <list type="table">
         /// <listheader><term>Datatype</term><description>Format notes</description></listheader>
@@ -45,7 +46,6 @@ namespace Vovin.CmcLibNet
         /// <item><term>CheckBox</term><description>TRUE or FALSE.</description></item>
         /// </list>
         /// </remarks>
-        /// </summary>
         Canonical = 0x0010,
         /// <summary>
         /// Allows for the Agent subsystem to distinguish between Internet/Intranet database operations.

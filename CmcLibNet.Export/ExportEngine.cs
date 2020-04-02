@@ -12,7 +12,7 @@ namespace Vovin.CmcLibNet.Export
     /// <param name="sender">sender object.</param>
     /// <param name="e">ExportProgressAsStringChangedArgs.</param>
     [ComVisible(false)] // there is a separate interface for COM
-    public delegate void ExportProgressAsStringChangedHandler(object sender, ExportProgressChangedArgs e);
+    public delegate void ExportProgressChangedHandler(object sender, ExportProgressChangedArgs e);
 
     /// <summary>
     /// Delegate for the ExportCompleted event to deal with batches of rows.
@@ -49,11 +49,11 @@ namespace Vovin.CmcLibNet.Export
     public class ExportEngine : IExportEngine
     {
         /// <summary>
-        /// ExportProgressChanged event for outside assemblies.
+        /// ExportProgressChanged event raised when (batch of) Commence data has been read.
         /// </summary>
-        public event ExportProgressAsStringChangedHandler ExportProgressChanged;
+        public event ExportProgressChangedHandler ExportProgressChanged;
         /// <summary>
-        /// ExportCompleted event for outside assemblies.
+        /// ExportCompleted event raised when Commence data reading has completed.
         /// </summary>
         public event ExportCompletedHandler ExportCompleted;
         private BaseWriter _writer;
@@ -66,7 +66,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         public ExportEngine()
         {
-            _db = new CommenceDatabase(); // CommenceDatabase takes care of getting the reference to Commence
+            _db = new CommenceDatabase(); // TODO wrap in using in methods
         }
         #endregion
 
@@ -133,7 +133,6 @@ namespace Vovin.CmcLibNet.Export
             {
                 ExportCursor(cur, fileName, this.Settings);
             }
-
         }
 
         /// <inheritdoc />
@@ -170,7 +169,9 @@ namespace Vovin.CmcLibNet.Export
             }
 
         }
+        #endregion
 
+        #region Helper methods
         private ICommenceCursor GetCategoryCursorAllFieldsAndConnections(string categoryName, CmcOptionFlags flags)
         {
             ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
@@ -196,7 +197,6 @@ namespace Vovin.CmcLibNet.Export
             cur.Columns.Apply();
             return cur;
         }
-
 
         private string GetActiveViewName()
         {

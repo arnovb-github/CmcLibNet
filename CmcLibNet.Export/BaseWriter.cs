@@ -16,7 +16,7 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal abstract class BaseWriter : IDisposable
     {
-        internal event ExportProgressAsStringChangedHandler ExportProgressChanged; // we want to bubble up this event
+        internal event ExportProgressChangedHandler ExportProgressChanged; // we want to bubble up this event
         internal event ExportCompletedHandler ExportCompleted; // we want to bubble up this event
 
         #region Fields
@@ -424,12 +424,12 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
         protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
         {
-            ExportProgressAsStringChangedHandler handler = ExportProgressChanged;
+            ExportProgressChangedHandler handler = ExportProgressChanged;
             if (handler == null) { return; } // no subscriptions
             Delegate[] eventHandlers = handler.GetInvocationList();
             foreach (Delegate currentHandler in eventHandlers)
             {
-                ExportProgressAsStringChangedHandler currentSubscriber = (ExportProgressAsStringChangedHandler)currentHandler;
+                ExportProgressChangedHandler currentSubscriber = (ExportProgressChangedHandler)currentHandler;
                 try
                 {
                     currentSubscriber(this, e);

@@ -11,8 +11,9 @@ namespace Vovin.CmcLibNet.Database.Metadata
     {
         /// <summary>
         /// Number of items a category can hold.
-        /// <remarks>Up until at least Commence RM 6.1, Commence has a hardcoded limit of 500.000 items per category, no matter what this property will report.</remarks>
         /// </summary>
+        /// <remarks>Up until at least Commence RM 6.1, Commence has a hardcoded limit of 500.000 items per category, 
+        /// no matter what this property will report.</remarks>
         int MaxItems { get; }
         /// <summary>
         /// Indicates whether the category is shared.
@@ -35,7 +36,9 @@ namespace Vovin.CmcLibNet.Database.Metadata
         /// </summary>
         string ClarifyField { get; }
         /// <summary>
-        /// Returns the category ID, -1 on error.  The ID is a sequence number Commence uses to identify categories. No ID can be obtained if the category contains no items.
+        /// Returns the category ID, -1 on error.  The ID is a sequence number Commence uses to identify categories.
+        /// No ID can be obtained if the category contains no items.
+        /// </summary>
         /// <remarks>
         /// The category ID returned by this call is always a snapshot value and it is only valid for the current database even when it is part of a workgroup.
         /// <para>Example: A 'Person' category in one client may have a different id on another client, even when they are in the same workgroup.</para>
@@ -48,11 +51,15 @@ namespace Vovin.CmcLibNet.Database.Metadata
         /// Do not build persistent key-value pairs of categories and ids but always use whatever Commence provides.
         /// As part of the synchronization process (in a workgroup) it will provide several files which will contain the current lookup tables.
         /// </para>
-        /// <para>There is an edge situation in which the ID will not be obtainable: if a category is intentionally empty and 'protected' by a Commence Agent that automatically deletes new items as soon as they are created, this property will always return -1.</para>
-        /// <para>An intentionally empty category is not as exotic as it may seem. An example of such a category is one that is one that only contains Item Detail Forms that perform specialized scripting, or a category that contains highly customized Report Viewer reports.</para>
-        /// <para>When the ID cannot be obtained by CategoryID, the only way to get the ID is to manually look it up in Help | System Information | Category Information.</para>
+        /// <para>There is an edge situation in which the ID will not be obtainable: 
+        /// if a category is intentionally empty and 'protected' by a Commence Agent that automatically deletes new items as soon
+        /// as they are created, this property will always return -1.</para>
+        /// <para>An intentionally empty category is not as exotic as it may seem. 
+        /// An example of such a category is one that is one that only contains Item Detail Forms that perform specialized scripting, 
+        /// or a category that contains highly customized Report Viewer reports.</para>
+        /// <para>When the ID cannot be obtained by CategoryID, the only way to get the ID is to manually look it up
+        /// in Help | System Information | Category Information.</para>
         /// </remarks>
-        /// </summary>
         int CategoryID { get; }
     }
 }

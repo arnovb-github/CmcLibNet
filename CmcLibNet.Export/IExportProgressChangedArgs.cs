@@ -19,18 +19,18 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         int RowsTotal { get; }
         /// <summary>
-        /// Rowdata in structured string representation.
+        /// Rowdata in structured string representation. 
         /// </summary>
+        /// <remarks>Only contains data when <see cref="IExportSettings.ExportFormat"/> is set to <see cref="ExportFormat.Event"/>.</remarks>
         string RowValues { get; }
         /// <summary>
         /// Current iteration
         /// </summary>
         int CurrentIteration { get; }
         /// <summary>
-        /// Total number of iterations
+        /// Total number of iterations.
         /// </summary>
-        /// <remarks>When a complex dataread with multiple cursors is performed,
-        /// there are a number of iterations.</remarks>
+        /// <remarks>When <see cref="IExportSettings.PreserveAllConnections"/> is set, there may be multiple iterations.</remarks>
         int IterationCount { get; }
     }
 }
