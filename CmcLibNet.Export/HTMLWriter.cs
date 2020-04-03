@@ -14,7 +14,10 @@ namespace Vovin.CmcLibNet.Export
 
         #region Constructors
         internal HtmlWriter(Database.ICommenceCursor cursor, IExportSettings settings)
-            : base(cursor, settings){}
+            : base(cursor, settings)
+        {
+            settings.SplitConnectedItems = false; //override user setting
+        }
 
         ~HtmlWriter()
         {
