@@ -58,16 +58,12 @@ namespace Vovin.CmcLibNet.Export
         public event ExportCompletedHandler ExportCompleted;
         private BaseWriter _writer;
         private IExportSettings _settings;
-        private readonly ICommenceDatabase _db;
 
         #region Constructors
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ExportEngine()
-        {
-            _db = new CommenceDatabase(); // TODO wrap in using in methods
-        }
+        public ExportEngine() { }
         #endregion
 
         #region Export methods
@@ -105,6 +101,66 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
+        /// <inheritdoc />
+        public void ExportView(string viewName, string fileName, IExportSettings settings = null)
+        {
+
+            if (settings != null) { this.Settings = settings; } // store custom settings
+            
+            using (var db = new CommenceDatabase())
+            {
+                string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName(db) : viewName;
+                using (ICommenceCursor cur = db.GetCursor(_viewName, CmcCursorType.View, this.Settings.UseThids
+                    ? CmcOptionFlags.UseThids
+                    : CmcOptionFlags.Default))
+                {
+                    ExportCursor(cur, fileName, this.Settings);
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
+        {
+            if (settings != null) { this.Settings = settings; } // use custom settings if supplied
+            CmcOptionFlags flags = this.Settings.UseThids 
+                ? CmcOptionFlags.UseThids 
+                : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+
+            // User requested we skip connections.
+            // A default cursor on a category contains all fields *and* connections.
+            // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
+            // We optimize here by only including direct fields in the cursor
+            using (var db = new CommenceDatabase())
+            {
+                if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
+                {
+                    using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(db, categoryName, flags))
+                    {
+                        // we can limit MAX_FIELD_SIZE in this case
+                        this.Settings.MaxFieldSize = (int)Math.Pow(2, 15); // 32.768‬, the built-in Commence max fieldlength (large text) is 30.000
+                        ExportCursor(cur, fileName, this.Settings);
+                    }
+                }
+                else
+                {
+                    using (ICommenceCursor cur = GetCategoryCursorAllFieldsAndConnections(db, categoryName, flags))
+                    {
+                        // You can create a cursor with all fields including connections by just
+                        // supplying CmcOptionFlags.All.
+                        // However, when the cursor is read, connected items are returned as comma-delimited strng,
+                        // which, because Commence does not supply text-qualifiers, makes it impossible to split them.
+                        // We therefore explicitly set the connections which deteriorates performance
+                        // but gains us (more) reliability.
+                        ExportCursor(cur, fileName, this.Settings);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region Helper methods
+
         private void SubscribeToWriterEvents(BaseWriter w)
         {
             if (w != null)
@@ -123,65 +179,16 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        /// <inheritdoc />
-        public void ExportView(string viewName, string fileName, IExportSettings settings = null)
+        private ICommenceCursor GetCategoryCursorAllFieldsAndConnections(ICommenceDatabase db, string categoryName, CmcOptionFlags flags)
         {
-
-            if (settings != null) { this.Settings = settings; } // store custom settings
-            string _viewName = string.IsNullOrEmpty(viewName) ? GetActiveViewName() : viewName;
-            using (ICommenceCursor cur = _db.GetCursor(_viewName, CmcCursorType.View, this.Settings.UseThids ? CmcOptionFlags.UseThids : CmcOptionFlags.Default))
-            {
-                ExportCursor(cur, fileName, this.Settings);
-            }
-        }
-
-        /// <inheritdoc />
-        public void ExportCategory(string categoryName, string fileName, IExportSettings settings = null)
-        {
-            if (settings != null) { this.Settings = settings; } // use custom settings if supplied
-            CmcOptionFlags flags = this.Settings.UseThids ? CmcOptionFlags.UseThids : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
-
-            // User requested we skip connections.
-            // A default cursor on a category contains all fields *and* connections.
-            // The data receiving routines will ignore them, but they will be read unless we do not include them in our cursor
-            // We optimize here by only including direct fields in the cursor
-            if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
-            {
-                using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(categoryName, flags))
-                {
-                    // we can limit MAX_FIELD_SIZE in this case
-                    this.Settings.MaxFieldSize = (int)Math.Pow(2, 15); // 32.768‬, the built-in Commence max fieldsize is 30.000
-                    ExportCursor(cur, fileName, this.Settings);
-                }
-            }
-            else
-            {
-                using (ICommenceCursor cur = GetCategoryCursorAllFieldsAndConnections(categoryName, flags))
-                {
-                    // You can create a cursor with all fields including connections by just
-                    // supplying CmcOptionFlags.All.
-                    // However, when the cursor is read, connected items are returned as comma-delimited strng,
-                    // which, because Commence does not supply text-qualifiers, makes it impossible to split them.
-                    // We therefore explicitly set the connections which deteriorates performance
-                    // but gains us (more) reliability.
-                    ExportCursor(cur, fileName, this.Settings);
-                }
-            }
-
-        }
-        #endregion
-
-        #region Helper methods
-        private ICommenceCursor GetCategoryCursorAllFieldsAndConnections(string categoryName, CmcOptionFlags flags)
-        {
-            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
-            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
+            ICommenceCursor cur = db.GetCursor(categoryName, CmcCursorType.Category, flags);
+            string[] fieldNames = db.GetFieldNames(categoryName).ToArray();
             cur.Columns.AddDirectColumns(fieldNames);
-            var cons = _db.GetConnectionNames(cur.Category);
+            var cons = db.GetConnectionNames(cur.Category);
             int counter = cur.ColumnCount;
             foreach (var c in cons)
             {
-                string nameField = _db.GetNameField(c.ToCategory);
+                string nameField = db.GetNameField(c.ToCategory);
                 cur.Columns.AddRelatedColumn(c.Name, c.ToCategory, nameField);
                 counter++;
             }
@@ -189,19 +196,19 @@ namespace Vovin.CmcLibNet.Export
             return cur;
         }
 
-        private ICommenceCursor GetCategoryCursorFieldsOnly(string categoryName, CmcOptionFlags flags)
+        private ICommenceCursor GetCategoryCursorFieldsOnly(ICommenceDatabase db, string categoryName, CmcOptionFlags flags)
         {
-            ICommenceCursor cur = _db.GetCursor(categoryName, CmcCursorType.Category, flags);
-            string[] fieldNames = _db.GetFieldNames(categoryName).ToArray();
+            ICommenceCursor cur = db.GetCursor(categoryName, CmcCursorType.Category, flags);
+            string[] fieldNames = db.GetFieldNames(categoryName).ToArray();
             cur.Columns.AddDirectColumns(fieldNames);
             cur.Columns.Apply();
             return cur;
         }
 
-        private string GetActiveViewName()
+        private string GetActiveViewName(ICommenceDatabase db)
         {
             string retval = string.Empty;
-            IActiveViewInfo av = _db.GetActiveViewInfo();
+            IActiveViewInfo av = db.GetActiveViewInfo();
             if (av != null && string.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
             {
                 retval = av.Name;
@@ -234,10 +241,8 @@ namespace Vovin.CmcLibNet.Export
             switch (settings.ExportFormat)
             {
                 case ExportFormat.Text:
-                    settings.SplitConnectedItems = false;
                     return new TextWriter(cursor, settings);
                 case ExportFormat.Html:
-                    settings.SplitConnectedItems = false;
                     return new HtmlWriter(cursor, settings);
                 case ExportFormat.Xml:
                     return new XmlWriter(cursor, settings);
@@ -304,10 +309,7 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public void Close()
         {
-            if (_db != null)
-            {
-                _db.Close();
-            }
+            // nothing to do, just in here to not break interface
         }
         #endregion
 
