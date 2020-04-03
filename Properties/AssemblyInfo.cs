@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("Beta release")]
 [assembly: AssemblyCompany("Vovin IT Services")]
 [assembly: AssemblyProduct("Vovin.CmcLibNet")]
-[assembly: AssemblyCopyright("© 2015-2019 - Vovin IT Services")]
+[assembly: AssemblyCopyright("© 2015-2020 - Vovin IT Services")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,5 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 // [assembly: AssemblyVersion("1.0.0.0")]
 // [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: AssemblyVersion("0.8.1.*")]
+[assembly: AssemblyVersion("0.8.*")]
 //[assembly: AssemblyFileVersion("0.6.*")]
