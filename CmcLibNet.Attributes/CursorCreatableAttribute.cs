@@ -13,7 +13,7 @@ namespace Vovin.CmcLibNet.Attributes
         /// <summary>
         /// Property.
         /// </summary>
-        public bool CursorCreatable { get; protected set; }
+        public bool CursorCreatable { get; }
 
         #endregion
 
