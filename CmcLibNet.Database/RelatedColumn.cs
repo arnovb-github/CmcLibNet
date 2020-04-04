@@ -8,7 +8,11 @@ namespace Vovin.CmcLibNet.Database
     internal class RelatedColumn : IRelatedColumn, IEquatable<RelatedColumn> 
     {
         #region Constructors
-        internal RelatedColumn(string connection, string category, string field, RelatedColumnType type, string delimiter)
+        internal RelatedColumn(string connection,
+            string category,
+            string field, 
+            RelatedColumnType type,
+            string delimiter)
         {
             Connection = connection;
             Category = category;
@@ -20,15 +24,15 @@ namespace Vovin.CmcLibNet.Database
 
         #region Properties
         /// <inheritdoc />
-        public string Connection { get; set; }
+        public string Connection { get; }
         /// <inheritdoc />
-        public string Category { get; set; }
+        public string Category { get;  }
         /// <inheritdoc />
-        public string Field { get; set; }
+        public string Field { get; }
         /// <inheritdoc />
-        public RelatedColumnType ColumnType { get; set; }
+        public RelatedColumnType ColumnType { get; }
         /// <inheritdoc />
-        public string Delimiter { get; set; }
+        public string Delimiter { get; }
         #endregion
 
         #region Methods
