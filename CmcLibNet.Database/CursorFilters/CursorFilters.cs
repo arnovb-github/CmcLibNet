@@ -112,19 +112,21 @@ namespace Vovin.CmcLibNet.Database
         #region Methods
 
         /// <inheritdoc />
-        // TODO rethink this
-        public dynamic Add(int clauseNumber, FilterType filterType) // should we overload this somehow? What's the best way? Remember that methods with the same parameter signature cannot be overloaded!
+        public dynamic Add(int clauseNumber, FilterType filterType)
         {
             // Note the dynamic return type. COM Interop requires an object;
-            // it cannot be the base class, because in that case COM Interop only exposes the base interface.
-            // and then .NET users have to use an explicit cast to get the type right, which is counterintuitive.
+            // it cannot be the base class, because in that case COM Interop would only expose the base interface.
             // There is no way to solve this using MarshalAs as far as I know
             // However, we can sort of get away with using the 'dynamic' keyword.
-            // .Net consumers will still need to cast the type, but at least it should be 'visible'(?verify!)
-
+            // .Net consumers will still need to cast the type.
             if (_filters.Count() == CommenceLimits.MaxFilters)
             {
-                throw new IndexOutOfRangeException("Maximum number of filters in use (" + _filters.Count().ToString() + ").");
+                throw new ArgumentOutOfRangeException($"Maximum number of filters in use {CommenceLimits.MaxFilters}.");
+            }
+
+            if (clauseNumber < 1 || clauseNumber > 8)
+            {
+                throw new ArgumentOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
             }
 
             switch (filterType)
@@ -146,7 +148,24 @@ namespace Vovin.CmcLibNet.Database
                     _filters.Add(ctcti);
                     return ctcti;
                 default:
-                    return null; // not pretty
+                    throw new ArgumentException($"{filterType} does not correspond to a known filter type.");
+            }
+        }
+
+        // not exposed by interface
+        internal void AddRange(IEnumerable<ICursorFilter> filters)
+        {
+            _filters.AddRange(filters);
+            if (filters
+                .Select(s => s.ClauseNumber)
+                .Any(a => a < 1 || a > CommenceLimits.MaxFilters))
+            {
+                throw new ArgumentOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
+            }
+
+            if (_filters.Count() > CommenceLimits.MaxFilters)
+            {
+                throw new ArgumentOutOfRangeException($"Maximum number of filters ({CommenceLimits.MaxFilters}) exceeded .");
             }
         }
 
@@ -178,7 +197,7 @@ namespace Vovin.CmcLibNet.Database
                 if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
                 {
                     // throwing an error exits a foreach loop
-                    throw new CommenceCOMException("Failed to clear filter '" + s + "' on cursor.\n\nYou should recreate the cursor.");
+                    throw new CommenceCOMException($"Failed to clear filter '{s}' on cursor.");
                 }
             }
             _filters.Clear();
@@ -190,7 +209,7 @@ namespace Vovin.CmcLibNet.Database
             string s = "[ViewFilter(" + cf.ClauseNumber.ToString() + ",\"Clear\")]";
             if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
             {
-                throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
+                throw new CommenceCOMException($"Cursor method SetFilter failed on filter: '{s}'.");
             }
             _filters.Remove(cf);
             return true;
@@ -203,7 +222,7 @@ namespace Vovin.CmcLibNet.Database
             string s = "[ViewFilter(" + f.ClauseNumber.ToString() + ",\"Clear\")]";
             if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
             {   
-                throw new CommenceCOMException("Cursor method SetFilter failed on filter: '" + s + "'.\nYou should recreate the cursor.");
+                throw new CommenceCOMException($"Cursor method SetFilter failed on filter: '{s}'.");
             }
             return _filters.Remove(f);
         }
@@ -239,7 +258,7 @@ namespace Vovin.CmcLibNet.Database
                      * throwing it here on the other hand makes this assembly harder to debug.
                      * The actual error occurs in CommenceCursor.SetFilter
                      */
-                    throw new CommenceCOMException("CommenceCursor method SetFilter failed on filter request:\n\n'" + f.ToString() + "'");
+                    throw new CommenceCOMException($"CommenceCursor method SetFilter failed on filter request:'{f.ToString()}'");
                 } // if
 
                 // add logic string.
@@ -253,7 +272,7 @@ namespace Vovin.CmcLibNet.Database
                 sb.Append(")]");
                 if (_cur.SetLogic(sb.ToString(), CmcOptionFlags.Default) == false)
                 {
-                    throw new CommenceCOMException("CommenceCursor method SetLogic failed on logic request:\n\n'" + sb.ToString() + "'");
+                    throw new CommenceCOMException($"CommenceCursor method SetLogic failed on logic request:'{sb.ToString()}'");
                 }
             }
             return _cur.RowCount; // return number of filtered rows

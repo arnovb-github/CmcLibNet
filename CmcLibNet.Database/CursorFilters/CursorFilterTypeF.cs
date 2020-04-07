@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Database
         /// constructor.
         /// </summary>
         /// <param name="clauseNumber">filter clause, must be a number between 1 and 8.</param>
-        internal CursorFilterTypeF(int clauseNumber) : base(clauseNumber) { }
+        public CursorFilterTypeF(int clauseNumber) : base(clauseNumber) { }
 
         /// <inheritdoc />
         public string FieldName { get; set; }

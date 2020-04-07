@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Vovin.CmcLibNet.Database;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -27,7 +29,15 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="fileName">Fully qualified filename.</param>
         /// <param name="settings"><see cref="IExportSettings"/></param>
         void ExportCategory(string categoryName, string fileName, IExportSettings settings = null);
-
+        /// <summary>
+        /// Export a filtered category.
+        /// </summary>
+        /// <param name="categoryName">Commence category name.</param>
+        /// <param name="filters">Filter(s) to apply to category</param>
+        /// <param name="fileName">Fully qualified filename.</param>
+        /// <param name="settings"><see cref="IExportSettings"/></param>
+        [ComVisible(false)]
+        void ExportCategory(string categoryName, IEnumerable<ICursorFilter> filters, string fileName, IExportSettings settings = null);
         /// <summary>
         /// Not needed, does nothing.
         /// </summary>

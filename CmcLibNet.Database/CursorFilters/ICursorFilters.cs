@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -17,7 +18,13 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Derived BaseFilter corresponding to either of
         /// <see cref="ICursorFilterTypeF"/>, <see cref="ICursorFilterTypeCTI"/>, 
         /// <see cref="ICursorFilterTypeCTCF"/>, <see cref="ICursorFilterTypeCTCTI"/>.</returns>
-        dynamic Add(int clauseNumber, FilterType filterType); // should return only applicable filter type
+        dynamic Add(int clauseNumber, FilterType filterType); // should return only applicable filter type.
+        ///// <summary>
+        ///// Adds a list of filters to the filter list.
+        ///// </summary>
+        ///// <param name="filters">Array of <see cref="ICursorFilter"/> objects.</param>
+        //[ComVisible(false)]
+        //void AddRange(IEnumerable<ICursorFilter> filters); // used in export routines
         /// <summary>
         /// Get filter from collection based on clause number.
         /// </summary>

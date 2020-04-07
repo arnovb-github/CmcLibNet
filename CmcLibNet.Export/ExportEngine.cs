@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Database.Metadata;
@@ -157,9 +158,45 @@ namespace Vovin.CmcLibNet.Export
                 }
             }
         }
+        
+        /// <inheritdoc />
+        public void ExportCategory(string categoryName, IEnumerable<ICursorFilter> filters, string fileName, IExportSettings settings = null)
+        {
+            if (settings != null) { this.Settings = settings; } // use custom settings if supplied
+            CmcOptionFlags flags = this.Settings.UseThids
+                ? CmcOptionFlags.UseThids
+                : CmcOptionFlags.Default | CmcOptionFlags.IgnoreSyncCondition;
+
+            using (var db = new CommenceDatabase())
+            {
+                if (this.Settings.SkipConnectedItems && this.Settings.HeaderMode != HeaderMode.CustomLabel)
+                {
+                    using (ICommenceCursor cur = GetCategoryCursorFieldsOnly(db, categoryName, flags))
+                    {
+                        ApplyFilters(cur, filters);
+                        this.Settings.MaxFieldSize = (int)Math.Pow(2, 15); // 32.768‬, the built-in Commence max fieldlength (large text) is 30.000
+                        ExportCursor(cur, fileName, this.Settings);
+                    }
+                }
+                else
+                {
+                    using (ICommenceCursor cur = GetCategoryCursorAllFieldsAndConnections(db, categoryName, flags))
+                    {
+                        ApplyFilters(cur, filters);
+                        ExportCursor(cur, fileName, this.Settings);
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Helper methods
+
+        private void ApplyFilters(ICommenceCursor cur, IEnumerable<ICursorFilter> filters)
+        {
+            ((CursorFilters)cur.Filters).AddRange(filters); // AddRange is not exposed by interface
+            cur.Filters.Apply();
+        }
 
         private void SubscribeToWriterEvents(BaseWriter w)
         {
