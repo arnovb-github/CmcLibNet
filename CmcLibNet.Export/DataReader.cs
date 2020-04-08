@@ -230,6 +230,66 @@ namespace Vovin.CmcLibNet.Export
             ExportCompleteArgs a = new ExportCompleteArgs(itemCount);
             OnDataReadCompleted(a);
         }
+
+        // based on SO feedback: https://stackoverflow.com/questions/53788909/convert-expensive-call-to-async-while-keeping-event-system-intact
+        internal CancellationTokenSource CTS = new CancellationTokenSource();
+        /// <summary>
+        /// Reads the Commence database in a asynchronous fashion
+        /// The idea is that the reading of Commence data continues as the event consumers do their thing.
+        /// </summary>
+        internal void GetDataByAPIAsync() // a bad method name, suggestion async
+        {
+            int rowsProcessed = 0;
+            var values = new BlockingCollection<CmcData>();
+            var readTask = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    for (int rows = 0; rows < totalRows; rows += numRows)
+                    {
+                        string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
+                        {
+                            if (CTS.Token.IsCancellationRequested) { break; }
+                            rowsProcessed += numRows;
+                            CmcData rowdata = new CmcData()
+                            {
+                                Data = rawdata,
+                                RowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed
+                            };
+                            values.Add(rowdata);
+                        }
+                    }
+                }
+                catch
+                {
+                    CTS.Cancel(); // cancel data read
+                    throw; // rethrow the event. If we didn't do this, all errors would be swallowed
+                }
+                finally
+                {
+                    values.CompleteAdding();
+                }
+
+            }, TaskCreationOptions.LongRunning);
+
+            var processTask = Task.Factory.StartNew(() =>
+            {
+                foreach (var value in values.GetConsumingEnumerable())
+                {
+                    if (CTS.Token.IsCancellationRequested) { break; }
+
+                    var data = ProcessDataBatch(value.Data);
+                    CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
+                    OnDataProgressChanged(args); // raise event after each batch of rows
+                }
+            }, TaskCreationOptions.LongRunning); // longrunning is probably overkill here
+
+            Task.WaitAll(readTask, processTask); // we need to wait all before we give the 'done' signal.
+            values.Dispose();
+            // raise 'done' event
+            ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
+            OnDataReadCompleted(e); // done with reading data
+        }
         #endregion
 
         #region Helper methods
@@ -400,68 +460,6 @@ namespace Vovin.CmcLibNet.Export
 
         private ValueFormatting Formatting { get; set; }
 
-        #endregion
-
-        #region Experimental stuff
-        // based on SO feedback: https://stackoverflow.com/questions/53788909/convert-expensive-call-to-async-while-keeping-event-system-intact
-        // this actually works but gains us nothing in terms of performance, unfortunately
-        internal CancellationTokenSource CTS = new CancellationTokenSource();
-        /// <summary>
-        /// Reads the Commence database in a asynchronous fashion
-        /// The idea is that the reading of Commence data continues as the event consumers do their thing.
-        /// </summary>
-        internal void GetDataByAPIAsync() // a bad method name, suggestion async
-        {
-            int rowsProcessed = 0;
-            var values = new BlockingCollection<CmcData>();
-            var readTask = Task.Factory.StartNew(() =>
-            {
-            try
-            {
-                for (int rows = 0; rows < totalRows; rows += numRows)
-                {
-                    string[][] rawdata = cursor.GetRawData(numRows); // first dimension is rows, second dimension is columns
-                    {
-                        if (CTS.Token.IsCancellationRequested) { break; }
-                            rowsProcessed += numRows;
-                            CmcData rowdata = new CmcData()
-                            {
-                                Data = rawdata,
-                                RowsProcessed = rowsProcessed > totalRows ? totalRows : rowsProcessed
-                            };
-                            values.Add(rowdata);
-                        }
-                    }
-                }
-                catch {
-                    CTS.Cancel(); // cancel data read
-                    throw; // rethrow the event. If we didn't do this, all errors would be swallowed
-                }
-                finally
-                {
-                    values.CompleteAdding();
-                }
-
-            }, TaskCreationOptions.LongRunning);
-
-            var processTask = Task.Factory.StartNew(() =>
-            {
-                foreach (var value in values.GetConsumingEnumerable())
-                {
-                    if (CTS.Token.IsCancellationRequested) { break; }
-
-                    var data = ProcessDataBatch(value.Data);
-                    CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
-                    OnDataProgressChanged(args); // raise event after each batch of rows
-                }
-            }, TaskCreationOptions.LongRunning); // longrunning is probably overkill here
-
-            Task.WaitAll(readTask, processTask); // we need to wait all before we give the 'done' signal.
-            values.Dispose();
-            // raise 'done' event
-            ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
-            OnDataReadCompleted(e); // done with reading data
-        }
         #endregion
 
         /// <summary>

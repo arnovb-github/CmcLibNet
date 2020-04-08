@@ -126,7 +126,7 @@ namespace Vovin.CmcLibNet.Database
 
             if (clauseNumber < 1 || clauseNumber > 8)
             {
-                throw new ArgumentOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
+                throw new IndexOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
             }
 
             switch (filterType)
@@ -160,7 +160,7 @@ namespace Vovin.CmcLibNet.Database
                 .Select(s => s.ClauseNumber)
                 .Any(a => a < 1 || a > CommenceLimits.MaxFilters))
             {
-                throw new ArgumentOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
+                throw new IndexOutOfRangeException($"Invalid clause number detected. Clause number must be between 1 and {CommenceLimits.MaxFilters}");
             }
 
             if (_filters.Count() > CommenceLimits.MaxFilters)
@@ -193,14 +193,8 @@ namespace Vovin.CmcLibNet.Database
         {
             foreach(BaseCursorFilter f in _filters)
             {
-                string s = "[ViewFilter(" + f.ClauseNumber.ToString() + ",\"Clear\")]";
-                if (_cur.SetFilter(s, CmcOptionFlags.Default) == false)
-                {
-                    // throwing an error exits a foreach loop
-                    throw new CommenceCOMException($"Failed to clear filter '{s}' on cursor.");
-                }
+                RemoveFilter(f);
             }
-            _filters.Clear();
         }
 
         /// <inheritdoc />
