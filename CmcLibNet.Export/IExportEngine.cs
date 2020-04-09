@@ -41,6 +41,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Not needed, does nothing.
         /// </summary>
+        /// <remarks>This method is only there to make the COM-creatable classes consistent.</remarks>
         void Close();
     }
 }

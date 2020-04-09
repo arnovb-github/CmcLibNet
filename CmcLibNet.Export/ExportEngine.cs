@@ -26,19 +26,24 @@ namespace Vovin.CmcLibNet.Export
 
     /// <summary>
     /// Export engine for exporting data from Commence.
-    /// <remarks>
-    /// .NET users can simply create an instance,
-    /// COM clients can instantiate this by using the ProgId <c>CmcLibNet.Export</c>.
-    /// So from VBScript you would do:
-    /// <code language="vbscript">Dim export : Set export = CreateObject("CmcLibNet.Export")
-    /// '.. do stuff ..
-    /// export.Close
-    /// Set export = Nothing</code>
-    /// <para>When used fom a Commence Item Detail Form or Office VBA, be sure to read up on the <see cref="Close()"/> method.</para>
-    /// </remarks>
-    /// <para>The Commence API by nature is slow. Exporting hundreds of thousands of items will take many hours.
-    /// If you need to export data faster, use the Commence built-in export options.</para>
     /// </summary>
+    /// <remarks>
+    /// <para>Please note: the export engine tries to treat connected items as separate entities where possible
+    /// - it is one of its core features.
+    /// It relies on delimiters baked into the Commence API (either newline <c>\n</c> (not <c>\r\n</c>!) or a comma, 
+    /// depending on the situation.).
+    /// The Commence Text field, when set to Large, and the URL field *can* contain embedded newline characters.
+    /// When exporting those field-types, you may get unexpected results if they do.
+    /// In that case you options are either to simply not include them in your export,
+    /// or to disable the splitting of connected items.<seealso cref="IExportSettings.SplitConnectedItems"/></para>
+    /// <para>Usage: .NET users can simply create an instance,
+    /// COM clients can instantiate this by using the ProgId <c>CmcLibNet.Export</c>.
+    /// VBScript example:
+    /// <code language="vbscript">Dim export : Set export = CreateObject("CmcLibNet.Export")
+    /// '.. do stuff ..</code>
+    /// Notice that contrary to e.g. <see cref="ICommenceCursor"/> or <see cref="ICommenceDatabase"/>,
+    /// the <see cref="IExportEngine"/> does not require explicit closing. <seealso cref="IExportEngine.Close"/></para>
+    /// </remarks>
     [ComVisible(true)]
     [Guid("298DA1F6-9A8D-4BB2-A7EC-F776013F440A")]
     [ProgId("CmcLibNet.Export")]
@@ -81,7 +86,6 @@ namespace Vovin.CmcLibNet.Export
             // this is annoying, so we tell the system not to go into sleep/hibernation
             // this may or may not be a good idea...
             PowerSavings ps = new PowerSavings();
-
             try
             {
                 ps.EnableConstantDisplayAndPower(true, "Performing time-consuming Commence export");
@@ -96,7 +100,7 @@ namespace Vovin.CmcLibNet.Export
             }
             finally
             {
-                ps.EnableConstantDisplayAndPower(false);
+                ps.EnableConstantDisplayAndPower(false); // CODE SMELL, may overwrite things
                 UnsubscribeToWriterEvents(_writer);
                 _writer?.Dispose();
             }
