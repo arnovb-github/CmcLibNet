@@ -45,7 +45,7 @@ namespace Vovin.CmcLibNet.Database
 
         #region DDE options
         /// <summary>
-        /// Make assembly try to string-escape DDE arguments. Default is <code>true</code>.
+        /// Make assembly try to string-escape DDE arguments. Default is <c>true</c>.
         /// </summary>
         /// <remarks>By default, all arguments passed to DDE requests will be enclosed in double-quotes.
         /// Setting this to false allows you to have fine-grained control over the format of the parameters.</remarks>
