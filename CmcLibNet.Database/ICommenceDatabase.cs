@@ -1149,6 +1149,20 @@ namespace Vovin.CmcLibNet.Database
 
         #region Properties
         /// <summary>
+        /// Delimiter used in DDE requests. 
+        /// Use this only if the default delimiter does not suffice. 
+        /// This should be very rare. 
+        /// Supply up to 8 characters.
+        /// </summary>
+        string Delim { get; set; }
+        /// <summary>
+        /// Secondary delimiter used in DDE requests that act on connections. 
+        /// Use this only if the default delimiter does not suffice. 
+        /// This should be very rare. 
+        /// Supply up to 8 characters.
+        /// </summary>
+        string Delim2 { get; set; }
+        /// <summary>
         /// Path of currently open Commence database.
         /// </summary>
         string Path { get; }

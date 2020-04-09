@@ -45,5 +45,9 @@
         /// Default maximum number of characters returned for connections in a cursor
         /// </summary>
         internal static int DefaultMaxFieldSize => 93750;
+        /// <summary>
+        /// Maximum length of string used as delimiter in API or DDE requests
+        /// </summary>
+        internal static int MaxDelimiterLength => 8;
     }
 }
