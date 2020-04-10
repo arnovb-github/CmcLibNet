@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 
 /*
  * The FormOA.ICommenceConversation object is a COM wrapper around the DDE calls that can be made to Commence.
@@ -25,23 +24,17 @@ namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// Singleton class wrapping the Commence FormOA.ICommenceConversation interface (its 'DDE engine').
+    /// There can be only a limited number of Commence DDE conversations (10), 
+    /// so by making this a singleton, there should be just one at a time.
     /// </summary>
-    internal sealed class CommenceConversation : IDisposable // Implementing IDisposable is actually overkill but it doesn't hurt
+    internal sealed class CommenceConversation
     {
         private static readonly Lazy<CommenceConversation> lazy = new Lazy<CommenceConversation>(() => new CommenceConversation());
         private FormOA.ICommenceConversation _nativeConv = null; // COM object
-        private string _pszApplication = "Commence"; // the  only supported application parameter at this time
-        private string _topic = "System"; // rarely used topic!
-        bool disposed = false;
 
         #region Constructors
         // Do not allow other classes to create an instance
         private CommenceConversation() {}
-
-        ~CommenceConversation()
-        {
-            Dispose(false);
-        }
         #endregion
 
         /// <summary>
@@ -56,29 +49,9 @@ namespace Vovin.CmcLibNet.Database
         }
 
         // if no topic is set, System is used.
-        internal string Topic 
-        {
-            get
-            {
-                return _topic;
-            }
-            set
-            {
-                _topic = value;
-            }
-        }
+        internal string Topic { get; set; } = "System";
 
-        internal string Application 
-        {
-            get
-            {
-                return _pszApplication;
-            }
-            private set // currently Commence only allows 1 value, no reason to expose this
-            {
-                _pszApplication = value;
-            }
-        }
+        internal string Application { get; private set; } = "Commence"; // currently Commence only allows 1 value, no reason to expose this
 
         /// <summary>
         /// Returns the actual FormOA.ICommenceConversation object.
@@ -175,42 +148,6 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <summary>
-        /// Public implementation of Dispose pattern callable by consumers.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Protected implementation of Dispose pattern.
-        /// </summary>
-        /// <param name="disposing">disposing</param>
-        private void Dispose(bool disposing)
-        {
-            if (disposed) // [weird comment] PowerShell and VBA upon running >1 times regard this as disposed so no cleanup is done until it is closed. Strange.
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Free any other managed objects here.
-                //
-            }
-
-            // Free any unmanaged objects here.
-            //
-            if (_nativeConv != null)
-            {
-                while (Marshal.ReleaseComObject(_nativeConv) > 0) { }; // closes conversation or so it should
-                _nativeConv = null; // explicitly set to null
-            }
-            disposed = true;
-        }
-
-        /// <summary>
         /// Closes the DDE conversation.
         /// Multiple requests can made in a single conversation,
         /// so closing the conversation after every request would add considerable overhead.
@@ -224,8 +161,6 @@ namespace Vovin.CmcLibNet.Database
         internal void HandleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             CloseConversation();
-            //Dispose(); // there is no need for this since we released the ComObject which was the whole point.
-            // we could get rid of IDisposable altogether.
         }
 
         internal void CloseConversation()
