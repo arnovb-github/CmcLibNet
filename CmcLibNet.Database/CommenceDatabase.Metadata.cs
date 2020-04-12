@@ -903,7 +903,7 @@ namespace Vovin.CmcLibNet.Database
                 {
                     AutoReset = false
                 };
-                DDETimer.Elapsed += _conv.HandleTimerElapsed;
+                DDETimer.Elapsed += HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout;
             DDETimer.Start(); // (re)start timer
@@ -1057,7 +1057,7 @@ namespace Vovin.CmcLibNet.Database
                 {
                     AutoReset = false
                 };
-                DDETimer.Elapsed += _conv.HandleTimerElapsed;
+                DDETimer.Elapsed += HandleTimerElapsed;
             }
             DDETimer.Interval = DDETimeout; // (re)set interval
             DDETimer.Start(); // (re)start timer
@@ -1229,6 +1229,21 @@ namespace Vovin.CmcLibNet.Database
         #endregion
 
         #region Helper methods
+        /// <summary>
+        /// Closes the DDE conversation.
+        /// Multiple requests can made in a single conversation,
+        /// so closing the conversation after every request would add considerable overhead.
+        /// <para>Conversations should kept open until a Timer elapses.
+        /// This method should subscribe to the Elapsed event of that Timer.</para>
+        /// <para>This way, the conversation stays open and multiple requests can be made.
+        /// If no more requests are received, the conversation is closed after the timer elapses.</para>
+        /// </summary>
+        /// <param name="sender">sender.</param>
+        /// <param name="e">ElapsedEventArgs.</param>
+        private void HandleTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            _conv?.CloseConversation();
+        }
 
         private List<string> GetDDEValuesAsList(string[] args)
         {

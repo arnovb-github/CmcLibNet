@@ -147,22 +147,6 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
-        /// <summary>
-        /// Closes the DDE conversation.
-        /// Multiple requests can made in a single conversation,
-        /// so closing the conversation after every request would add considerable overhead.
-        /// <para>Conversations should kept open until a Timer elapses.
-        /// This method should subscribe to the Elapsed event of that Timer.</para>
-        /// <para>This way, the conversation stays open and multiple requests can be made.
-        /// If no more requests are received, the conversation is closed after the timer elapses.</para>
-        /// </summary>
-        /// <param name="sender">sender.</param>
-        /// <param name="e">ElapsedEventArgs.</param>
-        internal void HandleTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            CloseConversation();
-        }
-
         internal void CloseConversation()
         {
             if (_nativeConv != null)
