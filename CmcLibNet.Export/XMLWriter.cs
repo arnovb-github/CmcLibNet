@@ -65,10 +65,10 @@ namespace Vovin.CmcLibNet.Export
                 {
                     if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
+                        _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                         // only write if we have something
                         if (!string.IsNullOrEmpty(v.DirectFieldValue))
                         {
-                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
                             // can we get away with writing the value or do we need to use CData?
                             if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
                             {
@@ -78,8 +78,9 @@ namespace Vovin.CmcLibNet.Export
                             {
                                 _xw.WriteString(v.DirectFieldValue);
                             }
-                            _xw.WriteEndElement();
                         }
+                        _xw.WriteEndElement();
+                        
                     } // if IsConnection
                 } // row
                 if (!base._settings.SkipConnectedItems)
@@ -127,10 +128,11 @@ namespace Vovin.CmcLibNet.Export
                     for (int j = 0; j < group.Count(); j++)
                     {
                         string value = group.ElementAt(j).ConnectedFieldValues[i];
+
+                        string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
+                        _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
                         if (!string.IsNullOrEmpty(value))
                         {
-                            string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
-                            _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
                             // are we dealing with a large text field?
                             if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
                             {
@@ -140,8 +142,9 @@ namespace Vovin.CmcLibNet.Export
                             {
                                 _xw.WriteString(value);
                             }
-                            _xw.WriteEndElement();
                         }
+                        _xw.WriteEndElement();
+                        
                     }
                     _xw.WriteEndElement();
                 }
