@@ -46,7 +46,7 @@ namespace Vovin.CmcLibNet.Export
             regex = new Regex(pattern);
             if (this.settings.ISO8601Compliant)
             {
-                this.Formatting = ValueFormatting.XSD_ISO8601;
+                this.Formatting = ValueFormatting.ISO8601;
             }
             else if (this.settings.Canonical)
             {
@@ -301,8 +301,8 @@ namespace Vovin.CmcLibNet.Export
         private List<List<CommenceValue>> ProcessDataBatch(string[][] rawdata)
         {
             List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
-            CommenceValue cv = null;
-            ColumnDefinition cd = null;
+            CommenceValue cv;
+            ColumnDefinition cd;
 
             // rawdata represents the actual database row values
             for (int i = 0; i < rawdata.GetLength(0); i++) // rows
@@ -415,17 +415,15 @@ namespace Vovin.CmcLibNet.Export
                     {
                         if (!string.IsNullOrEmpty(retval[i]))
                         {
-                            //retval[i] = GetCanonicalCommenceValue(retval[i], cd.FieldType);
                             retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
                         }
                     }
                     break;
-                case ValueFormatting.XSD_ISO8601:
+                case ValueFormatting.ISO8601:
                     for (int i = 0; i < retval.Length; i++)
                     {
                         if (!string.IsNullOrEmpty(retval[i]))
                         {
-                            //string canonical = GetCanonicalCommenceValue(retval[i], cd.FieldType);
                             string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
                             retval[i] = CommenceValueConverter.ToIso8601(canonical, cd.CommenceFieldDefinition.Type);
                         }
