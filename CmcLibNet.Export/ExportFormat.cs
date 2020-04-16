@@ -40,6 +40,7 @@ namespace Vovin.CmcLibNet.Export
         /// <para>If you choose an existing Excel file, a sheet will be inserted. <seealso cref="ExportSettings.XlUpdateOptions"/>.</para>
         /// <para>Note that the (default) <see cref="ExcelUpdateOptions.ReplaceWorksheet"/> option will clear the worksheet
         /// containing the Commence data upon every eport. Do not place references like formulas directly in it for they will be overwritten.</para>
+        /// <para>Fields denoted as 'Display as currency' are treated as numeric values, currency information will be lost in translation.</para>
         /// <para>The export engine requires exclusive access to the Excel file, so you cannot
         /// use Excel VBA to export Commence data into the same workbook that your VBA code is running from.</para>
         /// <para>Note that when you are working with very large datasets, memory-usage grows considerably. 
