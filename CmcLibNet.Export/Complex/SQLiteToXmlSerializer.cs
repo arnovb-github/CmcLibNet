@@ -93,7 +93,6 @@ namespace Vovin.CmcLibNet.Export.Complex
                                         var subreader = sqCmd.ExecuteReader();
                                         while (subreader.Read())
                                         {
-                                            
                                             if (_settings.NestConnectedItems)
                                             {
                                                 WriteNestedNodes(subreader, writer, q.Connection, includeThids);
@@ -123,9 +122,10 @@ namespace Vovin.CmcLibNet.Export.Complex
                 if (col == 0 && !includeThids) { continue; } // skip first row
                 value = dr[col].ToString();
                 // time and date fields have no original name
+                // it is an ugly trick, but let's use that to our advantage
                 if (string.IsNullOrEmpty(dr.GetOriginalName(col))) // either a time or a date
                 {
-                    value = GetShortDateOrTime(value);
+                    value = GetDateTimeString(value);
                 }
                 // we currently do not match up the datatypes in the DataTable with th returned values from SQLite
                 writer.WriteStartElement(null, XmlConvert.EncodeLocalName(dr.GetName(col)), null);
@@ -143,8 +143,25 @@ namespace Vovin.CmcLibNet.Export.Complex
             writer.WriteEndElement();
         }
 
-        private string GetShortDateOrTime(string value)
+        private string GetDateTimeString(string value)
         {
+            if (string.IsNullOrEmpty(value)) { return string.Empty; }
+            DateTime d = Convert.ToDateTime(value);
+            if (_settings.ISO8601Format)
+            {
+                return value.ToString().Contains(':')
+                    ? d.ToShortTimeString() // time
+                    : d.ToString("yyyy-MM-dd");
+            }
+            // never called because to call this class at all, ISO8601Compliant has to be on.
+            // And we cannot reverse either, because then we wouldn't be able to get ISO8601 format. 
+            // It's not pretty. TODO
+            if (_settings.Canonical) 
+            {
+                return value.ToString().Contains(':')
+                    ? d.ToShortTimeString() // time
+                    : d.Year.ToString("D4") + d.Month.ToString("D2") + d.Day.ToString("D2");
+            }
             return value.ToString().Contains(':')
                 ? Convert.ToDateTime(value).ToShortTimeString()
                 : Convert.ToDateTime(value).ToShortDateString();

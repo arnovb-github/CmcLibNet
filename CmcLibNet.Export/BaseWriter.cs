@@ -221,10 +221,10 @@ namespace Vovin.CmcLibNet.Export
             // get the list of all connections
             List<Tuple<string,string>> qualifiedConnections = null;
             List<string> fields = new List<string>(); // there is always at least 1 field
-            List<TableDef> TableDefList = new List<TableDef>(); // there is always at least 1 table
+            List<TableDef> TableDefs = new List<TableDef>();
 
             TableDef td = new TableDef(_cursor.Category, _dataSourceName, true);
-            TableDefList.Add(td);
+            TableDefs.Add(td);
 
             // see if we have any connections for which we have to create additional tables
             foreach (ColumnDefinition cd in columns)
@@ -264,10 +264,10 @@ namespace Vovin.CmcLibNet.Export
                             t.ColumnDefinitions.Add(cd); // TODO could we pair up wrong field with wrong columndefinition here? For we query a collection, a duplicate may be found, then we store the first?
                         }
                     }
-                    TableDefList.Add(t);
+                    TableDefs.Add(t);
                 }
             }
-            return TableDefList;
+            return TableDefs;
         }
 
         // only used with ADO writers

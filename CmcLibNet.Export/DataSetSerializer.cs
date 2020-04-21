@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using OfficeOpenXml;
+using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Xml;
 
 namespace Vovin.CmcLibNet.Export
@@ -64,7 +66,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private static void DataSetToExcel(DataSet dataSet, string filePath)
+        private void DataSetToExcel(DataSet dataSet, string filePath)
         {
             using (ExcelPackage pck = new ExcelPackage())
             {

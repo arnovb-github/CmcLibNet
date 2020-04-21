@@ -30,6 +30,12 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool Canonical { get; set; }
         /// <summary>
+        /// Used in conjunction with <see cref="Canonical"/>, 
+        /// allows removal of the currency symbol that Commence will include when numeric fields were set to 'Display as currency'
+        /// Default is <c>false</c>.
+        /// </summary>
+        bool RemoveCurrencySymbol { get; set; }
+        /// <summary>
         /// Include additional column holding the item's THID and return THIDs instead of Name field values for connected items. (XML and Json). For text-based exports, connected items are not returned as thids. Default is <c>false</c>.
         /// </summary>
         /// <remarks>Ignored for custom cursors; create them with the thid flag if you want thids.
@@ -80,32 +86,35 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         bool HeadersOnFirstRow { get; set; }
         /// <summary>
-        /// Make values ISO8601-compliant. Overrides <see cref="Canonical"/>.
+        /// Make dates return in ISO8601 format.
         /// </summary>
-        bool ISO8601Compliant { get; set; }
+        /// <remarks>Dates are returned as "yyyy-mm-dd", times are returned as "hh-mm-ss".
+        /// Commence does not store seconds, so "ss" will always be "00".
+        /// <para>Setting this option to <c>true</c> will return numeric values in <see cref="Canonical"/> format.</para></remarks>
+        bool ISO8601Format { get; set; }
         /// <summary>
-        /// Treat connections as distinct nodes/elements. Formatting options may be ignored. Default is <c>false</c>.
+        /// Only applies to <see cref="ExportFormat.Json"/>. Treat connections as distinct nodes. Formatting options may be ignored.
         /// </summary>
-        /// <remarks>
-        /// Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
-        /// </remarks>
+        /// <remarks>Note: <see cref="ExportFormat.Xml"/> exports are always nested.</remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
         /// Make Commence use DDE calls to retrieve data. <b>WARNING:</b> extremely slow!
         /// </summary>
-        /// <remarks>Should only be used as a last resort, as this can take a *very* long time.
+        /// <remarks>Should only be used as a last resort. Note that Fieldnames cannot contain a comma.
         /// <para>You would use this in case you run into trouble retrieving all items from a connection. 
-        /// This setting will request the connected items one by one. <seealso cref="PreserveAllConnections"/></para>
+        /// This setting will request connected items one by one. <seealso cref="PreserveAllConnections"/></para>
         /// </remarks>
         bool UseDDE { get; set; }
         /// <summary>
         /// Include all connected items.
-        /// Overrides <see cref="Canonical"/>, <see cref="ISO8601Compliant"/>, <see cref="SkipConnectedItems"/>,
-        /// <see cref="SplitConnectedItems"/>, <see cref="ExcelUpdateOptions"/>.
         /// Supported formats are <see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>, <see cref="ExportFormat.Excel"/>
+        /// Overrides <see cref="Canonical"/>, <see cref="ISO8601Format"/>, <see cref="SkipConnectedItems"/>,
+        /// <see cref="SplitConnectedItems"/>, <see cref="ExcelUpdateOptions"/>.
         /// </summary>
-        /// <remarks>Use this if connected data is truncated. Will be significantly slower due to multiple data reads.
-        /// <para>Changes the order of columns in the cursor; direct columns will come first, then connected columns.</para>
+        /// <remarks>Use this if connected items are truncated. Will be significantly slower due to multiple data reads.
+        /// <para>Alternatively, you can adjust the <see cref="MaxFieldSize"/> parameter. 
+        /// Which setting is faster depends on the data. A high <see cref="MaxFieldSize"/> much degrades Commence performance.
+        /// <see cref="PreserveAllConnections"/> uses the optimal sizes when it comes to performance.</para>
         /// </remarks>
         bool PreserveAllConnections { get; set; }
         /// <summary>

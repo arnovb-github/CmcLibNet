@@ -730,6 +730,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string ViewConnectedFields(int index, string connectionName, string connCategory, int connIndex, object[] fields, string delim =  null)
         {
+            IEnumerable<string> buffer;
             // we need fieldnames to be  comma delimited string, so we can feed it to a new string array
             // our fieldnames are trapped in object array args,
             // so we first cast that
@@ -739,12 +740,18 @@ namespace Vovin.CmcLibNet.Database
             // also note that we have to supply the number of fields we want. Intriguing tidbit.
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
+                buffer = new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString() };
+                buffer = buffer.Concat(fieldNames);
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
             }
             else
             {
-                return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
+                buffer = new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString() };
+                buffer = buffer.Concat(fieldNames);
+                buffer = buffer.Concat(new string[] { delim });
+                //return GetDDEValues(new string[] { "ViewConnectedFields", index.ToString(), connectionName, connCategory, connIndex.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
+            return GetDDEValues(buffer.ToArray());
         }
 
         /// <inheritdoc />
@@ -779,21 +786,25 @@ namespace Vovin.CmcLibNet.Database
             // our fieldnames are trapped in object array args,
             // so we first cast that
             string[] fieldNames = Utils.ToStringArray(fields);
-            // create a comma-delimited string from fieldnames and pass that into a new string[] array.
-            // how is that for unnecessary overhead? :)
-            // also note that we have to supply the number of fields we want. Intriguing tidbit.
+            IEnumerable<string> buffer;
             if (delim == null)
             {
-                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
+                buffer = new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString() };
+                buffer = buffer.Concat(fieldNames);
+                //return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)) });
+                
             }
             else
             {
-                return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
+                buffer = new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString() };
+                buffer = buffer.Concat(fieldNames);
+                buffer = buffer.Concat(new string[] { delim });
+                //return GetDDEValues(new string[] { "ViewFields", index.ToString(), fieldNames.Length.ToString(), string.Join(",", EncodeDdeArguments(fieldNames)), delim });
             }
+            return GetDDEValues(buffer.ToArray());
         }
 
         /// <inheritdoc />
-        /// 
         [ComVisible(false)]
         public string[] ViewFields(int index, List<string> fields, string delim = null)
         {

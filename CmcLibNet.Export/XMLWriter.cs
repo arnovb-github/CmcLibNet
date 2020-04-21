@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Export
     internal class XmlWriter : BaseWriter
     {
         System.Xml.XmlWriter _xw;
-        bool disposed = false;
+        bool disposed;
 
         #region Constructors
         internal XmlWriter(Database.ICommenceCursor cursor, IExportSettings settings)
@@ -51,50 +51,39 @@ namespace Vovin.CmcLibNet.Export
             BubbleUpProgressEvent(e);
         }
 
+        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
+        {
+            CloseXmlFile();
+            base.BubbleUpCompletedEvent(e);
+        }
+
         private void AppendToXml(List<List<CommenceValue>> rows)
         {
             // populate XMLWriter with data
             foreach (List<CommenceValue> row in rows) // assume that the minimum amount of data is a complete, single Commence item.
             {
                 _xw.WriteStartElement(XmlConvert.EncodeLocalName(_cursor.Category));
-                var citems = row.Where(s => s.ColumnDefinition.IsConnection)
-                    .OrderBy(o => o.ColumnDefinition.FieldName)
-                    .GroupBy(g => g.ColumnDefinition.ColumnName)
-                    .ToList();
+
+                // process direct fields
                 foreach (CommenceValue v in row)
                 {
                     if (!v.ColumnDefinition.IsConnection) // direct field, i.e. not a connection
                     {
-                        _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
-                        // only write if we have something
-                        if (!string.IsNullOrEmpty(v.DirectFieldValue))
-                        {
-                            // can we get away with writing the value or do we need to use CData?
-                            if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
-                            {
-                                _xw.WriteCData(v.DirectFieldValue);
-                            }
-                            else
-                            {
-                                _xw.WriteString(v.DirectFieldValue);
-                            }
-                        }
-                        _xw.WriteEndElement();
-                        
+                        WriteDirectValue(v);
                     } // if IsConnection
                 } // row
+
+                // process connected items
                 if (!base._settings.SkipConnectedItems)
                 {
+                    var citems = row.Where(s => s.ColumnDefinition.IsConnection)
+                            .OrderBy(o => o.ColumnDefinition.FieldName)
+                            .GroupBy(g => g.ColumnDefinition.QualifiedConnection)
+                            .ToArray();
                     WriteConnectedItems(citems);
                 }
                 _xw.WriteEndElement();
             } // rows
-        }
-
-        protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)
-        {
-            CloseXmlFile();
-            base.BubbleUpCompletedEvent(e);
         }
 
         protected internal void CloseXmlFile()
@@ -112,7 +101,25 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        private void WriteConnectedItems(IList<IGrouping<string, CommenceValue>> list)
+        private void WriteDirectValue(CommenceValue v)
+        {
+            _xw.WriteStartElement(XmlConvert.EncodeLocalName(base.ExportHeaders[v.ColumnDefinition.ColumnIndex]));
+            // only write if we have something
+            if (!string.IsNullOrEmpty(v.DirectFieldValue))
+            {
+                // can we get away with writing the value or do we need to use CData?
+                if (v.ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
+                {
+                    _xw.WriteCData(v.DirectFieldValue);
+                }
+                else
+                {
+                    _xw.WriteString(v.DirectFieldValue);
+                }
+            }
+            _xw.WriteEndElement();
+        }
+        private void WriteConnectedItems(IEnumerable<IGrouping<string, CommenceValue>> list)
         {
             // a group contains all CommenceValues for a connection
             foreach (IGrouping<string, CommenceValue> group in list)
@@ -127,10 +134,15 @@ namespace Vovin.CmcLibNet.Export
                     // now iterate over the different columns
                     for (int j = 0; j < group.Count(); j++)
                     {
-                        string value = group.ElementAt(j).ConnectedFieldValues[i];
-
+                        
                         string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
                         _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
+                        // 20200421 null check added when grouping set on qualifiedconnection instead of columnname
+                        if (group.ElementAt(j).ConnectedFieldValues ==  null) {
+                            _xw.WriteEndElement();
+                            continue; 
+                        }
+                        string value = group.ElementAt(j).ConnectedFieldValues[i];
                         if (!string.IsNullOrEmpty(value))
                         {
                             // are we dealing with a large text field?
@@ -144,7 +156,6 @@ namespace Vovin.CmcLibNet.Export
                             }
                         }
                         _xw.WriteEndElement();
-                        
                     }
                     _xw.WriteEndElement();
                 }

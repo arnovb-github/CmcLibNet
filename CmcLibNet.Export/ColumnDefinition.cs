@@ -12,9 +12,9 @@ namespace Vovin.CmcLibNet.Export
     internal class ColumnDefinition
     {
         /* The columndefinition is fetched once for every cursor we read. */
-        private ICommenceFieldDefinition _fieldDefinition = null;
+        private ICommenceFieldDefinition _fieldDefinition;
         private bool _fieldDefinitionFetched;
-        ICommenceDatabase _db = null;
+        ICommenceDatabase _db;
 
         #region Constructors
         // passing in the ICommenceDatabase object solved the problem of having to create a new one

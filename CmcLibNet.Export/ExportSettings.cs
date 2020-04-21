@@ -25,11 +25,12 @@ namespace Vovin.CmcLibNet.Export
         {
             get
             {
-                if (this.ISO8601Compliant) { _canonical = true; }
+                if (this.ISO8601Format) { _canonical = true; }
                 return _canonical;
             }
             set
             {
+                UserRequestedCanonical = value;
                 _canonical = value;
             }
         }
@@ -49,8 +50,9 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        // invisible to outside
         internal bool UserRequestedThids { get; set; } // for use in ComplexWriter
+
+        internal bool UserRequestedCanonical { get; set; } // for use in ComplexWriter
         /// <inheritdoc />
         public HeaderMode HeaderMode { get; set; } = HeaderMode.Fieldname;
         /// <inheritdoc />
@@ -81,7 +83,7 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public string TextQualifier { get; set; } = "\"";
         /// <inheritdoc />
-        public bool ISO8601Compliant
+        public bool ISO8601Format
         {
             get
             {
@@ -93,9 +95,6 @@ namespace Vovin.CmcLibNet.Export
                 _iso8601compliant = value;
             }
         }
-
-        ///// <inheritdoc />
-        //public string XSDFile { get; set; } = null;
 
         /// <inheritdoc />
         public bool NestConnectedItems { get; set; }
@@ -155,8 +154,10 @@ namespace Vovin.CmcLibNet.Export
         /// <inheritdoc />
         public string CustomRootNode { get; set; }
         /// <inheritdoc />
-        public bool PreserveAllConnections { get; set; } = false;
+        public bool PreserveAllConnections { get; set; }
         /// <inheritdoc />
-        public bool WriteSchema { get; set; } = false;
+        public bool WriteSchema { get; set; }
+        /// <inheritdoc />
+        public bool RemoveCurrencySymbol { get; set; }
     }
 }

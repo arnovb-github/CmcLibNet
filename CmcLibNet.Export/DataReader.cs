@@ -44,19 +44,7 @@ namespace Vovin.CmcLibNet.Export
             }
             this.columnDefinitions = columndefinitions;
             regex = new Regex(pattern);
-            if (this.settings.ISO8601Compliant)
-            {
-                this.Formatting = ValueFormatting.ISO8601;
-            }
-            else if (this.settings.Canonical)
-            {
-                this.Formatting = ValueFormatting.Canonical;
-            }
-            else
-            {
-                this.Formatting = ValueFormatting.None; // default
-            }
-            if ((this.cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
+            if (this.cursor.Flags.HasFlag(CmcOptionFlags.UseThids))
             {
                 useThids = true;
             }
@@ -106,7 +94,7 @@ namespace Vovin.CmcLibNet.Export
         /// Reads data using DDE. This is extremely show and should only ever be used as a last resort.
         /// </summary>
         /// <param name="mocktables"></param>
-        internal void GetDataByDDE(List<TableDef> mocktables)
+        internal void GetDataByDDE(List<TableDef> mocktables) // needs fixing
         {
             /* DDE requests are limited to a maximum length of 255 characters, 
              * which is easily exceeded. A workaround is splitting the requests.
@@ -114,17 +102,15 @@ namespace Vovin.CmcLibNet.Export
              * without setting the maxfieldsize higher.
              */
 
-            List<List<CommenceValue>> rows = null;
-            List<CommenceValue> rowvalues = null;
+            List<List<CommenceValue>> rows;
+            List<CommenceValue> rowvalues;
             ICommenceDatabase db = new CommenceDatabase();
 
-            // determine if we are dealing with a view or category
-            if (String.IsNullOrEmpty(cursor.View))
-            {
-                db.ViewCategory(this.cursor.Category);
-            }
-            else
-            {
+            // always define a category
+            db.ViewCategory(this.cursor.Category);
+            // are we dealing with a view?
+            if (!string.IsNullOrEmpty(cursor.View))
+            { 
                 db.ViewView(this.cursor.View);
             }
             int itemCount = db.ViewItemCount();
@@ -136,7 +122,7 @@ namespace Vovin.CmcLibNet.Export
                 foreach (TableDef td in mocktables)
                 {
                     string[] DDEResult = null;
-                    List<string> fieldNames = td.ColumnDefinitions.Select(o => o.FieldName).ToList<string>();
+                    List<string> fieldNames = td.ColumnDefinitions.Select(o => o.FieldName).ToList();
                     if (td.Primary)
                     {
                         // ViewFields and ViewConnectedFields have a limited capacity
@@ -155,7 +141,8 @@ namespace Vovin.CmcLibNet.Export
                             {
                                 ColumnDefinition cd = td.ColumnDefinitions.Find(o => o.FieldName.Equals(l[j]));
                                 string[] buffer = new string[] { DDEResult[j] };
-                                buffer = FormatValues(buffer,this.Formatting, cd);
+                                //buffer = FormatValues(buffer,this.Formatting, cd);
+                                buffer = FormatValues(buffer, cd);
                                 CommenceValue v = new CommenceValue(buffer[0], cd);
                                 rowvalues.Add(v);
                             } // for
@@ -208,7 +195,8 @@ namespace Vovin.CmcLibNet.Export
                             CommenceValue cv = null;
                             if (query.Length > 0) // only create value if there is one
                             {
-                                query = FormatValues(query, this.Formatting, cd);
+                                //query = FormatValues(query, this.Formatting, cd);
+                                query = FormatValues(query, cd);
                                 cv = new CommenceValue(query, cd);
                                 
                             }
@@ -331,7 +319,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                     cd = this.columnDefinitions[colindex];
 
-                    string[] buffer = null;
+                    string[] buffer;
                     if (cd.IsConnection)
                     {
                         if (string.IsNullOrEmpty(rawdata[i][j].Trim()))
@@ -388,7 +376,7 @@ namespace Vovin.CmcLibNet.Export
                                 } // switch
 
                                 // buffer now contains the connected values as array, do any formatting transformation
-                                buffer = FormatValues(buffer, this.Formatting, cd);
+                                buffer = FormatValues(buffer, cd);
                             }
                             cv = new CommenceValue(buffer, cd);
                         } // if !String.IsNullOrEmpty
@@ -396,7 +384,7 @@ namespace Vovin.CmcLibNet.Export
                     else // single value
                     {
                         buffer = new string[] { rawdata[i][j] };
-                        buffer = FormatValues(buffer, this.Formatting, cd);
+                        buffer = FormatValues(buffer, cd);
                         cv = new CommenceValue(buffer[0], cd);
                     } // else IsConnection
                     if (cv != null) { rowdata.Add(cv); }
@@ -405,31 +393,20 @@ namespace Vovin.CmcLibNet.Export
             } // for i
             return retval;
         }
-        private static string[] FormatValues(string[] values, ValueFormatting format, ColumnDefinition cd)
+
+   private string[] FormatValues(string[] values, ColumnDefinition cd)
         {
             string[] retval = values;
-            switch (format)
+            if (settings.Canonical)
             {
-                case ValueFormatting.Canonical:
-                    for (int i = 0; i < retval.Length; i++)
+                for (int i = 0; i < retval.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(retval[i]))
                     {
-                        if (!string.IsNullOrEmpty(retval[i]))
-                        {
-                            retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
-                        }
+                        retval[i] = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type, settings);
                     }
-                    break;
-                case ValueFormatting.ISO8601:
-                    for (int i = 0; i < retval.Length; i++)
-                    {
-                        if (!string.IsNullOrEmpty(retval[i]))
-                        {
-                            string canonical = CommenceValueConverter.ToCanonical(retval[i], cd.CommenceFieldDefinition.Type);
-                            retval[i] = CommenceValueConverter.ToIso8601(canonical, cd.CommenceFieldDefinition.Type);
-                        }
-                    }
-                    break;
-            } // switch
+                }
+            }
             return retval;
         }
 
@@ -452,12 +429,6 @@ namespace Vovin.CmcLibNet.Export
             }
             return i;
         }
-        #endregion
-
-        #region Properties
-
-        private ValueFormatting Formatting { get; set; }
-
         #endregion
 
         /// <summary>

@@ -45,7 +45,8 @@ namespace Vovin.CmcLibNet.Export
         /// use Excel VBA to export Commence data into the same workbook that your VBA code is running from.</para>
         /// <para>Note that when you are working with very large datasets, memory-usage grows considerably. 
         /// A <see cref="System.OutOfMemoryException"/> is not unfeasible.</para>
-        /// <para>CmcLibNet uses EPPLus 4.5.3.1, the last version of EPPlus on NuGet that was released under the LGPL license. Versions 5.x and above are no longer free for commercial use.</para>
+        /// <para>CmcLibNet uses EPPLus 4.5.3.1, the last version of EPPlus on NuGet that was released under the LGPL license.
+        /// Versions 5.x and above are no longer free for commercial use.</para>
         /// </remarks>
         Excel = 4,
         /// <summary>

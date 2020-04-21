@@ -142,9 +142,7 @@
     <Compile Include="CmcLibNet.Export\HeaderMode.cs" />
     <Compile Include="CmcLibNet.Export\IExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\IExportProgressChangedArgs.cs" />
-    <Compile Include="CmcLibNet.Export\LabelType.cs" />
     <Compile Include="CmcLibNet.Export\OleDbConnections.cs" />
-    <Compile Include="CmcLibNet.Export\ValueFormatting.cs" />
     <Compile Include="CmcLibNet.Export\XmlWriter.cs" />
     <Compile Include="CmcLibNet.Extensions\CommenceFieldTypeExtension.cs" />
     <Compile Include="CmcLibNet.Extensions\EnumerableExtensions.cs" />
