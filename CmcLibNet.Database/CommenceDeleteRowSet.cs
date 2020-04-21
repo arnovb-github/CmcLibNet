@@ -16,9 +16,9 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// the 'raw' Commence DeleteRowSet object that this class wraps.
         /// </summary>
-        private FormOA.ICommenceDeleteRowSet _drs = null;
-        private IRcwReleasePublisher _rcwReleasePublisher = null;
-        bool disposed = false;
+        private readonly FormOA.ICommenceDeleteRowSet _drs;
+        private readonly IRcwReleasePublisher _rcwReleasePublisher;
+        bool disposed;
 
         #region Constructors
         /// <summary>

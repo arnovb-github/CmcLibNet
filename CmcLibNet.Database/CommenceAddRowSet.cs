@@ -16,9 +16,9 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// the 'raw' Commence AddRowSet object that this class wraps.
         /// </summary>
-        private FormOA.ICommenceAddRowSet _ars = null;
-        private IRcwReleasePublisher _rcwReleasePublisher = null;
-        bool disposed = true;
+        private readonly FormOA.ICommenceAddRowSet _ars;
+        private readonly IRcwReleasePublisher _rcwReleasePublisher;
+        private bool disposed;
 
         /// <summary>
         /// Constructor

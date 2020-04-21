@@ -16,9 +16,9 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// the 'raw' Commence QueryRowSet object that this class wraps.
         /// </summary>
-        private FormOA.ICommenceQueryRowSet _qrs = null; // COM object!
-        private IRcwReleasePublisher _rcwReleasePublisher = null;
-        bool disposed = false;
+        private readonly FormOA.ICommenceQueryRowSet _qrs; // COM object!
+        private readonly IRcwReleasePublisher _rcwReleasePublisher;
+        private bool disposed;
 
         #region Constructors
         /// <summary>
@@ -33,7 +33,6 @@ namespace Vovin.CmcLibNet.Database
             try
             {
                 _qrs = cur.GetQueryRowSet(cur.RowCount, (int)flags);
-                //Console.WriteLine(flags.ToString()); // DEBUG
             }
             catch (Exception)
             {

@@ -16,9 +16,9 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// the 'raw' Commence EditRowSet object that this class wraps.
         /// </summary>
-        private FormOA.ICommenceEditRowSet _ers = null;
-        private IRcwReleasePublisher _rcwReleasePublisher = null;
-        bool disposed = false;
+        private readonly FormOA.ICommenceEditRowSet _ers;
+        private readonly IRcwReleasePublisher _rcwReleasePublisher;
+        private bool disposed;
 
         #region Constructors
         /// <summary>
