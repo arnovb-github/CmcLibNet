@@ -5,7 +5,6 @@
     /// </summary>
     internal class Preferences
     {
-
         /// <summary>
         /// Gets (-Me-) item.
         /// </summary>

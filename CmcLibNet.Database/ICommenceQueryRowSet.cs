@@ -29,6 +29,15 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         new void Close();
         #endregion
+
+        /// <summary>
+        /// GetRow implementation for .NET that gets the the Commence row as string values.
+        /// </summary>
+        /// <param name="nRow">Row pointer.</param>
+        /// <returns>String array.</returns>
+        /// <remarks>The purpose of this method is primarily to avoid boxing in internal export methods.</remarks>
+        [ComVisible(false)]
+        string[] GetRow(int nRow);
         /// <summary>
         /// Save the field value at the given (row,column) to a file.
         /// </summary>

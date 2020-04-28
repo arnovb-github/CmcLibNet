@@ -607,7 +607,6 @@ namespace Vovin.CmcLibNet.Database
             // therefore we will retrieve all values and compare them
             // this is a little slower of course.
             List<string> values = new List<string>();
-            List<string> distinctvalues = null;
             // capture current row by moving rowpointer to start.
             // currentrow will contain the number of rows moved back (for instance -789)
             int currentrow = this.SeekRow(CmcCursorBookmark.Beginning, 0);
@@ -623,13 +622,15 @@ namespace Vovin.CmcLibNet.Database
                     }
                     for (int j = 0; j < qrs.RowCount; j++)
                     {
-                        values.Add(qrs.GetRow(j)[colindex].ToString());
+                        values.Add(qrs.GetRow(j)[colindex]);
                     }
                 }
             }
             // put rowpointer back where it started
             this.SeekRow(CmcCursorBookmark.Beginning, Math.Abs(currentrow)); // reset rowpointer
-            distinctvalues = (caseSensitive) ? values.Distinct().ToList() : values.Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
+            List<string> distinctvalues = caseSensitive 
+                ? values.Distinct().ToList() 
+                : values.Distinct(StringComparer.CurrentCultureIgnoreCase).ToList();
             return (values.Count() != distinctvalues.Count());
         }
 
@@ -781,31 +782,33 @@ namespace Vovin.CmcLibNet.Database
                 // number of rows requested may be larger than number of available rows in rowset,
                 // so make sure the return value is sized properly
                 string[][] rowvalues = new string[qrs.RowCount][];
-                object[] buffer = null;
+                string[] buffer = null;
                 int numColumns = qrs.ColumnCount; // store number of columns so we only need 1 COM call; makes method much faster
                 int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // determine the rowpointer we are currently at
                 int numRows = qrs.RowCount; // store number of rows to be read so we need only 1 COM call
                 for (int i = 0; i < numRows; i++)
                 {
-                    rowvalues[i] = new string[numColumns + 1]; // number of columns plus extra element for thid
+                    // create room for number of columns plus one extra to hold the thid
+                    // this means that it is up to the consumers to pick the right columns!
+                    rowvalues[i] = new string[numColumns + 1]; 
                     if (this.Flags.HasFlag(CmcOptionFlags.UseThids)) // do not make the extra API call unless requested
                     {
                         string thid = qrs.GetRowID(i, CmcOptionFlags.Default); // GetRowID does not advance the rowpointer. Note that the flag must be 0.
                         rowvalues[i][0] = thid; // put thid in first column of row
                     }
 
-                    buffer = qrs.GetRow(i, CmcOptionFlags.Default); // don't bother with canonical flag, it doesn't work properly anyway.
+                    buffer = qrs.GetRow(i); // don't bother with canonical flag, it doesn't work properly anyway.
                     if (buffer == null)
                     {
-						qrs.Close();
+                        qrs.Close();
                         throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
                     }
                     for (int j = 0; j < numColumns; j++)
                     {
-                        rowvalues[i][j + 1] = buffer[j].ToString(); // put rowvalue in 2nd and up column of row
+                        rowvalues[i][j + 1] = buffer[j]; // put rowvalue in 2nd and up column of row
                     } // j
                 } // i
-                qrs.Close(); // close COM reference explicitly. the 'using' directive will do this for us, but may not kick in in time.
+                qrs.Close(); // close COM reference explicitly. the 'using' directive will do this for us, but GC may not kick in in time.
                 return rowvalues;
             } // using; qrs will be disposed now
         }

@@ -88,12 +88,11 @@ namespace Vovin.CmcLibNet.Database
             }
             catch (COMException e)
             {
-                // A generic COM exception occurred,
-                // We'll try to throw our own custom error here to provide some more info
-                string DDEError = string.Empty;
                 try
                 {
-                    DDEError = _nativeConv.Request("[GetLastError]"); // may throw it's own exception
+                    // A generic COM exception occurred,
+                    // We'll try to throw our own custom error here to provide some more info
+                    string DDEError = _nativeConv.Request("[GetLastError]");
                     if (DDEError.Length > 0)
                     {
                         throw new CommenceDDEException("Commence DDE request returned error: " + DDEError, e);

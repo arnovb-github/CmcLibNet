@@ -28,5 +28,3 @@ namespace Vovin.CmcLibNet.Database
         SelectedDateRange = 3
     }
 }
-
-

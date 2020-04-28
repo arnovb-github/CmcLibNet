@@ -172,6 +172,24 @@ namespace Vovin.CmcLibNet.Database
         }
 
         /// <inheritdoc />
+        public string[] GetRow(int nRow)
+        {
+            string[] retval = null;
+
+            try
+            {
+                retval = _qrs.GetRow(nRow, base.Delim, (int)CmcOptionFlags.Default)
+                    .Split(base.Splitter, StringSplitOptions.None);
+            }
+            catch (COMException)
+            {
+                // TO-DO: return something meaningful...
+            }
+
+            return retval;
+        }
+
+        /// <inheritdoc />
         public override object[] GetRow(int nRow, string delim, CmcOptionFlags flags = CmcOptionFlags.Default)
         {
             object[] retval = null;
