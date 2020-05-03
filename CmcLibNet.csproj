@@ -148,6 +148,7 @@
     <Compile Include="CmcLibNet.Extensions\EnumerableExtensions.cs" />
     <Compile Include="CmcLibNet.Extensions\EnumExtensions.cs" />
     <Compile Include="CmcLibNet.Extensions\StringExtensions.cs" />
+    <Compile Include="CmcLibNet.Services\ClipActiveItem.cs" />
     <Compile Include="CmcLibNet.Services\UI\FilePicker.cs" />
     <Compile Include="CmcLibNet.Services\UI\IFilePicker.cs" />
     <Compile Include="CmcLibNet\Application.cs" />

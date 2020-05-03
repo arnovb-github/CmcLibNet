@@ -87,7 +87,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="pCursorType">Type of Commence data to access with this cursor.</param>
         /// <param name="pCursorFlags">Logical OR of Option flags.</param>
         /// <returns>CommenceCursor wrapping ICommenceCursor according to flags passed.</returns>
-        /// <exception cref="NotSupportedException">Viewtype cannot be used in a CommenceCursor.</exception>
+        /// <exception cref="ArgumentException">Viewtype cannot be used in a CommenceCursor.</exception>
         /// <exception cref="CommenceCOMException">Commence could not create a cursor.</exception>
         public Database.ICommenceCursor GetCursor(string pName, CmcCursorType pCursorType, CmcOptionFlags pCursorFlags)
         {
@@ -104,7 +104,7 @@ namespace Vovin.CmcLibNet.Database
                 if (!((ViewDef)vd).ViewType
                     .GetAttributePropertyValue<bool, CursorCreatableAttribute>(nameof(CursorCreatableAttribute.CursorCreatable)))
                 {
-                    throw new NotSupportedException($"Commence does not support cursors on views of type {vd.Type}. Use a view of type Report or Grid instead.");
+                    throw new ArgumentException($"Commence does not support cursors on views of type {vd.Type}. Use a view of type Report or Grid instead.");
                 }
                 try
                 {

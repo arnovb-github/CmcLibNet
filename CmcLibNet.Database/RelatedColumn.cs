@@ -3,7 +3,7 @@
 namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
-    /// POCO class for holding related columns. Created in <c>CommenceCursor.Columns.AddRelatedColum</c>.
+    /// POCO class for holding related columns.
     /// </summary>
     internal class RelatedColumn : IRelatedColumn, IEquatable<RelatedColumn> 
     {

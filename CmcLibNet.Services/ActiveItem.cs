@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vovin.CmcLibNet;
+using System.Linq;
+using System.Text;
 using Vovin.CmcLibNet.Database;
 using Vovin.CmcLibNet.Database.Metadata;
 using Vovin.CmcLibNet.Export;
 
 namespace Vovin.CmcLibNet.Services
 {
-    internal class ActiveItem
+    internal class ActiveItem : IDisposable
     {
-        string _itemName = string.Empty;
-        string _nameField = string.Empty;
-        //ICommenceApp _cmc = null;
-        IActiveViewInfo _avi = null;
-        ICommenceDatabase _db = null;
+        private string _itemName = string.Empty;
+        private string _nameField = string.Empty;
+        private readonly IActiveViewInfo _avi;
+        private readonly ICommenceDatabase _db;
+        private readonly string clarifyStatus;
 
         internal ActiveItem()
         {
-            //_cmc = new CommenceApp();
             _db = new CommenceDatabase();
             _avi = _db.GetActiveViewInfo();
+            clarifyStatus = _db.ClarifyItemNames();
             _db.ClarifyItemNames("false");
             _itemName = _db.GetActiveItemName();
+            _db.ClarifyItemNames(clarifyStatus);
         }
 
         internal List<Field> GetValues()
@@ -48,130 +50,171 @@ namespace Vovin.CmcLibNet.Services
             switch (_avi.Type.ToLower())
             {
                 case "item detail form":
-                    _itemName = _avi.Item;
                     // we know the fieldname of this detail form, so we can pass in its XML and find out what fields are showing.
-                    // That is, if we can find out a way which form is showing...which we can't.
-                    throw new NotSupportedException("You cannot copy data from an Item Detail Form with " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".");
+                    // That is, if we can find out a way which form is showing...which we can't.|
+                    // okay never mind then
+                    return null;
                 default:
-                   // a view is showing, create a cursor based on it
+                    // a view is showing, create a cursor based on it
                     // remember that Commence cannot create a cursor on all types of views.
-                    ICommenceCursor cur = null;
+                    ICommenceCursor cur;
                     try
                     {
                         retval = new List<Field>();
-                        cur = _db.GetCursor(_avi.Name, CmcCursorType.View);
+                        cur = _db.GetCursor(_avi.Name, CmcCursorType.View); // may fail
                     }
-                    catch (NotSupportedException)
+                    catch (ArgumentException)
                     {
-                        Field f = new Field(_nameField, "", _itemName + ". That's all we could get, sorry.");
+                        Field f = new Field(_nameField, string.Empty, _itemName); 
                         retval.Add(f);
                         return retval;
                     }
-                    retval = GetValuesFromCursor(cur);
+                    // when the open view's name has quotes in it, the DDE request to retrieve info on it may fail
+                    // in that case we get an argument exception in Utils.EnumFromAttributeValue
+                    // that all gets convoluted, let's just swallow all errors and pretend we do not know that :)
+                    catch { return retval; }
+                    retval = GetValuesFromCursor(cur).ToList();
                     break;
             } // switch
             return retval;
-        } // method
+        }
 
-        private List<Field> GetValuesFromCursor(ICommenceCursor cur)
+        private IEnumerable<Field> GetValuesFromCursor(ICommenceCursor cur)
         {
-            List<Field> retval = new List<Field>(); // a cursor cannot have no fields, so we should be safe.
-            // okay, we have a cursor. Ideally we'd like to use it to get all the desired data.
-            // At least we can use it to figure out what fields are showing.
+            IEnumerable<Field> retval = new List<Field>(); // a cursor cannot have no fields, so we should be safe.
             ColumnParser cp = new ColumnParser(cur);
-            List<ColumnDefinition> columnInfo = cp.ParseColumns();
-            /* Let's try and see if the item is unique.
-             * If we get only 1 item, we're in luck.
-             * If we don't, we could try and filter for it,
-             * but because the view can contain any kind of field, 
-             * this would be exceedingly complex.
-             *  we are going to try one last time and see if the namefield is unique.
-             */
-            ICursorFilterTypeF filter = (ICursorFilterTypeF)cur.Filters.Add(1, FilterType.Field);
-            filter.FieldName = _nameField; // not pretty
-            filter.Qualifier = FilterQualifier.EqualTo;
-            filter.MatchCase = true;
-            filter.FieldValue = _itemName; // not pretty
-            /* notice we could set another filter on the clarify field had we requested one,
-             * but because we do not know what type of field that is, that would also get messy very quickly.
-             */
-            cur.Filters.Apply();
-            if (cur.RowCount == 1)
-            {
-                using (ICommenceQueryRowSet qrs = cur.GetQueryRowSet())
-                {
-                    for (int i = 0; i < columnInfo.Count; i++)
-                    {
-                        Field f = new Field();
-                        f.Label = columnInfo[i].ColumnLabel;
-                        f.Name = columnInfo[i].FieldName;
-                        f.Value = qrs.GetRowValue(0, i); // just i? Is that always the correct ColumnIndex?
-                        retval.Add(f);
-                    } // for (int i = 0; i < columnInfo.FieldNames.Count; i++)
-                }
-            } // if (cur.RowCount == 1)
-            else
-            {
-                // no other way than to use good old DDE
-                // try to use clarified itemname
-                _db.ClarifyItemNames("true");
-                _itemName = _db.GetActiveItemName();
-                List<string> directFieldList = null;
-                List<string> directColumnList = null;
-                for (int i = 0; i < columnInfo.Count; i++)
-                {
-                    if (!columnInfo[i].IsConnection)
-                    {
-                        // collect all direct fields
-                        if (directFieldList == null) { directFieldList = new List<string>(); }
-                        // keep track of corresponding column names
-                        if (directColumnList == null) { directColumnList = new List<string>(); }
-                        directFieldList.Add(columnInfo[i].FieldName);
-                        directColumnList.Add(columnInfo[i].ColumnLabel);
-                    }
-                    else
-                    {
-                        // we are not going to collect the indirect fields,
-                        // instead we'll request them immediately.
-                        string[] s = null;
-                        /* Book-type views are a special case, since they return the connection fields in it differently from other viewtypes.
-                         * Specifically, Book views return (and indeed, only show) connected itemnames.
-                         * This is reflected in the way the connected values are returned
-                         * Instead of Connection%%Category%%Field, they return Connection<space>Category (no field).
-                         * This is a problem when either the connection or category also contain spaces.
-                         * Fortunately for us, the connection names are captured in the HeaderLists class
-                         */
-                        if (_avi.Type.ToLower() == "book")
-                        {
-                            s = new string[] { columnInfo[i].Connection, columnInfo[i].Category, columnInfo[i].FieldName };
-                        }
-                        else
-                        {
-                            s = columnInfo[i].ColumnName.Split(new string[] { "%%" }, StringSplitOptions.None);
-                        }
-                        if (s.Length == 3)
-                        {
-                            Field f = new Field();
-                            f.Name = columnInfo[i].FieldName;
-                            f.Label = columnInfo[i].ColumnLabel;
-                            f.Value = _db.GetConnectedItemField(cur.Category, _itemName, s[0], s[1], s[2]);
-                            retval.Add(f);
-                        } // if (s.Length == 3)
-                    } // else (s.Length == 3)
-                } // for (int i = 0; i < columnInfo.FieldNames.Count; i++)
-                // now process all direct fields in one go
-                List<string> directFieldValues = _db.GetFields(cur.Category, _itemName, directFieldList);
-                for (int i = 0; i < directFieldValues.Count; i++)
-                {
-                    Field f = new Field();
-                    f.Name = directFieldList[i];
-                    f.Label = directColumnList[i];
-                    f.Value = directFieldValues[i];
-                    retval.Add(f);
-                } // for (int i = 0; i < directFieldValues.Count; i++)
-            } // else (cur.RowCount == 1)
+            IList<ColumnDefinition> columnDefinitions = cp.ParseColumns();
+            _db.ClarifyItemNames("true");
+            _itemName = _db.GetActiveItemName(); // also marks the item for us
 
+            IList<Field> fields = new List<Field> {
+                new Field { 
+                    Name = _nameField,
+                    Value = _itemName,
+                    Label = columnDefinitions
+                        .Where(w => !w.IsConnection)
+                        .SingleOrDefault(s => s.FieldName.Equals(_nameField))?.ColumnLabel
+                }
+            };
+            // if the name field isn't in the view the view label will be empty, 
+            // in that casechange it to fieldname instead
+            // note that this will actually return more information than is showing in Commence
+            if (string.IsNullOrEmpty(fields[0].Label))
+            {
+                fields[0].Label = _nameField;
+            }
+
+            // get a list of all the direct fields except the name field
+            IEnumerable<ColumnDefinition> directFields = columnDefinitions
+                .Where(w => !w.IsConnection && w.FieldName != _nameField)
+                .ToArray();
+            // get the direct field values using DDE
+            IEnumerable<Field> directFieldValues = GetDirectFieldValues(directFields);
+            retval = fields.Concat(directFieldValues);
+
+            // get the indirect values
+            IEnumerable<RelatedColumn> relatedColumns = columnDefinitions
+                .Where(w => w.IsConnection)
+                .Select(s => new RelatedColumn(s.Connection, 
+                    s.Category,
+                    s.FieldName, 
+                    RelatedColumnType.ConnectedField,
+                    s.ColumnLabel)) // very dirty trick!!!!!!
+                .ToArray();
+            IEnumerable<Field> connectedFieldValues = GetConnectedFieldValues(relatedColumns);
+            retval = retval.Concat(connectedFieldValues);
+            _db.ClarifyItemNames(clarifyStatus); // restore original setting
             return retval;
         } // method
+
+        private IEnumerable<Field> GetConnectedFieldValues(IEnumerable<RelatedColumn> relatedColumns)
+        {
+            foreach (var r in relatedColumns)
+            {
+                StringBuilder sb = new StringBuilder(r.Connection);
+                sb.Append("%%");
+                sb.Append(r.Category);
+                sb.Append("%%");
+                sb.Append(r.Field);
+                Field retval = new Field()
+                {
+                    Name = sb.ToString(),
+                    Label = r.Delimiter, // abused the field for something else. Very dirty trick!!!
+                };
+                try
+                {
+                    // If the Category and Item parameters are both blank,
+                    // then Commence uses the item from the most recent AddItem/AddSharedItem command,
+                    // MarkActiveItem or ViewMarkItem REQUEST.
+                    // In this case, it is MarkActiveItem, which is what we want
+                    int conItems = _db.GetConnectedItemCount(string.Empty, string.Empty, r.Connection, r.Category);
+                    // we are going to return connected data.
+                    // but only if there is a single connected item
+                    // we could retrieve all connected data,
+                    // but that could potentially take too long
+                    switch (conItems)
+                    {
+                        case 0:
+                            retval.Value = "(none)";
+                            break;
+                        case 1:
+                            retval.Value = _db.GetConnectedItemField(string.Empty, string.Empty, r.Connection, r.Category, r.Field);
+                            break;
+                        default:
+                            retval.Value = "(more)";
+                            break;
+                    }
+                }
+                catch { } // swallow all errors
+                yield return retval;
+            }
+        }
+
+        private IEnumerable<Field> GetDirectFieldValues(IEnumerable<ColumnDefinition> directFields)
+        {
+            
+            foreach (var cd in directFields)
+            {
+                Field retval = null;
+                try
+                {
+                    retval = new Field()
+                    {
+                        Name = cd.FieldName,
+                        Label = cd.ColumnLabel,
+                        // If the Category and Item parameters are both blank,
+                        // then Commence uses the item from the most recent AddItem/AddSharedItem command,
+                        // MarkActiveItem or ViewMarkItem REQUEST.
+                        // In this case, it is MarkActiveItem, which is what we want
+                        Value = _db.GetField(string.Empty, string.Empty, cd.FieldName)
+                    };
+                }
+                catch { } // ignore all errors
+                yield return retval;
+            }
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _db?.Close();
+                }
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
+        #endregion
     }
 }
