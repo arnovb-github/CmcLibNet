@@ -119,7 +119,7 @@ namespace Vovin.CmcLibNet.Services
                     s.Category,
                     s.FieldName, 
                     RelatedColumnType.ConnectedField,
-                    s.ColumnLabel)) // very dirty trick!!!!!!
+                    s.QualifiedConnection + ' ' + s.FieldName)) // very dirty trick!!!!!!
                 .ToArray();
             IEnumerable<Field> connectedFieldValues = GetConnectedFieldValues(relatedColumns);
             retval = retval.Concat(connectedFieldValues);

@@ -50,10 +50,10 @@ namespace Vovin.CmcLibNet.Services
                 if (sb?.Length > 0)
                 {
                     System.Windows.Forms.Clipboard.SetText(sb.ToString());
+                    return true;
                 }
             }
-
-            return true;
+            return false;
         }
 
         /// <inheritdoc />
