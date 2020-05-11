@@ -1,10 +1,11 @@
-﻿using System;
+﻿using FormOA; // this is the name of Commence, no idea why
+using System;
 using System.Diagnostics;
 using System.Management;
 using System.Runtime.InteropServices;
-using FormOA;
 using System.Linq;
 using System.Collections.Generic;
+
 
 namespace Vovin.CmcLibNet
 {
@@ -39,19 +40,9 @@ namespace Vovin.CmcLibNet
     [ComDefaultInterface(typeof(ICommenceApp))] // explicitly define interface to expose to COM
     public class CommenceApp : ICommenceApp
     {
-        private IRcwReleasePublisher rw = null;
+        private readonly IRcwReleasePublisher rw;
         private readonly string PROCESS_NAME = "commence";
-        /* _cmc is marked static to ensure that only a single reference to Commence ever exists
-         Most calls to this assembly will be from Vovin.CmcLibNet.Database.CommenceDatabase
-         That class uses the DB property of this class that returns this static field to access the Commence database.
-         No other classes in this assembly ever create a reference to CommenceDB directly.
-         The only way multiple references can be created is by referencing this assembly multiple times,
-         which never makes sense unless Commence ever makes it possible to talk to multiple instances 
-         and in which case this whole assembly needs redesigning.
-         */
-        //private static ICommenceDB _cmc = null;
-        // 20190319
-        private FormOA.ICommenceDB _cmc = null; // non-static
+        private ICommenceDB _cmc; // The exposed root level name of Commence is 'FormOA' for reasons unknown to me
 
         #region Constructors
 
@@ -74,20 +65,20 @@ namespace Vovin.CmcLibNet
         public CommenceApp()
         {
             /* Commence does not register itself in the ROT (Running Object Table)
-            // * Therefore, we can not tell which database to talk to from COM
-            // * This is a serious problem that Commence refuses to fix.
-            // * Most of the third-party utilities built for Commence do not take this into account,
-            // * they will happily try to talk to the first instance they encounter.
-            // * Calling CommenceDB when no commence.exe instance is running will fire up commence.exe and an arbitrary database, usually the last one opened.
-            // * This can be very much unwanted, especially in TS-like environments, so I tried to eliminate that possibility as much as possible
-            // * This assembly will simply not run if commence.exe is not running
-            // * The downside of this is that COM users will get an unintelligible error when no or multiple instances are running.
-            // * It will also not run if multiple commence.exe processes were started by the same user
-            // * It *should* run when different users started the commence.exe process
-            // * In that case, it *should* talk to the instance fired by the same user who calls the assembly
-            // * This behaviour may be subject to errors when Commence.DB has a non-standard DCOM settings defined.
-            // * This has yet to be tested.
-            // */
+             * Therefore, we can not tell which database to talk to from COM
+             * This is a serious problem that Commence refuses to fix.
+             * Most of the third-party utilities built for Commence do not take this into account,
+             * they will happily try to talk to the first instance they encounter.
+             * Calling CommenceDB when no commence.exe instance is running will fire up commence.exe and an arbitrary database, usually the last one opened.
+             * This can be very much unwanted, especially in TS-like environments, so I tried to eliminate that possibility as much as possible
+             * This assembly will simply not run if commence.exe is not running
+             * The downside of this is that COM users will get an unintelligible error when no or multiple instances are running.
+             * It will also not run if multiple commence.exe processes were started by the same user
+             * It *should* run when different users started the commence.exe process
+             * In that case, it *should* talk to the instance fired by the same user who calls the assembly
+             * This behaviour may be subject to errors when Commence.DB has a non-standard DCOM settings defined.
+             * This has yet to be tested.
+             */
             rw = new RcwReleasePublisher();
             rw.RCWRelease += RCWReleaseHandler;
         }
@@ -95,19 +86,7 @@ namespace Vovin.CmcLibNet
 
         #region Properties
 
-        ///// <summary>
-        ///// Exposes the 'raw' Commence database (FormOA.ICommenceDB) object.
-        ///// For internal use only.
-        ///// </summary>
-        //internal static FormOA.ICommenceDB DB
-        //{
-        //    get
-        //    {
-        //        return _cmc;
-        //    }
-        //}
-
-        internal FormOA.ICommenceDB Db
+        internal ICommenceDB Db
         {
             get
             {
@@ -147,11 +126,11 @@ namespace Vovin.CmcLibNet
                     default: // running multiple times
                         if (retval.Distinct().Count() != retval.Count()) // Commence was installed in multiple locations
                         {
-                            return "Unable to determine";
+                            return "Unable to determine ExePath";
                         }
                         else
                         {
-                            return retval[0]; // commence is running same exe multiple times, just return first
+                            return retval[0]; // commence is running same exe multiple times, just return first.
                         }
                 }
             }

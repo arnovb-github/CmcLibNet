@@ -1,7 +1,7 @@
 # CmcLibNet
 CmcLibNet is a .NET wrapper around the Commence RM API. It was designed to make working with Commence RM from a .NET language easier, PowerShell in particular. PowerShell can talk to Commence natively, but you have to use the rather cumbersome IDispatch interface.
 
-Furthermore, the Commence API is a little quirky and at times inconsist. CmcLibNet intends to provide a more modern-day, more consistent interface. It completely hides Commence's DDE interface (i.e. ICommenceConversation), and it has some functionality to make simple things actually simple(r). For instance, exporting data from Commence can be a bit of a hassle. CmcLibNet makes it a little bit easier.
+Furthermore, the Commence API is a little quirky and at times inconsistent. CmcLibNet intends to provide a more modern-day, more consistent interface. It completely hides Commence's DDE interface (i.e. ICommenceConversation), and it has some functionality to make simple things actually simple(r). For instance, exporting data from Commence can be a bit of a hassle. CmcLibNet makes it a little bit easier.
 
 One of the simple but helpful concepts that CmcLibNet employs is getting rid of all the string parsing you usually have to do when talking to Commence. For instance, when you want to retrieve a list of categories in a database, you can just call a method and you get returned an IEnumerable. The tedious stuff is handled internally by CmcLibNet.
 
