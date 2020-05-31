@@ -1,0 +1,154 @@
+﻿<html><head><meta http-equiv="X-UA-Compatible" content="IE=edge" /><link rel="shortcut icon" href="../icons/favicon.ico" /><link rel="stylesheet" type="text/css" href="../styles/branding.css" /><link rel="stylesheet" type="text/css" href="../styles/branding-en-US.css" /><script type="text/javascript" src="../scripts/branding.js"> </script><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VBScript example</title><meta name="Language" content="en-us" /><meta name="Microsoft.Help.Id" content="26126b67-d6a9-4ae9-95cb-309d32e261dc" /><meta name="Description" content="VBScript example" /><meta name="Microsoft.Help.ContentType" content="Samples" /><meta name="BrandingAware" content="true" /><link type="text/css" rel="stylesheet" href="../styles/highlight.css" /><script type="text/javascript" src="../scripts/highlight.js"> </script><link rel="stylesheet" type="text/css" href="../styles/branding-Website.css" /><script type="text/javascript" src="../scripts/jquery-3.3.1.min.js"></script><script type="text/javascript" src="../scripts/branding-Website.js"></script><script type="text/javascript" src="../scripts/clipboard.min.js"></script></head><body onload="OnLoad('cs')"><input type="hidden" id="userDataCache" class="userDataStyle" /><div class="pageHeader" id="PageHeader">Vovin.CmcLibNet, a .Net library for Commence RM<form id="SearchForm" method="get" action="#" onsubmit="javascript:TransferToSearchPage(); return false;"><input id="SearchTextBox" type="text" maxlength="200" /><button id="SearchButton" type="submit"></button></form></div><div class="pageBody"><div class="leftNav" id="leftNav"><div id="tocNav"><div class="toclevel0" data-toclevel="0"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="../html/13d8bdcb-02fa-44f3-80db-d84941da7620.htm" title="Vovin.CmcLibNet, a .Net library for Commence RM" tocid="roottoc">Vovin.CmcLibNet, a .Net library for Commence RM</a></div><div class="toclevel1" data-toclevel="1" data-childrenloaded="true"><a class="tocExpanded" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="../html/13d8bdcb-02fa-44f3-80db-d84941da7620.htm" title="Vovin.CmcLibNet documentation" tocid="13d8bdcb-02fa-44f3-80db-d84941da7620">Vovin.CmcLibNet documentation</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="../html/092890cb-e367-4511-b649-8e0f057a12ca.htm" title="Teaser" tocid="092890cb-e367-4511-b649-8e0f057a12ca">Teaser</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="../html/9b3678d3-f63f-4192-92bb-e430907c8cc4.htm" title="Powershell Basic example" tocid="9b3678d3-f63f-4192-92bb-e430907c8cc4">Powershell Basic example</a></div><div class="toclevel2" data-toclevel="2"><a data-tochassubtree="false" href="../html/15ef70da-4f25-401c-8336-bf4053e3dbac.htm" title="Powershell Export example" tocid="15ef70da-4f25-401c-8336-bf4053e3dbac">Powershell Export example</a></div><div class="toclevel2 current" data-toclevel="2"><a data-tochassubtree="false" href="../html/26126b67-d6a9-4ae9-95cb-309d32e261dc.htm" title="VBScript example" tocid="26126b67-d6a9-4ae9-95cb-309d32e261dc">VBScript example</a></div><div class="toclevel2" data-toclevel="2"><a class="tocCollapsed" onclick="javascript: Toggle(this);" href="#!" /><a data-tochassubtree="true" href="../html/551759d4-7595-29d9-745f-14d8e9379f92.htm" title="API Reference" tocid="8902777a-ec4f-48ac-97d2-ee7b0405bf80">API Reference</a></div></div><div id="tocResizableEW" onmousedown="OnMouseDown(event);"></div><div id="TocResize" class="tocResize"><img id="ResizeImageIncrease" src="../icons/TocOpen.gif" onclick="OnIncreaseToc()" alt="Click or drag to resize" title="Click or drag to resize" /><img id="ResizeImageReset" src="../icons/TocClose.gif" style="display:none" onclick="OnResetToc()" alt="Click or drag to resize" title="Click or drag to resize" /></div></div><div class="topicContent" id="TopicContent"><table class="titleTable"><tr><td class="logoColumn"><img src="../icons/Help.png" /></td><td class="titleColumn"><h1>VBScript example</h1></td></tr></table><span class="introStyle"></span> <div class="introduction"><p>VBScript example</p></div><div class="collapsibleAreaRegion"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID0RB')" onkeypress="SectionExpandCollapse_CheckKey('ID0RB', event)" tabindex="0"><img id="ID0RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />Demonstrates</span></div><div id="ID0RBSection" class="collapsibleSection"><p>
+           Usage of <strong>Vovin.CmcLibNet</strong> from Commence Item Detail Form.
+         </p></div><div class="collapsibleAreaRegion" id="Section1"><span class="collapsibleRegionTitle" onclick="SectionExpandCollapse('ID2RB')" onkeypress="SectionExpandCollapse_CheckKey('ID2RB', event)" tabindex="0"><img id="ID2RBToggle" class="collapseToggle" src="../icons/SectionExpanded.png" />VBScript example</span></div><div id="ID2RBSection" class="collapsibleSection"><p>This example assumes that the Commence <strong>Tutorial</strong> database is opened.</p><div class="codeSnippetContainer"><div class="codeSnippetContainerTabs"><div id="ID1EAAABAAA_tab1" class="codeSnippetContainerTabSingle">VBScript</div></div><div class="codeSnippetContainerCodeContainer"><div class="codeSnippetToolBar"><div class="codeSnippetToolBarText"><a id="ID1EAAABAAA_copyCode" href="#" class="copyCodeSnippet" onclick="javascript:CopyToClipboard('ID1EAAABAAA');return false;" title="Copy">Copy</a></div></div><div id="ID1EAAABAAA_code_Div1" class="codeSnippetContainerCode" style="display: block"><pre xml:space="preserve"><span class="highlight-comment">' Sample VBScript illustrating the use of CmcLibNet, a .NET wrapper around the Commence API</span>
+<span class="highlight-comment">' CmcLibNet was developed for use from within .NET applications.</span>
+<span class="highlight-comment">' Because it was also made 'COM-Visible' it is possible to use it from any COM capable language</span>
+<span class="highlight-comment">' Therefore, you can use it from Commence Form Scripts as well.</span>
+<span class="highlight-comment">' This example illustrates how to use CmcLibNet from VBScript.</span>
+<span class="highlight-comment">' For this example to work, CmcLibNet has to be registered for ComInterop</span>
+<span class="highlight-comment">' If you did not check that option in the installer,</span>
+<span class="highlight-comment">' you have to register it manually with regasm.exe.</span>
+
+<span class="highlight-comment">' CmcLibNet contains several 'components': CommenceApp, Database, Export and Services</span>
+<span class="highlight-comment">' -CommenceApp: get info on the Commence.exe application</span>
+<span class="highlight-comment">' -Database: anything that has to do with manipulation the Commence database</span>
+<span class="highlight-comment">' -Export: the export engine contained in CmcLibNet</span>
+<span class="highlight-comment">' -Services: some esoteric features, not shown here.</span>
+
+<span class="highlight-comment">' Get a reference to the Commence application through CmcLibNet.</span>
+<span class="highlight-keyword">Dim</span> app : <span class="highlight-keyword">Set</span> app = <span class="highlight-keyword">CreateObject</span>(<span class="highlight-literal">"CmcLibNet.CommenceApp"</span>)
+<span class="highlight-comment">' Display name of currently opened database.</span>
+<span class="highlight-keyword">MsgBox</span> <span class="highlight-literal">"Commence database name: "</span> &amp; app.Name <span class="highlight-comment">' this is a silly example of course</span>
+<span class="highlight-comment">' Let's assume we're completely done with our app object.</span>
+app.Close
+<span class="highlight-comment">' A note on the Close method:</span>
+<span class="highlight-comment">' Because .NET and COM are very different techniques, you *must* explicitly call the Close method.</span>
+<span class="highlight-comment">' Basically, if you are not using CmcLibNet from a .NET language, make sure you call Close.</span>
+<span class="highlight-comment">' It is *not* sufficient to just set the reference variable to Nothing.</span>
+<span class="highlight-comment">' Failing to call Close() will keep the commence.exe running in the background when the user closes Commence.</span>
+<span class="highlight-comment">' In that case you have to manually end the process in the Windows Task Manager.</span>
+<span class="highlight-comment">' As a rule of thumb: when you CreateObject(CmcLibNet.Something), you must Close it.</span>
+<span class="highlight-comment">' (The story gets weirder though: when used from the Windows Scripting Host,</span>
+<span class="highlight-comment">' which is not .NET, it is not needed either. Don't know why.)</span>
+<span class="highlight-comment">'Set app = Nothing ' Optional, but regarded good practice.</span>
+
+<span class="highlight-comment">' Let's show something more useful.</span>
+<span class="highlight-comment">' Assume we want a list of people connected to "Concorde Aviation Ltd".</span>
+<span class="highlight-comment">' This means talking to the Commence database.</span>
+<span class="highlight-comment">' Get a reference to the Commence database through CmcLibNet.</span>
+<span class="highlight-keyword">Dim</span> db : <span class="highlight-keyword">Set</span> db = <span class="highlight-keyword">CreateObject</span>(<span class="highlight-literal">"CmcLibNet.Database"</span>)
+
+<span class="highlight-comment">' Get a cursor. Note how we do not supply any flags, just the category name.</span>
+<span class="highlight-comment">' This gets a cursor on a category with default flags.</span>
+<span class="highlight-comment">' It is equivalent to [FormOA.CommenceDB.]GetCursor(0, "Contact", 0)</span>
+<span class="highlight-comment">' If you want a cursor on a view, CmcLib uses a different order than the Commence API:</span>
+<span class="highlight-comment">' GetCursor("MyView", 1, 0). 1 indicates you want a view, 0 is the default flag.</span>
+<span class="highlight-comment">' Refer to the documentation for the values of the flags used in CmcLibNet.</span>
+<span class="highlight-comment">' If their meaning is equivalent to their Commence counterpart, they have the same value.</span>
+<span class="highlight-comment">' We will only be dealing with category data, so we don't need any flags yet.</span>
+<span class="highlight-comment">' You can just do:</span>
+<span class="highlight-keyword">Dim</span> cur : <span class="highlight-keyword">set</span> cur = db.GetCursor(<span class="highlight-literal">"Contact"</span>)
+
+<span class="highlight-comment">' The cursor will contain all items in Contact.</span>
+<span class="highlight-comment">' Let's see how many we have:</span>
+<span class="highlight-keyword">MsgBox</span> cur.RowCount &amp; <span class="highlight-literal">" items in Contact category."</span>
+
+<span class="highlight-comment">' Nothing spectacular yet. We wanted specific contacts, so the next step is to define a filter.</span>
+<span class="highlight-comment">' This is where things in CmcLibNet get funky.</span>
+<span class="highlight-comment">' To take full advantage of the CmcLibNet way of filtering,</span>
+<span class="highlight-comment">' you need a IDE that supports Intellisense/Autocomplete. Most script editors do not.</span>
+<span class="highlight-comment">' If you want to, you can set filters just like you would with the Commence API (i.e., use SetFilter and SetLogic).</span>
+<span class="highlight-comment">' In this example, we'll do it the CmcLibNet way.</span>
+<span class="highlight-comment">' Get a reference to the filtering 'engine'. Every cursor in CmcLibNet has one.</span>
+<span class="highlight-keyword">Dim</span> filters : <span class="highlight-keyword">Set</span> filters = cur.Filters
+
+<span class="highlight-comment">' Create a CTI filter (Connection-To-Item)</span>
+<span class="highlight-keyword">Dim</span> f : <span class="highlight-keyword">Set</span> f = filters.Create(<span class="highlight-number">1</span>, <span class="highlight-number">1</span>)
+
+<span class="highlight-comment">' What do parameters 1 and 1 mean?</span>
+<span class="highlight-comment">' The Create method takes 2 parameters: Create(filterClause, filterType)</span>
+<span class="highlight-comment">' The first parameter '1' just means you want it to be the first filter. You can define up to 8 of them)</span>
+<span class="highlight-comment">' The second parameter '1' identifies the filtertype. These types are defined in a special list called an 'enumeration',</span>
+<span class="highlight-comment">' just like the Commence option flags. Refer to the CmcLibNet documentation for the values.</span>
+<span class="highlight-comment">' This is where an IDE with Intellisense comes in handy, it can just pull the correct value from the CmcLibNet assembly.</span>
+
+<span class="highlight-comment">' filters.Create() will return a Filter object, with properties and methods.</span>
+<span class="highlight-comment">' Moreover, it will only have the properties and methods applicable to the filtertype,</span>
+<span class="highlight-comment">' but since we're scripting here, you probably won't be able to see how handy that can be.</span>
+<span class="highlight-comment">' Let's just see it in action:</span>
+<span class="highlight-comment">' Define the connection name.</span>
+f.Connection = <span class="highlight-literal">"Relates to"</span> <span class="highlight-comment">' connection names are case-sensitive!</span>
+<span class="highlight-comment">' Define the connected category.</span>
+f.Category = <span class="highlight-literal">"Account"</span>
+<span class="highlight-comment">' Define the item.</span>
+f.Item = <span class="highlight-literal">"Concorde Aviation Ltd"</span>
+
+<span class="highlight-comment">' We have defined a filter now. Remember you can create up to 8 filters.</span>
+<span class="highlight-comment">' We have to apply them. Call the Apply method of the filtering 'engine'.</span>
+<span class="highlight-comment">' Apply will return the number of items in the cursor after applying the filters,</span>
+<span class="highlight-comment">' so we can check how many items we have now.</span>
+<span class="highlight-comment">' Note that does not guarantee your filters all worked as *you* intended,</span>
+<span class="highlight-comment">' it just means Commence accepted them as valid filters.</span>
+<span class="highlight-keyword">Msgbox</span> filters.Apply &amp; <span class="highlight-literal">" items in cursor after applying filters."</span>
+
+<span class="highlight-comment">' Okay, 1 item left. Let's assume we're interested in the Name of the Contact and the business e-mail.</span>
+<span class="highlight-comment">' Define those columns:</span>
+cur.SetColumn <span class="highlight-number">0</span>, db.GetNameField(<span class="highlight-literal">"Contact"</span>)
+cur.SetColumn <span class="highlight-number">1</span>, <span class="highlight-literal">"emailBusiness"</span>
+<span class="highlight-comment">' There a few things to note here.</span>
+<span class="highlight-comment">' First of all, we didn't specify an option flag SetColumn(index,fieldname,option flag)</span>
+<span class="highlight-comment">' Second, we used a built-in CmcLibNet function te get the name of the Name field</span>
+
+<span class="highlight-comment">' This 'old-fashioned' way of setting columns works fine</span>
+<span class="highlight-comment">' You can also set them in batch by passing them as an Array.</span>
+<span class="highlight-comment">' Do *not* mix single- and batchmode. That's why the line is commented out.</span>
+<span class="highlight-comment">'cur.SetColumns Array(db.GetNameField("Contact"), "emailBusiness")</span>
+
+<span class="highlight-comment">' You can set related columns like you would in the Commence API directly</span>
+<span class="highlight-comment">' Related columns cannot be set in batch mode.</span>
+<span class="highlight-comment">' Assume we want to know the Employee Type of the Contact.</span>
+cur.SetRelatedColumn <span class="highlight-number">2</span>, <span class="highlight-literal">"Relates to"</span>, <span class="highlight-literal">"contactType"</span>, <span class="highlight-literal">"contacttypeKey"</span> <span class="highlight-comment">' again, no additional flag required</span>
+<span class="highlight-comment">' Let's see how many columns we have now:</span>
+<span class="highlight-keyword">MsgBox</span> cur.ColumnCount &amp; <span class="highlight-literal">" columns were set in cursor"</span>
+<span class="highlight-comment">'cur.ExportToFile("C:\Temp\MyExportFile.xml")</span>
+
+<span class="highlight-comment">' Okay, we have 1 item and 3 columns. Let's do something with the data.</span>
+<span class="highlight-comment">' Let's export it to file.</span>
+<span class="highlight-comment">' One of the features unique to CmcLibNet is the ability to directly export cursors</span>
+<span class="highlight-comment">' You could call cur.ExportToFile("MyExportFile.xml")</span>
+<span class="highlight-comment">' This would produce a XML file. Do not be fooled by the .xml extension,</span>
+<span class="highlight-comment">' it has nothing to do with the XML export format, XML is just the default.</span>
+<span class="highlight-comment">' I want to show you something a little more fancy. Let's export to JSON!</span>
+<span class="highlight-comment">' For this, you have to supply an extra parameter, a 'ExportSettings' object.</span>
+<span class="highlight-comment">' This is a feature of the CmcLibNet export engine, so we have to talk to that</span>
+<span class="highlight-keyword">Dim</span> exportEngine : <span class="highlight-keyword">Set</span> exportEngine = <span class="highlight-keyword">CreateObject</span>(<span class="highlight-literal">"CmcLibNet.Export"</span>)
+<span class="highlight-comment">' The export engine exposes a settings feature unsurprisingly called 'Settings'</span>
+<span class="highlight-keyword">Dim</span> settings : <span class="highlight-keyword">Set</span> settings = exportEngine.Settings <span class="highlight-comment">' The Settings thingie is an object, so we have to use 'Set'</span>
+<span class="highlight-comment">' Settings has a bunch of properties you can set.</span>
+<span class="highlight-comment">' One of them is the export format. CmcLibNet currently supports Text, HTML, Microsoft Excel, XML and JSON.</span>
+<span class="highlight-comment">' JSON has a value of 1</span>
+settings.ExportFormat = <span class="highlight-number">1</span>
+cur.ExportToFile <span class="highlight-literal">"C:\temp\sampleContactExport.json"</span>, settings
+<span class="highlight-comment">' Which will produce a file C:\temp\sampleContactExport.json. (Choose you own path if this doesn't work)</span>
+
+<span class="highlight-comment">' That almost concludes the example. There is a lot more to tell, but this covers the basics.</span>
+<span class="highlight-comment">' Please refer to the documentation on http://cmclibnet.vovin.nl for more.</span>
+
+<span class="highlight-comment">' Remember, you have to close the references to CmcLibNet.</span>
+<span class="highlight-comment">' If you got a script error at some point (we did not include any error checking!),</span>
+<span class="highlight-comment">' the lines below will not be called and commence.exe will keep running after closing Commence</span>
+<span class="highlight-comment">' This is extremely annoying, and something I hope to fix ASAP. But do not keep you hopes up.</span>
+<span class="highlight-comment">' Just be careful to include appropriate error-checking in your production code.</span>
+<span class="highlight-keyword">Set</span> settings = <span class="highlight-keyword">Nothing</span>
+exportEngine.Close
+db.close
+<span class="highlight-keyword">Set</span> exportEngine = <span class="highlight-keyword">Nothing</span>
+<span class="highlight-keyword">Set</span> db = <span class="highlight-keyword">Nothing</span>
+<span class="highlight-keyword">MsgBox</span> <span class="highlight-literal">"VBScript example of using CmcLibNet finished."</span></pre></div></div></div><script type="text/javascript">AddLanguageTabSet("ID1EAAABAAA");</script></div></div></div><div id="pageFooter" class="pageFooter"><p><a href="http://www.vovin.nl" target="_blank">Arno van Boven - Vovin IT Services</a></p><div class="feedbackLink">Send comments on this topic to
+        <a id="HT_MailLink" href="mailto:cmclibnet%40vovin.nl?Subject=Vovin.CmcLibNet,%20a%20.Net%20library%20for%20Commence%20RM">feedback</a></div>
+        <script type="text/javascript">
+        var HT_mailLink = document.getElementById("HT_MailLink");
+        var HT_mailLinkText = HT_mailLink.innerHTML;
+        HT_mailLink.href += ": " + document.title + "\u0026body=" + encodeURIComponent("Your feedback is used to improve the documentation and the product. Your e-mail address will not be used for any other purpose and is disposed of after the issue you report is resolved. While working to resolve the issue that you report, you may be contacted via e-mail to get further details or clarification on the feedback you sent. After the issue you report has been addressed, you may receive an e-mail to let you know that your feedback has been addressed.");
+        HT_mailLink.innerHTML = HT_mailLinkText;
+        </script></div></body></html>
