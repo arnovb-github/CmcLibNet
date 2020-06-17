@@ -33,5 +33,17 @@ namespace Vovin.CmcLibNet.Extensions
         {
             return str.Substring(str.Length - Math.Min(length, str.Length));
         }
+
+        internal static int CountChar(this string str, char character)
+        {
+            int count = 0;
+            int strLength = str.Length;
+            for (int i = 0; i < strLength; i++) 
+            {
+                if (str[i].Equals(character))
+                    count++;
+            }
+            return count;
+        }
     }
 }

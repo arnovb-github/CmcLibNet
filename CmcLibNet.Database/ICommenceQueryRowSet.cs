@@ -63,5 +63,14 @@ namespace Vovin.CmcLibNet.Database
         /// CmcOptionFlags.Canonical - return field value in canonical form.</param>
         /// <returns>some string with a timestamp? Who knows? Is it blue?</returns>
         string GetRowTimeStamp(int nRow, CmcOptionFlags flags = CmcOptionFlags.Default); // undocumented by Commence
+        /// <summary>
+        /// Gets the sequence number that Commence uses internally. Note: this is not a workgroup-wide number!
+        /// </summary>
+        /// <param name="nRow">The (0-based) index of the row.</param>
+        /// <param name="r"><see cref="RowSetIdentifier"/> value, defaults to <see cref="RowSetIdentifier.Thid"/></param>
+        /// <returns>Sequence number that Commence uses internally.</returns>
+        /// <remarks>Local categories do not have a THID. Local items in shared categories do have THIDs.
+        /// If no there are THIDs this method will use the RowID instead.</remarks>
+        int GetRowSequenceNumber(int nRow);
     }
 }

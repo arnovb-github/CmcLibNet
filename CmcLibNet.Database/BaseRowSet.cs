@@ -13,7 +13,11 @@
         /// <summary>
         /// For use in <see cref="System.String.Split(char[], System.StringSplitOptions)"/>
         /// </summary>
-        private readonly string[] _splitter = new string[] { _cmcDelim };
+        private static readonly string[] _splitter = new string[] { _cmcDelim };
+        /// <summary>
+        /// char that delimites portions of the rowID or THID
+        /// </summary>
+        protected static readonly char rowIdDelim = ':'; // no property associated
         bool disposed = false;
         #endregion
 

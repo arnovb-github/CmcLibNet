@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Linq;
+using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -230,7 +231,7 @@ namespace Vovin.CmcLibNet.Database
         {
             try
             {
-                return _qrs.GetFieldToFile(nRow,nCol,filename,(int)flags);
+                return _qrs.GetFieldToFile(nRow, nCol, filename, (int)flags);
             }
             catch (COMException)
             {
@@ -263,6 +264,21 @@ namespace Vovin.CmcLibNet.Database
             {
                 return null;
             }
+        }
+        /// <inheritdoc />
+        public int GetRowSequenceNumber(int nRow)
+        {
+            string thid = GetRowID(nRow);
+            string hexPart;
+            if (thid.CountChar(rowIdDelim) == 3)
+            {
+                hexPart = thid.Split(rowIdDelim)[1];
+            }
+            else
+            {
+                hexPart = thid.Split(rowIdDelim).Last();
+            }
+            return int.Parse(hexPart, System.Globalization.NumberStyles.HexNumber); ;
         }
 
         internal override void RCWReleaseHandler(object sender, EventArgs e)
