@@ -826,6 +826,7 @@ namespace Vovin.CmcLibNet.Export.Complex
             };
             dt.Columns.Add(dc);
         }
+
         // a thid comes in the form of a:b:c (shared item) or a:b:c:d (local item, technically this is a rowid)
         private int SequenceFromThid(string thid, bool shared)
         {
@@ -835,7 +836,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 // you get the rowid instead (q:x:y:z)
                 // in a rowid for a shared field the sequence is in the second element of four
                 // Commence documentation states: is valid across cursor sessions
-                return FromHex(thid.Split(_thidDelimiter)[1]); 
+                return FromHex(thid.Split(_thidDelimiter)[1]);
             }
             // a thid consists of 3 elements (x:y:z), the sequence number is the last
             // if the cursor is shared, we will get a thid even if the item itself is local
