@@ -58,14 +58,15 @@ namespace Vovin.CmcLibNet.Export.Complex
         private readonly string _fkParamName = "@fk";
         private readonly string _pkParamName = "@pk";
         private readonly string _databaseName = string.Empty;
-        private readonly string _originalCursorCategory = string.Empty;
         private readonly string _cs = string.Empty; // connection string
         private readonly char[] _thidDelimiter = new char[] { ':' };
         private int _totalIterations;
         private int _iteration;
         private bool disposed = false;
         // if a cursor isn't shared, we need to calculate the thid sequence differently
+        // because local cursors do not contain thids, only RowId's
         // we could probably get away with just using RowID's for our purpose
+        // an important thing to note is that in shared cursors local items still get a thid(!)
         private bool _cursorShared;
         private string _fileName;
         private readonly ColumnDefinition[] originalColumnDefinitions;
@@ -676,32 +677,32 @@ namespace Vovin.CmcLibNet.Export.Complex
             return sb.ToString();
         }
         
-        private IEnumerable<string> GetInsertQueriesForLinkTables()
-        {
-            var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
-                .Select(s => new { s.Connection, s.Category })
-                .Distinct()
-                .ToList();
-            foreach (var lt in linkTables)
-            {
-                // a link table always contains just 2 columns
-                StringBuilder sb = new StringBuilder("INSERT INTO ");
-                string s = DataSetHelper.TableName(_cursor.Category, lt.Connection, lt.Category);
-                sb.Append(SanitizeSqlIdentifier(s)); // expects name of link table
-                sb.Append('(');
-                s = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
-                sb.Append(SanitizeSqlIdentifier(s)); // primary key of primary category.
-                sb.Append(',');
-                s = DataSetHelper.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, DataSetHelper.PostFixId);
-                sb.Append(SanitizeSqlIdentifier(s)); // the foreign key.
-                sb.Append(") VALUES (");
-                sb.Append(_pkParamName);
-                sb.Append(',');
-                sb.Append(_fkParamName);
-                sb.Append(')');
-                yield return sb.ToString();
-            }
-        }
+        //private IEnumerable<string> GetInsertQueriesForLinkTables()
+        //{
+        //    var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
+        //        .Select(s => new { s.Connection, s.Category })
+        //        .Distinct()
+        //        .ToList();
+        //    foreach (var lt in linkTables)
+        //    {
+        //        // a link table always contains just 2 columns
+        //        StringBuilder sb = new StringBuilder("INSERT INTO ");
+        //        string s = DataSetHelper.TableName(_cursor.Category, lt.Connection, lt.Category);
+        //        sb.Append(SanitizeSqlIdentifier(s)); // expects name of link table
+        //        sb.Append('(');
+        //        s = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
+        //        sb.Append(SanitizeSqlIdentifier(s)); // primary key of primary category.
+        //        sb.Append(',');
+        //        s = DataSetHelper.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, DataSetHelper.PostFixId);
+        //        sb.Append(SanitizeSqlIdentifier(s)); // the foreign key.
+        //        sb.Append(") VALUES (");
+        //        sb.Append(_pkParamName);
+        //        sb.Append(',');
+        //        sb.Append(_fkParamName);
+        //        sb.Append(')');
+        //        yield return sb.ToString();
+        //    }
+        //}
 
         private string GetInsertQueryForLinkTable(
                 string tableName,
