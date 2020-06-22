@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Linq;
 using System.Collections.Generic;
 
-
 namespace Vovin.CmcLibNet
 {
 
@@ -42,7 +41,7 @@ namespace Vovin.CmcLibNet
     {
         private readonly IRcwReleasePublisher rw;
         private readonly string PROCESS_NAME = "commence";
-        private ICommenceDB _cmc; // The exposed root level name of Commence is 'FormOA' for reasons unknown to me
+        private FormOA.ICommenceDB _cmc; // The exposed root level name of Commence is 'FormOA' for reasons unknown to me
 
         #region Constructors
 
@@ -99,7 +98,7 @@ namespace Vovin.CmcLibNet
                             // Sorry COM users, but you'll have to deal with a cryptic error when Commence is not running.
                             throw new CommenceNotRunningException("Commence is not running.");
                         case 1:
-                            _cmc = new CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
+                            _cmc = new FormOA.CommenceDB(); // Note: if the assembly is called as Administrator, this will create a new instance.
                             break;
                         default:
                             throw new CommenceMultipleInstancesException("Multiple instances of Commence are running in this session. Make sure only 1 instance is running.");
@@ -137,15 +136,15 @@ namespace Vovin.CmcLibNet
         }
  
         /// <inheritdoc />
-        public string Name => _cmc.Name;
+        public string Name => Db.Name;
         /// <inheritdoc />
-        public string Path => _cmc.Path;
+        public string Path => Db.Path;
         /// <inheritdoc />
-        public string Version => _cmc.Version;
+        public string Version => Db.Version;
         /// <inheritdoc />
-        public string VersionExt => _cmc.VersionExt;
+        public string VersionExt => Db.VersionExt;
         /// <inheritdoc />
-        public string RegisteredUser => _cmc.RegisteredUser;
+        public string RegisteredUser => Db.RegisteredUser;
         #endregion
 
         #region Methods
