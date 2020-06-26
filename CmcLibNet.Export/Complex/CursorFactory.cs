@@ -27,7 +27,7 @@ namespace Vovin.CmcLibNet.Export.Complex
             retval.Columns.Apply();
             for (int i = 0; i < cursorParameters.Filters.Count(); i++)
             {
-                ICursorFilterTypeCTCF f = retval.Filters.Add(i + 1, FilterType.ConnectionToCategoryField);
+                ICursorFilterTypeCTCF f = retval.Filters.Create(i + 1, FilterType.ConnectionToCategoryField);
                 // we already have the filter object defined, copy them
                 foreach (PropertyInfo property in typeof(ICursorFilterTypeCTCF).GetProperties().Where(p => p.CanWrite))
                 {

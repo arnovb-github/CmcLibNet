@@ -17,7 +17,13 @@ namespace Vovin.CmcLibNet.Database
         /// <returns>Derived BaseFilter corresponding to either of
         /// <see cref="ICursorFilterTypeF"/>, <see cref="ICursorFilterTypeCTI"/>, 
         /// <see cref="ICursorFilterTypeCTCF"/>, <see cref="ICursorFilterTypeCTCTI"/>.</returns>
-        dynamic Add(int clauseNumber, FilterType filterType); // should return only applicable filter type.
+        dynamic Create(int clauseNumber, FilterType filterType); // should return only applicable filter type.
+        /// <summary>
+        /// Add a filter to the filter collection.
+        /// </summary>
+        /// <param name="filter"></param>
+        [ComVisible(false)]
+        void Add(ICursorFilter filter);
         /// <summary>
         /// Get filter from collection based on clause number.
         /// </summary>

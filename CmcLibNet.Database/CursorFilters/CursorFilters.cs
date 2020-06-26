@@ -29,7 +29,7 @@ namespace Vovin.CmcLibNet.Database
     /// 			// get a cursor from Commence.
     /// 			ICommenceCursor cur = cmc.GetCursor("Account");
     /// 			// get a Field type filter
-    /// 			ICursorFilterTypeF f = cur.Filters.Add(1, FilterType.Field);
+    /// 			ICursorFilterTypeF f = cur.Filters.Create(1, FilterType.Field);
     /// 		}
     /// }
     /// </code>
@@ -75,7 +75,7 @@ namespace Vovin.CmcLibNet.Database
     /// Dim cmc : Set db = CreateObject("CmcNetLib.Database")
     /// Dim cur : Set cur = db.GetCursor("Account")
     /// Dim filters : Set filters = cur.Filters ' you cannot simply use cur.Filters from VBScript, alas.
-    /// Dim f : Set f = filters.Add(1, 0) ' 0 is the enum value for FilterType.Field.
+    /// Dim f : Set f = filters.Create(1, 0) ' 0 is the enum value for FilterType.Field.
     /// f.FieldName = "accountKey" ' field to filter on.
     /// f.FieldValue = "Commence" ' value to filter on.
     /// f.QualifierString = "contains" ' the qualifier, i.e., how to evaluate the filter value. You could have also used f.Qualifier with the enum value corresponding with 'contains', this is just a bit easier.
@@ -112,7 +112,7 @@ namespace Vovin.CmcLibNet.Database
         #region Methods
 
         /// <inheritdoc />
-        public dynamic Add(int clauseNumber, FilterType filterType)
+        public dynamic Create(int clauseNumber, FilterType filterType)
         {
             // Note the dynamic return type. COM Interop requires an object;
             // it cannot be the base class, because in that case COM Interop would only expose the base interface.
@@ -152,7 +152,12 @@ namespace Vovin.CmcLibNet.Database
             }
         }
 
-        // not exposed by interface
+        /// <inheritdoc />
+        public void Add(ICursorFilter filter)
+        {
+            AddRange(new[] { filter });
+        }
+
         internal void AddRange(IEnumerable<ICursorFilter> filters)
         {
             _filters.AddRange(filters);
