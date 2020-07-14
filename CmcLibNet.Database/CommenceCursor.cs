@@ -645,7 +645,9 @@ namespace Vovin.CmcLibNet.Database
             // override setting, we would lose filter (if any) on the cursor if it was on a category
             if (this.CursorType == CmcCursorType.Category)
             {
-                exportEngine.Settings.PreserveAllConnections = false;
+                // TODO this is bad practice but there is no way to ask a cursor for its filters
+                // PreserveAllConnections is badly implemented in that respect so avoid it
+                exportEngine.Settings.PreserveAllConnections = false; 
             }
             exportEngine.ExportCursor(this, fileName, exportEngine.Settings);
         }
@@ -775,7 +777,7 @@ namespace Vovin.CmcLibNet.Database
             // Without releasing the CCW, all data would be held in memory until I don't know when exactly and memory usage would skyrocket.
             // By implementing it like this we make sure that the Garbage Collector keeps memory in check,
             // and we don't have to worry about releasing RCWs.
-            // However we still run into issues if the garbage collector kicks in *after* Commence runs out of memory
+            // However: we still run into issues if the garbage collector kicks in *after* Commence runs out of memory
             // Commence is pretty finicky about that. This is why an explicit close is included.
             using (ICommenceQueryRowSet qrs = this.GetQueryRowSet(nRows))
             {

@@ -110,7 +110,7 @@ namespace Vovin.CmcLibNet.Export
         public void ExportView(string viewName, string fileName, IExportSettings settings = null)
         {
 
-            if (settings != null) { this.Settings = settings; } // store custom settings
+            if (settings != null) { this.Settings = settings; } // use user-supplied settings
             
             using (var db = new CommenceDatabase())
             {
@@ -226,12 +226,11 @@ namespace Vovin.CmcLibNet.Export
             string[] fieldNames = db.GetFieldNames(categoryName).ToArray();
             cur.Columns.AddDirectColumns(fieldNames);
             var cons = db.GetConnectionNames(cur.Category);
-            int counter = cur.ColumnCount;
             foreach (var c in cons)
             {
-                string nameField = db.GetNameField(c.ToCategory);
-                cur.Columns.AddRelatedColumn(c.Name, c.ToCategory, nameField);
-                counter++;
+                //string nameField = db.GetNameField(c.ToCategory);
+                //cur.Columns.AddRelatedColumn(c.Name, c.ToCategory, nameField); // this is bad. a related column loses the THID flag
+                cur.Columns.AddDirectColumn(c.Name + ' ' + c.ToCategory); // will respect UseThids flag
             }
             cur.Columns.Apply();
             return cur;
