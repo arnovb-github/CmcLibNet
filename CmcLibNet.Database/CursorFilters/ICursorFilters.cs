@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Add a filter to the filter collection.
         /// </summary>
-        /// <param name="filter"></param>
+        /// <param name="filter"><see cref="ICursorFilter"/> object.</param>
         [ComVisible(false)]
         void Add(ICursorFilter filter);
         /// <summary>
@@ -39,7 +39,7 @@ namespace Vovin.CmcLibNet.Database
         /// Remove specified filter from collection.
         /// The underlying cursor will be updated, there is no need to call <see cref="Apply()"/>.
         /// </summary>
-        /// <param name="cf">CursorFilter.</param>
+        /// <param name="cf">Filter to remove.</param>
         /// <returns><c>true</c> on success, <c>false</c> on error.</returns>
         bool RemoveFilter(BaseCursorFilter cf);
         /// <summary>

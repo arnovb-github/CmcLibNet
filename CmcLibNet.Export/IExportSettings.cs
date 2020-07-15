@@ -137,10 +137,10 @@ namespace Vovin.CmcLibNet.Export
         /// <remarks>This setting may be overridden internally if there is no meaningful way of splitting the items.
         /// <list type="table">
         /// <listheader>It will be respected on a</listheader>
-        /// <item><term><see cref="Vovin.CmcLibNet.Database.CmcCursorType.Category"/></term><description>If the connected field(s) were defined using 
-        /// <see cref="Vovin.CmcLibNet.Database.ICommenceCursor.SetRelatedColumn(int, string, string, string, CmcOptionFlags)"/> 
-        /// or <see cref="Vovin.CmcLibNet.Database.CursorColumns.AddRelatedColumn(string, string, string)"/>.</description></item>
-        /// <item><term><see cref="Vovin.CmcLibNet.Database.CmcCursorType.View"/></term><description>Always</description></item>
+        /// <item><term><see cref="Database.CmcCursorType.Category"/></term><description>If the connected field(s) were defined using 
+        /// <see cref="Database.ICommenceCursor.SetRelatedColumn(int, string, string, string, Database.CmcOptionFlags)"/> 
+        /// or <see cref="Database.CursorColumns.AddRelatedColumn(string, string, string)"/>.</description></item>
+        /// <item><term><see cref="Database.CmcCursorType.View"/></term><description>Always</description></item>
         /// </list>
         /// <para>On a regular cursor, i.e. with the connections defined as 'direct columns' (the default behaviour),
         /// connected items are returned by Commence as comma delimited strings without a text-qualifier,
