@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Vovin.CmcLibNet;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -180,7 +179,7 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="nRows">Number of rows to create.</param>
         /// <param name="flags">Logical OR of following option flags:
         /// <see cref="CmcOptionFlags.Shared"/> - all rows default to shared.</param>
-        /// <returns>ICommenceAddRowSet object.</returns>
+        /// <returns><see cref="ICommenceAddRowSet"/> object.</returns>
         CmcLibNet.Database.ICommenceAddRowSet GetAddRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
@@ -188,7 +187,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="nRows">Number of rows to retrieve.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceEditRowSet object.</returns>
+        /// <returns><see cref="ICommenceEditRowSet"/> object.</returns>
         CmcLibNet.Database.ICommenceEditRowSet GetEditRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
@@ -196,7 +195,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <remarks>This method is only available for .Net consumers.</remarks>
-        /// <returns>ICommenceEditRowSet object on success.</returns>
+        /// <returns><see cref="ICommenceEditRowSet"/> object on success.</returns>
         /// <remarks>This method is only available to .NET applications.</remarks>
         [ComVisible(false)] // overload, only available for .Net
         CmcLibNet.Database.ICommenceEditRowSet GetEditRowSet(CmcOptionFlags flags = CmcOptionFlags.Default);
@@ -206,7 +205,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="pRowID">Unique ID string obtained from GetRowID().</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceEditRowSet object.</returns>
+        /// <returns><see cref="ICommenceEditRowSet"/> object.</returns>
         CmcLibNet.Database.ICommenceEditRowSet GetEditRowSetByID(string pRowID, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
@@ -214,7 +213,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="nRows">Maximum number of rows to retrieve.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceQueryRowSet object on success.</returns>
+        /// <returns><see cref="ICommenceQueryRowSet"/> object on success.</returns>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
@@ -222,7 +221,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="flags">Unused at present, must be 0.</param>
         /// <remarks>This method is only available to .NET applications.</remarks>
-        /// <returns>ICommenceQueryRowSet object on success.</returns>
+        /// <returns><see cref="ICommenceQueryRowSet"/> object on success.</returns>
         [ComVisible(false)] // overload, only available for .Net
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSet(CmcOptionFlags flags = CmcOptionFlags.Default);
 
@@ -231,15 +230,15 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="pRowID">Unique ID string obtained from <see cref="ICommenceQueryRowSet.GetRowID"/>.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceQueryRowSet on success.</returns>
+        /// <returns><see cref="ICommenceQueryRowSet"/> on success.</returns>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByID(string pRowID, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
         /// Create a rowset object with a particular thid loaded. Only applies to shared items. Cursor must have the thids <see cref="CmcOptionFlags.UseThids">thids</see> flag.
         /// </summary>
-        /// <param name="pThid">THID parts "thidid : thidsequence" (i.e., omit the leading category part).</param>
+        /// <param name="pThid">THID parts "thidId : thidSequence" (i.e., omit the leading category part).</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceQueryRowSet on success</returns>
+        /// <returns><see cref="ICommenceQueryRowSet"/> on success</returns>
         /// <remarks>Undocumented by Commence.</remarks>
         CmcLibNet.Database.ICommenceQueryRowSet GetQueryRowSetByThid(string pThid, CmcOptionFlags flags = CmcOptionFlags.Default);
 
@@ -248,14 +247,14 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="nRows">Number of rows to retrieve.</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceDeleteRowSet on success.</returns>
+        /// <returns><see cref="ICommenceDeleteRowSet"/> on success.</returns>
         CmcLibNet.Database.ICommenceDeleteRowSet GetDeleteRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
         /// Create a rowset of ALL existing items for deletion. Use with care!
         /// </summary>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceDeleteRowSet on success.</returns>
+        /// <returns><see cref="ICommenceDeleteRowSet"/> on success.</returns>
         /// <remarks>This method is only available to .NET applications.</remarks>
         [ComVisible(false)] // overload, only available for .Net
         CmcLibNet.Database.ICommenceDeleteRowSet GetDeleteRowSet(CmcOptionFlags flags = CmcOptionFlags.Default);
@@ -265,7 +264,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="pRowID">Unique ID string obtained from GetRowID().</param>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <returns>ICommenceDeleteRowSet on success.</returns>
+        /// <returns><see cref="ICommenceDeleteRowSet"/> on success.</returns>
         CmcLibNet.Database.ICommenceDeleteRowSet GetDeleteRowSetByID(string pRowID, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
@@ -278,10 +277,10 @@ namespace Vovin.CmcLibNet.Database
         bool HasDuplicates(string columnName, bool caseSensitive = true);
 
         /// <summary>
-        /// Exports current cursor to a file. The cursor is disposed after this method.
+        /// Exports current cursor to a file. WARNING: The cursor is disposed after this method!
         /// </summary>
         /// <param name="fileName">(Fully qualified) filename. Overwrites existing file.</param>
-        /// <param name="settings">Settings object.</param>
+        /// <param name="settings"><see cref="Export.IExportSettings"/> object.</param>
         /// <remarks>
         /// The <see cref="Export.IExportSettings.PreserveAllConnections"/> options is ignored in this method.
         /// Alternatively, but extremely slow, you can use either the <see cref="Export.IExportSettings.UseDDE"/> option or crank up the 
@@ -293,7 +292,7 @@ namespace Vovin.CmcLibNet.Database
         /// <para>This method is just a convenient way to return data without having to create a <see cref="ICommenceQueryRowSet"/>.</para>
         /// <para>If you need to apply formatting, see the <see cref="Export.IExportEngine"/> interface.</para>
         /// </summary>
-        /// <remarks>This method is not available to COM clients.
+        /// <remarks>This method is only available in .NET.
         /// <para>If the cursor has the <see cref="CmcOptionFlags.UseThids"/> flag defined, the first element of the inner list will contain the thid.
         /// In that case the inner list count will be the number of columns in the category plus one.</para>
         /// </remarks>
@@ -320,9 +319,10 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Get columnames from cursor. Defaults to fieldnames
         /// </summary>
-        /// <param name="flags">CmcOptionFlags</param>
+        /// <param name="flags"><see cref="CmcOptionFlags"/>, defaults to <see cref="CmcOptionFlags.Fieldname"/></param>
         /// <returns>List of columnames.</returns>
-        /// <remarks>Pass <see cref="CmcOptionFlags.Default"/> to retrieve fieldlabels instead of fieldnames.</remarks>
+        /// <remarks><para>This method is only available in .NET.</para> 
+        /// <para>Pass <see cref="CmcOptionFlags.Default"/> to retrieve fieldlabels instead of fieldnames.</para></remarks>
         [ComVisible(false)]
         IEnumerable<string> GetColumnNames(CmcOptionFlags flags = CmcOptionFlags.Fieldname);
 
