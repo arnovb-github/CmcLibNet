@@ -217,7 +217,7 @@
     <Compile Include="CmcLibNet\ICommenceApp.cs" />
     <Compile Include="CmcLibNet.Database\ICommenceQueryRowSet.cs" />
     <Compile Include="CmcLibNet.Database\Metadata\ViewDef.cs" />
-    <Compile Include="CmcLibNet\CmcOptionFlags.cs" />
+    <Compile Include="CmcLibNet.Database\CmcOptionFlags.cs" />
     <Compile Include="CmcLibNet\IRcwReleasePublisher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CmcLibNet.Services\Services.cs" />

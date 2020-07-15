@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Vovin.CmcLibNet
+namespace Vovin.CmcLibNet.Database
 {
     /// <summary>
     /// Commence option flags.
     /// </summary>
     [ComVisible(true)]
     [Guid("1382A6E0-19E5-41c1-9BE7-10545F538DBE")]
-    [FlagsAttribute]
+    [Flags]
     public enum CmcOptionFlags
     {
         //If bitwise operators are making your head spin,
