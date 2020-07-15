@@ -318,6 +318,15 @@ namespace Vovin.CmcLibNet.Database
         List<List<string>> ReadAllRows(int batchRows = 1000);
 
         /// <summary>
+        /// Get columnames from cursor. Defaults to fieldnames
+        /// </summary>
+        /// <param name="flags">CmcOptionFlags</param>
+        /// <returns>List of columnames.</returns>
+        /// <remarks>Pass <see cref="CmcOptionFlags.Default"/> to retrieve fieldlabels instead of fieldnames.</remarks>
+        [ComVisible(false)]
+        IEnumerable<string> GetColumnNames(CmcOptionFlags flags = CmcOptionFlags.Fieldname);
+
+        /// <summary>
         /// Close any references to Commence. The object should be disposed after this.
         /// </summary>
         /// <remarks>When used from within a Commence Form Script, failing to call the <c>Close</c> method will leave the commence.exe process running in the background when the user closes Commence. IMPORTANT: this also happens when an unhandled exception (a 'script error') occurs. The Commence process then has to be closed manually from the Windows Task Manager. Be careful to implement proper error handling.

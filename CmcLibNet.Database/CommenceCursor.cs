@@ -708,6 +708,20 @@ namespace Vovin.CmcLibNet.Database
             return retval;
         }
 
+        /// <inheritdoc />
+        public IEnumerable<string> GetColumnNames(CmcOptionFlags flags = CmcOptionFlags.Fieldname)
+        {
+            var retval = new List<string>();
+            using (var qrs = GetQueryRowSet(0,CmcOptionFlags.Default))
+            {
+                for (int i = 0; i <qrs.ColumnCount; i++)
+                {
+                    retval.Add(qrs.GetColumnLabel(i, flags));
+                }
+            }
+            return retval.ToArray();
+        }
+
         private void RCWReleaseHandler(object sender, EventArgs e)
         {
             if (_cur != null)
