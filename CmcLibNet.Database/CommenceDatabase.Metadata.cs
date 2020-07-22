@@ -508,14 +508,19 @@ namespace Vovin.CmcLibNet.Database
             pref.LetterLogDir = GetDDEValues(new string[] { "GetPreference", "LetterlogDir" });
             pref.ExternalDir = GetDDEValues(new string[] { "GetPreference", "ExternalDir" });
 
-            return (preferenceSetting.ToLower()) switch
+            switch (preferenceSetting.ToLower())
             {
-                "me" => pref.Me,
-                "mecategory" => pref.MeCategory,
-                "letterlogdir" => pref.LetterLogDir,
-                "externaldir" => pref.ExternalDir,
-                _ => "Unrecognized preferences setting.",
-            };
+                case "me":
+                    return pref.Me;
+                case "mecategory":
+                    return pref.MeCategory;
+                case "letterlogdir":
+                    return pref.LetterLogDir;
+                case "externaldir":
+                    return pref.ExternalDir;
+                default:
+                    return "Unrecognized preferences setting.";
+            }
         }
 
         /// <inheritdoc />
