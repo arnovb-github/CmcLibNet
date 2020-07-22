@@ -93,9 +93,9 @@ namespace Vovin.CmcLibNet.Export
         /// <para>Setting this option to <c>true</c> will return numeric values in <see cref="Canonical"/> format.</para></remarks>
         bool ISO8601Format { get; set; }
         /// <summary>
-        /// Only applies to <see cref="ExportFormat.Json"/>. Treat connections as distinct nodes. Formatting options may be ignored.
+        /// Only applies to <see cref="ExportFormat.Json"/>. Splits connection information into distinct elements/nodes. 
         /// </summary>
-        /// <remarks>Note: <see cref="ExportFormat.Xml"/> exports are always nested.</remarks>
+        /// <remarks>This is not the same as <see cref="ExportSettings.SplitConnectedItems"/>; that has to do with the data.</remarks>
         bool NestConnectedItems { get; set; }
         /// <summary>
         /// Make Commence use DDE calls to retrieve data. <b>WARNING:</b> extremely slow!
@@ -127,7 +127,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// </summary>
-        // TODO: incorporate this in XML exports?
+        // TODO: should we also incorporate this in XML exports? As attributes perhaps?
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
         /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
@@ -143,20 +143,20 @@ namespace Vovin.CmcLibNet.Export
         /// <item><term><see cref="Database.CmcCursorType.View"/></term><description>Always</description></item>
         /// </list>
         /// <para>On a regular cursor, i.e. with the connections defined as 'direct columns' (the default behaviour),
-        /// connected items are returned by Commence as comma delimited strings without a text-qualifier,
+        /// connected items are returned by Commence as comma-delimited strings without a text-qualifier,
         /// making it impossible to split them meaningfully.</para>
         /// </remarks>
         bool SplitConnectedItems { get; set; }
         /// <summary>
         /// Specify the number of rows to export at a time. Default is 1024.
         /// </summary>
-        /// <remarks>This setting may be overriden internally for performance reasons.</remarks>
+        /// <remarks>This setting may be overridden internally for performance reasons.</remarks>
         int NumRows { get; set; }
         /// <summary>
         /// Maximum number of characters to retrieve from fields. This includes connected fields.
         /// The default when exporting from the export engine is ~500.000, which is about five times the Commence default.
         /// </summary>
-        /// <remarks>Setting this can have severe impact on memory usage. Note that when set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
+        /// <remarks>Severely impacts memory usage. When set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
         int MaxFieldSize { get; set; }
         /// <summary>
         /// Delete and recreate Excel file when exporting. Only applies to <see cref="ExportFormat.Excel"/>. Default is <c>true</c>.
