@@ -130,21 +130,21 @@ namespace Vovin.CmcLibNet.Export
                 for (int i = 0; i < group.FirstOrDefault().ConnectedFieldValues?.Length; i++)
                 {
                     string categoryName = group.FirstOrDefault().ColumnDefinition.Category;
-                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName));
+                    _xw.WriteStartElement(XmlConvert.EncodeLocalName(categoryName)); // will represent the item(s), this name is arbitrary
                     // now iterate over the different columns
                     for (int j = 0; j < group.Count(); j++)
                     {
                         
                         string fieldName = group.ElementAt(j).ColumnDefinition.FieldName;
-                        _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName));
+                        _xw.WriteStartElement(XmlConvert.EncodeLocalName(fieldName)); 
                         // 20200421 null check added when grouping set on qualifiedconnection instead of columnname
                         if (group.ElementAt(j).ConnectedFieldValues ==  null) {
                             _xw.WriteEndElement();
                             continue; 
                         }
                         string value = group.ElementAt(j).ConnectedFieldValues[i];
-                        if (!string.IsNullOrEmpty(value))
-                        {
+                        //if (!string.IsNullOrEmpty(value)) checked already
+                        //{
                             // are we dealing with a large text field?
                             if (group.ElementAt(j).ColumnDefinition.CommenceFieldDefinition.MaxChars == CommenceLimits.MaxTextFieldCapacity)
                             {
@@ -154,7 +154,7 @@ namespace Vovin.CmcLibNet.Export
                             {
                                 _xw.WriteString(value);
                             }
-                        }
+                        //}
                         _xw.WriteEndElement();
                     }
                     _xw.WriteEndElement();
