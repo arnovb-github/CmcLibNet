@@ -577,6 +577,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <param name="viewName">Commence view name, case-sensitive.</param>
         /// <returns>ViewDef object that exposes properties of the view, <c>null</c> on error.</returns>
+        /// <exception cref="CommenceCOMException">View not found.</exception>
         /// <remarks>Unlike it's (undocumented) Commence counterpart, this method returns a <see cref="IViewDef"/> object instead of a delimited string. Returns <c>null</c> on error. You cannot use this method on Multiviews.</remarks>
         IViewDef GetViewDefinition(string viewName);
 
@@ -596,6 +597,15 @@ namespace Vovin.CmcLibNet.Database
         /// <remarks>This method is only available to .Net consumers.</remarks>
         [ComVisible(false)]
         List<string> GetViewNames(string categoryName);
+
+        /// <summary>
+        /// Gets the columnnames from a view provided a cursor can be created on them.
+        /// </summary>
+        /// <param name="viewName">Commence view name (case-sensitive).</param>
+        /// <param name="flags"></param>
+        /// <returns>List of fieldnames or columnlabels for view.</returns>
+        [ComVisible(false)]
+        IEnumerable<string> GetViewColumnNames(string viewName, CmcOptionFlags flags = CmcOptionFlags.Fieldname);
 
         /// <summary>
         /// Saves the Commence View to a file in HTML format (similar to the File-Save As HTML menu command).

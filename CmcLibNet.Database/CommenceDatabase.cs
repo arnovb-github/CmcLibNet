@@ -28,8 +28,8 @@ namespace Vovin.CmcLibNet.Database
         #region Fields
         // this portion of the class contains the implementation of the ICommenceCursor interface of Commence.
         private FormOA.ICommenceDB _db;
-        private CommenceApp _app; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
-        private IRcwReleasePublisher _rcwReleasePublisher;
+        private readonly CommenceApp _app; // notice we do not use the interface, but the class directly, because we want to access the RCWRelease stuff which is not part of the interface.
+        private readonly IRcwReleasePublisher _rcwReleasePublisher;
         #endregion
 
         #region Constructors
@@ -77,7 +77,7 @@ namespace Vovin.CmcLibNet.Database
             }
             catch (COMException e)
             {
-                throw new CommenceCOMException("GetCursor failed to create a cursor on category or view '" + categoryName + "'", e);
+                throw new CommenceCOMException($"GetCursor failed to create a cursor on category or view '{categoryName}'.", e);
             }
         }
         /// <summary>
@@ -97,14 +97,14 @@ namespace Vovin.CmcLibNet.Database
             * GetCursor() does not return null on error,
             * but instead a COM error is raised.
             */
-            IViewDef vd = null;
+            IViewDef vd;
             if (pCursorType == CmcCursorType.View)
             {
-                 vd = GetViewDefinition(pName);
+                vd = GetViewDefinition(pName);
                 if (!((ViewDef)vd).ViewType
                     .GetAttributePropertyValue<bool, CursorCreatableAttribute>(nameof(CursorCreatableAttribute.CursorCreatable)))
                 {
-                    throw new ArgumentException($"Commence does not support cursors on views of type {vd.Type}. Use a view of type Report or Grid instead.");
+                    throw new ArgumentException($"Commence does not support cursors on views of type {vd.Type}.");
                 }
                 try
                 {
@@ -112,7 +112,7 @@ namespace Vovin.CmcLibNet.Database
                 }
                 catch (COMException e)
                 {
-                    throw new CommenceCOMException("GetCursor failed to create a cursor on category or view '" + pName + "'.", e);
+                    throw new CommenceCOMException($"GetCursor failed to create a cursor on category or view '{pName}'.", e);
                 }
             }
             else
@@ -123,7 +123,7 @@ namespace Vovin.CmcLibNet.Database
                 }
                 catch (COMException e)
                 {
-                    throw new CommenceCOMException("GetCursor failed to create a cursor on category or view '" + pName + "'.", e);
+                    throw new CommenceCOMException($"GetCursor failed to create a cursor on category or view '{pName}'.", e);
                 }
             }
             return cur;
@@ -153,7 +153,6 @@ namespace Vovin.CmcLibNet.Database
             GC.WaitForPendingFinalizers();
 #endif
         }
-
         #endregion
 
         #region Properties
