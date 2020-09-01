@@ -58,7 +58,7 @@ namespace Vovin.CmcLibNet.Export
         protected internal List<ColumnDefinition> ParseColumns()
         {
             _columnDefinitions = new List<ColumnDefinition>();
-            ICommenceDatabase db = new CommenceDatabase(); // can't use using here, because we would close the database prematurely and lose our cursor. Not sure why that happens, it is a new reference?.
+            ICommenceDatabase db = new CommenceDatabase(); // can't use using here, because we would close the database prematurely and lose our cursor. Not sure why that happens.
             _connNames = db.GetConnectionNames(_cursor.Category); // retrieve all connections for current category. Used to check columns against.
 
             if (_connNames != null) // there are connections
@@ -108,7 +108,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                 }
             }
-
+            db.Close();
             return _columnDefinitions;
         }
 
@@ -164,19 +164,21 @@ namespace Vovin.CmcLibNet.Export
             Dictionary<string, string> retval = null;
             if (connNames == null) { return retval; }
 
-            ICommenceDatabase db = new Database.CommenceDatabase();
-            retval = new Dictionary<string, string>();
-            // collect list of connected category names
-            List<string> cats = new List<string>();
-            foreach (CommenceConnection c in connNames)
+            using (ICommenceDatabase db = new Database.CommenceDatabase())
             {
-                cats.Add(c.ToCategory);
-            }
-            // process only unique category names
-            cats = cats.Distinct().ToList<string>();
-            foreach (string cat in cats)
-            {
-                retval.Add(cat, db.GetNameField(cat));
+                retval = new Dictionary<string, string>();
+                // collect list of connected category names
+                List<string> cats = new List<string>();
+                foreach (CommenceConnection c in connNames)
+                {
+                    cats.Add(c.ToCategory);
+                }
+                // process only unique category names
+                cats = cats.Distinct().ToList<string>();
+                foreach (string cat in cats)
+                {
+                    retval.Add(cat, db.GetNameField(cat));
+                }
             }
             return retval;
         }

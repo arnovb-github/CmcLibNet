@@ -21,7 +21,7 @@ namespace Vovin.CmcLibNet.Export
         // for every field we examine. It may also mask a deeper problem
         internal ColumnDefinition(ICommenceDatabase db, int colindex, string columnName)
         {
-            _db = db;
+            _db = db; // we want this reference because when we would new it up when needed, we unneccesarily open/close DDE channels.
             ColumnIndex = colindex;
             this.ColumnName = columnName;
         }

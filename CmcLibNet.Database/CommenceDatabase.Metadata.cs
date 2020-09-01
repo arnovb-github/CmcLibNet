@@ -476,6 +476,7 @@ namespace Vovin.CmcLibNet.Database
             string retval = null;
             try
             {
+                // GetCursor is a very expensive operation. We need to optimize this
                 using (ICommenceCursor cur = this.GetCursor(categoryName))
                 {
                     using (ICommenceQueryRowSet qrs = cur.GetQueryRowSet(0))

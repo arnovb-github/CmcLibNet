@@ -44,7 +44,8 @@ namespace Vovin.CmcLibNet.Database
         /// The default value is 93750.
         /// </summary>
         /// <remarks>Be careful with setting this to a large value. It obviously impacts memory usage, and may make Commence go unresponsive for a long time,
-        /// especially when you have columns defined with <see cref="SetRelatedColumn"/>!</remarks>
+        /// especially when you have columns defined with <see cref="SetRelatedColumn"/>!
+        /// <para>This property is not documented by Commence.</para></remarks>
         int MaxFieldSize { get; set; }
 
         /// <summary>
