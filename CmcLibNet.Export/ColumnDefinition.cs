@@ -11,17 +11,9 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal class ColumnDefinition
     {
-        /* The columndefinition is fetched once for every cursor we read. */
-        private ICommenceFieldDefinition _fieldDefinition;
-        private bool _fieldDefinitionFetched;
-        ICommenceDatabase _db;
-
         #region Constructors
-        // passing in the ICommenceDatabase object solved the problem of having to create a new one
-        // for every field we examine. It may also mask a deeper problem
-        internal ColumnDefinition(ICommenceDatabase db, int colindex, string columnName)
+        internal ColumnDefinition(int colindex, string columnName)
         {
-            _db = db; // we want this reference because when we would new it up when needed, we unneccesarily open/close DDE channels.
             ColumnIndex = colindex;
             this.ColumnName = columnName;
         }
@@ -40,22 +32,7 @@ namespace Vovin.CmcLibNet.Export
         internal DbType DbType => this.CommenceFieldDefinition.Type.GetDbTypeForCommenceField();
         internal OleDbType OleDbType => this.CommenceFieldDefinition.Type.GetOleDbTypeForCommenceField();
 
-        internal ICommenceFieldDefinition CommenceFieldDefinition
-        {
-            get
-            {
-                if (_fieldDefinition == null && !_fieldDefinitionFetched)
-                {
-                    _fieldDefinition = _db.GetFieldDefinition(this.Category, this.FieldName);
-                    _fieldDefinitionFetched = true; // only to prevent this call again if it returns null
-                }
-                return _fieldDefinition;
-            }
-            set
-            {
-                _fieldDefinition = value; // introduced with ComplexWriter, allows for manual override
-            }
-        }
+        internal ICommenceFieldDefinition CommenceFieldDefinition { get; set; }
 
         /// <summary>
         /// Contains detailed information on the related column.
@@ -72,7 +49,7 @@ namespace Vovin.CmcLibNet.Export
             }
         }
 
-        internal int ColumnIndex { get; } = 0;
+        internal int ColumnIndex { get; }
 
         /// <summary>
         /// Returns the connection name and the category; i.e. "ConnectionName ToCategory"

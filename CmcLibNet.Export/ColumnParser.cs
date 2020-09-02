@@ -58,57 +58,62 @@ namespace Vovin.CmcLibNet.Export
         protected internal List<ColumnDefinition> ParseColumns()
         {
             _columnDefinitions = new List<ColumnDefinition>();
-            ICommenceDatabase db = new CommenceDatabase(); // can't use using here, because we would close the database prematurely and lose our cursor. Not sure why that happens.
-            _connNames = db.GetConnectionNames(_cursor.Category); // retrieve all connections for current category. Used to check columns against.
-
-            if (_connNames != null) // there are connections
+            using (ICommenceDatabase db = new CommenceDatabase())
             {
-                // retrieve name field names from connections
-                if (_connectedNameFields == null) { _connectedNameFields = GetNameFieldsFromConnectedCategories(_connNames); }
-            }
+                // can't use using here, because we would close the database prematurely and lose our cursor. Not sure why that happens, it is a new reference?.
+                _connNames = db.GetConnectionNames(_cursor.Category); // retrieve all connections for current category. Used to check columns against.
 
-            // inject extra columndefintion for thid
-            // it should always be the first definition!
-            // this is a little tricky
-            if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
-            {
-                ColumnDefinition cd = new ColumnDefinition(db, 0, ColumnDefinition.ThidIdentifier)
+                if (_connNames != null) // there are connections
                 {
-                    FieldName = ColumnDefinition.ThidIdentifier,
-                    CustomColumnLabel = ColumnDefinition.ThidIdentifier,
-                    ColumnLabel = ColumnDefinition.ThidIdentifier,
-                    Category = _cursor.Category,
-                    CommenceFieldDefinition = new CommenceFieldDefinition() // provide empty definition to prevent DDEException on GetFieldDefinition
-                };
-                _columnDefinitions.Add(cd);
-            }
+                    // retrieve name field names from connections
+                    if (_connectedNameFields == null) { _connectedNameFields = GetNameFieldsFromConnectedCategories(_connNames); }
+                }
 
-            // process actual columns
-            using (CmcLibNet.Database.ICommenceQueryRowSet qrs = _cursor.GetQueryRowSet(0))
-            {
-                // create a rowset of 0 items
-                for (int i = 0; i < qrs.ColumnCount; i++)
+                // inject extra columndefintion for thid
+                // it should always be the first definition!
+                // this is a little tricky
+                if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
                 {
-                    ColumnDefinition cd = new ColumnDefinition(db, _columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
+                    ColumnDefinition cd = new ColumnDefinition(0, ColumnDefinition.ThidIdentifier)
+                    {
+                        FieldName = ColumnDefinition.ThidIdentifier,
+                        CustomColumnLabel = ColumnDefinition.ThidIdentifier,
+                        ColumnLabel = ColumnDefinition.ThidIdentifier,
+                        Category = _cursor.Category,
+                        CommenceFieldDefinition = new CommenceFieldDefinition() // provide empty definition to prevent DDEException on GetFieldDefinition
+                    };
                     _columnDefinitions.Add(cd);
-                    cd.ColumnLabel = qrs.GetColumnLabel(i);
-                    if (this._customHeaders != null)
-                    {
-                        cd.CustomColumnLabel = this._customHeaders[i];
-                    }
+                }
 
-                    if (ColumnIsConnection(cd.ColumnName)) // we have a connection
+                // process actual columns
+                using (CmcLibNet.Database.ICommenceQueryRowSet qrs = _cursor.GetQueryRowSet(0))
+                {
+                    // create a rowset of 0 items
+                    for (int i = 0; i < qrs.ColumnCount; i++)
                     {
-                        cd.RelatedColumn = GetRelatedColumn(cd.ColumnName);
-                    }
-                    else // we have a direct field
-                    {
-                        cd.Category = _cursor.Category;
-                        cd.FieldName = cd.ColumnName;
+                        ColumnDefinition cd = new ColumnDefinition(_columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
+                        cd.ColumnLabel = qrs.GetColumnLabel(i);
+                        if (this._customHeaders != null)
+                        {
+                            cd.CustomColumnLabel = this._customHeaders[i];
+                        }
+
+                        if (ColumnIsConnection(cd.ColumnName)) // we have a connection
+                        {
+                            IRelatedColumn rc = GetRelatedColumn(cd.ColumnName);
+                            cd.RelatedColumn = rc;
+                            cd.CommenceFieldDefinition = db.GetFieldDefinition(rc.Category, rc.Field);
+                        }
+                        else // we have a direct field
+                        {
+                            cd.Category = _cursor.Category;
+                            cd.FieldName = cd.ColumnName;
+                            cd.CommenceFieldDefinition = db.GetFieldDefinition(cd.Category, cd.FieldName);
+                        }
+                        _columnDefinitions.Add(cd);
                     }
                 }
             }
-            db.Close();
             return _columnDefinitions;
         }
 
@@ -164,21 +169,19 @@ namespace Vovin.CmcLibNet.Export
             Dictionary<string, string> retval = null;
             if (connNames == null) { return retval; }
 
-            using (ICommenceDatabase db = new Database.CommenceDatabase())
+            ICommenceDatabase db = new Database.CommenceDatabase();
+            retval = new Dictionary<string, string>();
+            // collect list of connected category names
+            List<string> cats = new List<string>();
+            foreach (CommenceConnection c in connNames)
             {
-                retval = new Dictionary<string, string>();
-                // collect list of connected category names
-                List<string> cats = new List<string>();
-                foreach (CommenceConnection c in connNames)
-                {
-                    cats.Add(c.ToCategory);
-                }
-                // process only unique category names
-                cats = cats.Distinct().ToList<string>();
-                foreach (string cat in cats)
-                {
-                    retval.Add(cat, db.GetNameField(cat));
-                }
+                cats.Add(c.ToCategory);
+            }
+            // process only unique category names
+            cats = cats.Distinct().ToList<string>();
+            foreach (string cat in cats)
+            {
+                retval.Add(cat, db.GetNameField(cat));
             }
             return retval;
         }
@@ -193,12 +196,11 @@ namespace Vovin.CmcLibNet.Export
              * 
              * The delimiter is different for different viewtypes, so we have to take that into account as well.
              */
-            string delim = string.Empty;
+            string delim;
             if (connectedColumn.Contains(connDelim))
             {
                 // we can split on the delimiter, the last element will be the fieldname in the connected category
                 string[] s = connectedColumn.Split(new string[] { connDelim }, StringSplitOptions.None);
-                //delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.ConnectedField);
                 delim = GetDelimiter(RelatedColumnType.ConnectedField);
                 retval = new RelatedColumn(s[0], s[1], s[2], RelatedColumnType.ConnectedField, delim);
             }
@@ -215,54 +217,6 @@ namespace Vovin.CmcLibNet.Export
                 }
             return retval;
         }
-
-        // old implementation, which was probably too convoluted.
-        ///// <summary>
-        ///// Returns the delimiter Commence will use when returning column data.
-        ///// </summary>
-        ///// <param name="cur">CommenceCursor.</param>
-        ///// <param name="rct">RelatedColumnType enum value.</param>
-        ///// <returns>delimiter.</returns>
-        //private string GetDelimiter(CommenceCursor cur, RelatedColumnType rct)
-        //{
-        //    /* Delimiter depends on cursor type and underlying view (if cursor is on view)
-        //     * Luckily, it does not matter if the thids flag is used or not
-        //     */
-        //    string retval = "\n";
-        //    // check cursor type
-        //    switch (cur.CursorType)
-        //    {
-        //        case CmcCursorType.Category:
-
-        //            switch (rct)
-        //            {
-        //                case RelatedColumnType.Connection:
-        //                    retval = ", "; // note the trailing space
-        //                    break;
-        //                case RelatedColumnType.ConnectedField:
-        //                    retval = "\n";
-        //                    break;
-        //            }
-        //            break;
-
-        //        case CmcCursorType.View:
-
-        //            switch (cur.ViewType)
-        //            {
-        //                // process only viewtypes on which a cursor can be created
-        //                case CommenceViewType.Book:
-        //                    retval = ", ";
-        //                    break;
-        //                case CommenceViewType.Grid:
-        //                case CommenceViewType.Report:
-        //                    retval = "\n";
-        //                    break;
-        //            }
-        //            break;
-        //    }
-        //    return retval;
-        //}
-
 
         /// <summary>
         /// Returns the delimiter Commence will use when returning column data.
