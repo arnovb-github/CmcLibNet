@@ -68,7 +68,7 @@ namespace Vovin.CmcLibNet.Database
             sb.Append(',');
             sb.Append(f.FiltertypeIdentifier);
             sb.Append(',');
-            sb.Append((f.Except) ? "NOT" : ",");
+            sb.Append((f.Except) ? "NOT," : ",");
             sb.Append(Utils.Dq(f.Connection));
             sb.Append(',');
             sb.Append(Utils.Dq(f.Category));
