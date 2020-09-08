@@ -81,7 +81,7 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <remarks>This is a very expensive call, it creates a dummy cursor and actually tries if the filter works.</remarks>
         /// <param name="filter">ICursorFilter.</param>
-        /// <returns><c>True</c> if filter succeeded, otherwise <c>false</c>.</c><returns>
+        /// <returns><c>True</c> if filter succeeded, otherwise <c>false</c>.</returns>
         [ComVisible(false)]
         bool ValidateFilter(ICursorFilter filter); // cannot be bothered making this COM-visible
     }
