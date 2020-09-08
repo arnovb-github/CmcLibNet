@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -24,6 +25,12 @@ namespace Vovin.CmcLibNet.Database
         /// <param name="filter"><see cref="ICursorFilter"/> object.</param>
         [ComVisible(false)]
         void Add(ICursorFilter filter);
+        /// <summary>
+        /// Enable enumeration.
+        /// </summary>
+        /// <returns>ICursorFilter.</returns>
+        [ComVisible(false)]
+        IEnumerator<ICursorFilter> GetEnumerator();
         /// <summary>
         /// Get filter from collection based on clause number.
         /// </summary>
@@ -69,5 +76,13 @@ namespace Vovin.CmcLibNet.Database
         /// </summary>
         /// <returns>Single string of filterstrings for all filters in the collection.</returns>
         string ToString();
+        /// <summary>
+        /// Checks if filter will work.
+        /// </summary>
+        /// <remarks>This is a very expensive call, it creates a dummy cursor and actually tries if the filter works.</remarks>
+        /// <param name="filter">ICursorFilter.</param>
+        /// <returns><c>True</c> if filter succeeded, otherwise <c>false</c>.</c><returns>
+        [ComVisible(false)]
+        bool ValidateFilter(ICursorFilter filter); // cannot be bothered making this COM-visible
     }
 }

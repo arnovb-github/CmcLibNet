@@ -96,7 +96,6 @@ namespace Vovin.CmcLibNet.Database
     {
         private Database.ICommenceCursor _cur = null;
         private List<ICursorFilter> _filters = new List<ICursorFilter>();
-        //private const int _MAX_FILTERS = 8;
 
         #region Constructors
         /// <summary>
@@ -299,10 +298,7 @@ namespace Vovin.CmcLibNet.Database
             return filters.Any(a => a.ClauseNumber == clauseNumber);
         }
 
-        /// <summary>
-        /// Get Enumerator.
-        /// </summary>
-        /// <returns>IEnumerator.</returns>
+        /// <inheritdoc />
         public IEnumerator<ICursorFilter> GetEnumerator()
         {
             return _filters.GetEnumerator();
@@ -315,6 +311,28 @@ namespace Vovin.CmcLibNet.Database
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return _filters.GetEnumerator();
+        }
+
+        /// <inheritdoc />
+        public bool ValidateFilter(ICursorFilter filter)
+        {
+            // create a new cursor and try the filter
+            using (var db = new CommenceDatabase())
+            {
+                using (var cur = db.GetCursor(_cur.Category)) 
+                {
+                    cur.Filters.Add(filter);
+                    try
+                    {
+                        cur.Filters.Apply();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+            }
         }
         #endregion
 
