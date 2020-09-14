@@ -94,8 +94,8 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(ICursorFilters))]
     public class CursorFilters : ICursorFilters, IEnumerable<ICursorFilter>
     {
-        private Database.ICommenceCursor _cur = null;
-        private List<ICursorFilter> _filters = new List<ICursorFilter>();
+        private readonly Database.ICommenceCursor _cur = null;
+        private readonly List<ICursorFilter> _filters = new List<ICursorFilter>();
 
         #region Constructors
         /// <summary>
@@ -287,16 +287,16 @@ namespace Vovin.CmcLibNet.Database
             }
             return sb.ToString();
         }
-        /// <summary>
-        /// Method to check if filterclause is in use.
-        /// </summary>
-        /// <param name="filters">List of filters.</param>
-        /// <param name="clauseNumber">Clause number to check.</param>
-        /// <returns><c>true</c> if clausenumber in use, otherwise <c>false</c>.</returns>
-        private bool ClauseInUse(List<ICursorFilter> filters, int clauseNumber)
-        {
-            return filters.Any(a => a.ClauseNumber == clauseNumber);
-        }
+        ///// <summary>
+        ///// Method to check if filterclause is in use.
+        ///// </summary>
+        ///// <param name="filters">List of filters.</param>
+        ///// <param name="clauseNumber">Clause number to check.</param>
+        ///// <returns><c>true</c> if clausenumber in use, otherwise <c>false</c>.</returns>
+        //private bool ClauseInUse(List<ICursorFilter> filters, int clauseNumber)
+        //{
+        //    return filters.Any(a => a.ClauseNumber == clauseNumber);
+        //}
 
         /// <inheritdoc />
         public IEnumerator<ICursorFilter> GetEnumerator()
@@ -320,6 +320,34 @@ namespace Vovin.CmcLibNet.Database
             using (var db = new CommenceDatabase())
             {
                 using (var cur = db.GetCursor(_cur.Category)) 
+                {
+                    cur.Filters.Add(filter);
+                    try
+                    {
+                        cur.Filters.Apply();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if filter will work.
+        /// </summary>
+        /// <remarks>This is a very expensive call, it creates a dummy cursor and actually tries if the filter works.</remarks>
+        /// <param name="categoryName">Commence category to verify filter on.</param>
+        /// <param name="filter">ICursorFilter.</param>
+        /// <returns><c>True</c> if filter succeeded, otherwise <c>false</c>.</returns>
+        public static bool ValidateFilter(string categoryName, ICursorFilter filter)
+        {
+            // create a new cursor and try the filter
+            using (var db = new CommenceDatabase())
+            {
+                using (var cur = db.GetCursor(categoryName))
                 {
                     cur.Filters.Add(filter);
                     try
