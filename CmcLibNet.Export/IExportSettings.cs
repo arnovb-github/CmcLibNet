@@ -38,7 +38,7 @@ namespace Vovin.CmcLibNet.Export
         /// <summary>
         /// Include additional column holding the item's THID and return THIDs instead of Name field values for connected items. (XML and Json). For text-based exports, connected items are not returned as thids. Default is <c>false</c>.
         /// </summary>
-        /// <remarks>Ignored for custom cursors; create them with the thid flag if you want thids.
+        /// <remarks>Note that custom cursors must be created with the <see cref="Vovin.CmcLibNet.Database.CmcOptionFlags.UseThids"/> flag for this settings to take effect.
         /// </remarks>
         bool UseThids { get; set; }
         /// <summary>
