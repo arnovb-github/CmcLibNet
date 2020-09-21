@@ -91,7 +91,7 @@ namespace Vovin.CmcLibNet.Export
                     // create a rowset of 0 items
                     for (int i = 0; i < qrs.ColumnCount; i++)
                     {
-                        ColumnDefinition cd = new ColumnDefinition(_columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname)); // thids
+                        ColumnDefinition cd = new ColumnDefinition(_columnDefinitions.Count, qrs.GetColumnLabel(i, CmcOptionFlags.Fieldname));
                         cd.ColumnLabel = qrs.GetColumnLabel(i);
                         if (this._customHeaders != null)
                         {
@@ -102,7 +102,18 @@ namespace Vovin.CmcLibNet.Export
                         {
                             IRelatedColumn rc = GetRelatedColumn(cd.ColumnName);
                             cd.RelatedColumn = rc;
-                            cd.CommenceFieldDefinition = db.GetFieldDefinition(rc.Category, rc.Field);
+                            if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
+                            {
+                                cd.CommenceFieldDefinition = new CommenceFieldDefinition()
+                                {
+                                    MaxChars = CommenceLimits.MaxNameFieldCapacity,
+                                    Type = CommenceFieldType.Text
+                                };
+                            }
+                            else
+                            {
+                                cd.CommenceFieldDefinition = db.GetFieldDefinition(rc.Category, rc.Field);
+                            }
                         }
                         else // we have a direct field
                         {
@@ -210,9 +221,22 @@ namespace Vovin.CmcLibNet.Export
                     if (connectedColumn.StartsWith(c.Name) && connectedColumn.EndsWith(c.ToCategory)
                         && connectedColumn.Length == c.Name.Length + c.ToCategory.Length + 1)
                     {
-                        //delim = GetDelimiter((CommenceCursor)_cursor, RelatedColumnType.Connection);
                         delim = GetDelimiter(RelatedColumnType.Connection);
-                        retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
+                        // when a connection is assigned to a direct field and the UseThids flag is true,
+                        // we run into a special situation: you can create a cursor that has duplicate 'fieldnames'.
+                        // example from the Tutorial database:
+                        // cursor.Columns.AddDirectColumns("accountKey", "Relates to Contact") // direct field, but in fact a connection
+                        // cursor.Columns.AddRelatedColumn("Relates to", "Contact", "contactKey") // related field
+                        // this would end us up with two 'contactKey' nodes
+                        // so in that case, do not use the actual fieldname
+                        if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
+                        {
+                            retval = new RelatedColumn(c.Name, c.ToCategory, ColumnDefinition.ThidIdentifier, RelatedColumnType.Connection, delim);
+                        }
+                        else
+                        {
+                            retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
+                        }
                     }
                 }
             return retval;
