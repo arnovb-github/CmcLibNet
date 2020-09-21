@@ -85,5 +85,5 @@
 
         #endregion
 
-    } // class
-} // namespace
+    }
+} 
