@@ -345,9 +345,7 @@ namespace Vovin.CmcLibNet.Export
                                             // we use a regex to split values at "\n" *but not* "\r\n"
                                             // this is not 100% fail-safe as a fieldvalue *can* contain just \n if it is a large text field.
                                             // in that case, your only option is to suppress the splitting in ExportSettings
-                                            // what we *should* do is change every instance of a single \n to '\r\n' first
-                                            // that would be safer, but we cannot distinguish between them.
-                                            buffer = regex.Split(rawdata[i][j]); // this may result in Commence values being split if they contain embedded delimiters
+                                            buffer = regex.Split(rawdata[i][j]); // this may result in Commence fieldvalues being split incorrectly if they contain embedded delimiters.
                                             break;
                                         default:
                                             buffer = rawdata[i][j].Split(new string[] { cd.Delimiter }, StringSplitOptions.None);
