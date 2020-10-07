@@ -16,8 +16,8 @@ It should be noted that in CmcLibNet, you can still make all API calls using Cmc
 This assembly still assumes (intimate) familiarity with the Commenc RM API. It just make some things easier and does some things better.
 
 ## Summary 
-  *use this assembly if you want to talk to Commence RM from Powershell.
-  *use this assembly if you want something easier than the vanilla Commence RM COM interface, in any .Net language.
+* use this assembly if you want to talk to Commence RM from Powershell.
+* use this assembly if you want something easier than the vanilla Commence RM COM interface, in any .Net language.
 
 ## Binaries and documentation
 See the [Wiki](https://github.com/arnovb-github/CmcLibNet/wiki] for download links and full documentation including basic examples.
