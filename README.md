@@ -20,7 +20,7 @@ This assembly still assumes (intimate) familiarity with the Commenc RM API. It j
 * use this assembly if you want something easier than the vanilla Commence RM COM interface, in any .Net language.
 
 ## Binaries and documentation
-See the [Wiki](https://github.com/arnovb-github/CmcLibNet/wiki] for download links and full documentation including basic examples.
+See the [Wiki](https://github.com/arnovb-github/CmcLibNet/wiki) for download links and full documentation including basic examples.
 
 ## COM Interop
 The assembly is _COM-visible_, meaning you can call CmcLibNet from any COM-capable language. That is why some of the code may appear counter-intuitive or overly complex in some places. In retrospect, this was a questionable design decision. It is great that you can call CmcLibNet from Commence Detail Form Scripts or Microsoft Office, but since this project was my first serious attempt at a .Net application, diving into the world of black magic that is COM-Interop was probably not the best idea. Don't worry though, I did not just tick 'Make assembly COM-visible' in the assembly properties, I did try to follow recommended practices. It is the stuff of headaches, though.
