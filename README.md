@@ -10,7 +10,7 @@ One of the simple but helpful concepts that CmcLibNet offers is getting rid of a
 
 Another concept that CmcLibNet uses is that filters on a cursor are actual objects, not unintelligible strings. Slightly more verbose but easier to use. Setting columns on a cursor is also greatly simplified.
 
-It should be noted that in CmcLibNet, you can still make all API calls using CmcLibNet. The good stuff is implemented as an overload and/or extension method. The big exception being that CmcLibNet does not support `GetConversation()`. All methods exposed by `ICommenceConversation` are implemented as native methods in CmcLibNet.
+You can still make almost all API calls that are in the Commence RM API using CmcLibNet. The good bits are implemented either as an overload and/or extension method. The big exception to that is that CmcLibNet does not support `GetConversation()`. All methods exposed by `ICommenceConversation` in Commence RM are implemented as native methods in CmcLibNet.
 
 ## Audience
 This assembly still assumes (intimate) familiarity with the Commenc RM API. It just make some things easier and does some things better.
