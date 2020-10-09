@@ -270,7 +270,7 @@ namespace Vovin.CmcLibNet.Export
                     CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
-            }, TaskCreationOptions.LongRunning); // longrunning is probably overkill here
+            }, TaskCreationOptions.LongRunning); 
 
             Task.WaitAll(readTask, processTask); // we need to wait all before we give the 'done' signal.
             values.Dispose();
@@ -413,8 +413,7 @@ namespace Vovin.CmcLibNet.Export
         #endregion
 
         /// <summary>
-        /// Helper class to capture the correct row.
-        /// If we use a variable shared between the tasks, it may not reflect the correct value 
+        /// Helper class to capture the row(s).
         /// </summary>
         private class CmcData
         {
