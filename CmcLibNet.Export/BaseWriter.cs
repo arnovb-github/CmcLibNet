@@ -126,7 +126,7 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         protected internal void ReadCommenceData()
         {
-            dr = new DataReader(_cursor, _settings, this.ColumnDefinitions, _customColumnHeaders);
+            dr = new DataReader(_cursor, _settings, this.ColumnDefinitions);
             // subscribe to the events the datareader throws
             //dr.DataProgressChanged += this.HandleProcessedDataRows;
             //dr.DataReadCompleted += this.HandleDataReadComplete;

@@ -32,7 +32,7 @@ namespace Vovin.CmcLibNet.Export
         private readonly bool useThids;
 
         #region Constructors
-        internal DataReader(ICommenceCursor cursor, IExportSettings settings, List<ColumnDefinition> columndefinitions, string[] customColumnHeaders)
+        internal DataReader(ICommenceCursor cursor, IExportSettings settings, List<ColumnDefinition> columndefinitions)
         {
             this.cursor = (CommenceCursor)cursor;
             totalRows = cursor.RowCount;
