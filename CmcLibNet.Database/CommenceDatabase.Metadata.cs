@@ -1228,7 +1228,7 @@ namespace Vovin.CmcLibNet.Database
         private int GetDDECount(string[] args)
         {
             string result = DDERequest(BuildDDERequestCommand(args));
-            return (result == null) ? -1 : Convert.ToInt32(result);
+            return (int.TryParse(result, out int outval)) ? outval: -1;
         }
 
         /// <inheritdoc />
