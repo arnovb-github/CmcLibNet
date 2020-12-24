@@ -17,6 +17,7 @@ namespace Vovin.CmcLibNet.Database
 
     // This portion of the class contains the implementation of the properties and methods exposed by Commence's ICommenceGetconversation interface.
     // That is a difficult way of saying all DDE stuff is in here.
+    // Do not confuse this class with the metadata namespace.
     public partial class CommenceDatabase : ICommenceDatabase
     {
         #region Fields
