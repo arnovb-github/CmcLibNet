@@ -164,7 +164,7 @@
     <Compile Include="CmcLibNet.Database\CommenceAddRowSet.cs" />
     <Compile Include="CmcLibNet.Database\CommenceCursor.cs" />
     <Compile Include="CmcLibNet.Database\CommenceDatabase.cs" />
-    <Compile Include="CmcLibNet.Database\CommenceDatabase.Metadata.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceDatabase.ICommenceConversation.cs" />
     <Compile Include="CmcLibNet.Database\CommenceDeleteRowSet.cs" />
     <Compile Include="CmcLibNet.Database\CommenceEditRowSet.cs" />
     <Compile Include="CmcLibNet.Database\CommencePreferences.cs" />
