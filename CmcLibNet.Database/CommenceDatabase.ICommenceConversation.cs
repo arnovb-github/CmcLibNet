@@ -1,16 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Timers;
-using System.Xml;
-using System.Xml.Serialization;
 using Vovin.CmcLibNet.Attributes;
 using Vovin.CmcLibNet.Database.Metadata;
-using Vovin.CmcLibNet.Extensions;
 
 namespace Vovin.CmcLibNet.Database
 {
@@ -1121,59 +1116,6 @@ namespace Vovin.CmcLibNet.Database
             return retval;
         }
 
-        /// <inheritdoc />
-        public IDatabaseSchema GetDatabaseSchema(MetaDataOptions options = null)
-        {
-            if (options == null) { options = new MetaDataOptions(); }
-            using (MetaDataBuilder mb = new MetaDataBuilder(this, options))
-            {
-                return mb.BuildDatabaseSchema();
-            }
-        }
-
-        /// <inheritdoc />
-        public void ExportDatabaseSchema(string fileName, MetaDataOptions options = null)
-        {
-            if (options == null)
-            {
-                options = new MetaDataOptions();
-            }
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentException("Filename null or empty.", nameof(fileName));
-            }
-
-            using (ICommenceDatabase db = new CommenceDatabase())
-            {
-                var schema = db.GetDatabaseSchema(options);
-
-                switch (options.Format)
-                {
-                    default:
-                    case MetaDataFormat.Json:
-                        var s = JsonConvert.SerializeObject(schema);
-                        using (StreamWriter sw = new StreamWriter(fileName))
-                        {
-                            sw.Write(s);
-                        }
-                        break;
-                    case MetaDataFormat.Xml:
-
-                        XmlSerializer xsSubmit = new XmlSerializer(typeof(DatabaseSchema));
-                        var xml = string.Empty;
-
-                        using (var sw = new StreamWriter(fileName))
-                        {
-                            using (XmlWriter writer = XmlWriter.Create(sw))
-                            {
-                                xsSubmit.Serialize(writer, schema);
-                                xml = sw.ToString(); // Your XML
-                            }
-                        }
-                        break;
-                }
-            }
-        }
         #endregion
 
         #region Helper methods

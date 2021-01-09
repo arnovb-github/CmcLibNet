@@ -87,6 +87,7 @@
     <Compile Include="CmcLibNet.Database\CmcCursorType.cs" />
     <Compile Include="CmcLibNet.Database\CmcLinkMode.cs" />
     <Compile Include="CmcLibNet.Database\CommenceConversation.cs" />
+    <Compile Include="CmcLibNet.Database\CommenceDatabase.Schema.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\BaseCursorFilter.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\FilterFormatters.cs" />
     <Compile Include="CmcLibNet.Database\CursorFilters\ICursorFilter.cs" />
