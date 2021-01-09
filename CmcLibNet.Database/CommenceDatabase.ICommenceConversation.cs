@@ -1196,6 +1196,9 @@ namespace Vovin.CmcLibNet.Database
         private List<string> GetDDEValuesAsList(string[] args)
         {
             string values = DDERequest(BuildDDERequestCommand(args));
+            // TODO code-smell, we should probably just return an empty list
+            // for example, there is an edge-case scenario in which a cateory can have no views
+            // in that case, there is also no last error and I think we end up with an unwanted empty element
             if (values == null) // an error occurred, return error value
             {
                 List<string> retval = new List<string>

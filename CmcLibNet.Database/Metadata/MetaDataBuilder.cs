@@ -121,6 +121,8 @@ namespace Vovin.CmcLibNet.Database.Metadata
         {
             foreach (string viewName in views)
             {
+                // TODO this check masks a problem deeper down in the code in GetDDEValuesAsList(?)
+                if (string.IsNullOrEmpty(viewName)) { continue; } // edge-case: when a category does not have any views, we may get an empty string. This is just masking a problem deeper down.
                 IViewDef d = _db.GetViewDefinition(viewName);
                 CommenceViewMetaData v = new CommenceViewMetaData(viewName, d);
                 yield return v;
