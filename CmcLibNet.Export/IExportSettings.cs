@@ -42,47 +42,52 @@ namespace Vovin.CmcLibNet.Export
         /// </remarks>
         bool UseThids { get; set; }
         /// <summary>
-        /// Headermode, i.e. what to use for columnames (text, html, excel) or nodenames (xml, json). Default is <see cref="Export.HeaderMode.Fieldname"/>.
+        /// Headermode, i.e. what to use for columnames (<see cref="ExportFormat.Text"/>, <see cref="ExportFormat.Html"/>, <see cref="ExportFormat.Excel"/>) 
+        /// or nodenames (<see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>). Default is <see cref="Export.HeaderMode.Fieldname"/>.
         /// </summary>
         HeaderMode HeaderMode { get; set;}
         /// <summary>
-        /// Use custom columnheaders. THey must match the number of fields in the cursor.
+        /// Use custom columnheaders.
         /// </summary>
         /// <remarks>You cannot use custom headers in combination with <see cref="ExportSettings.NestConnectedItems"/>.
         /// <para>You must supply custom headers for all columns in the cursor, even when you have set <see cref="SkipConnectedItems"/> to <c>true</c>.</para>
-        /// <para>Type is <c>object</c> for compatibility with COM.</para>
+        /// <para>Type is <c>object[]</c> for compatibility with COM.</para>
         /// </remarks>
         object[] CustomHeaders { get; set;}
         /// <summary>
-        /// Data format the export engine should generate. Default is XML.
+        /// Data format the export engine should generate. Default is <see cref="ExportFormat.Xml"/>.
         /// </summary>
         ExportFormat ExportFormat { get; set;}
         /// <summary>
-        /// Ignore connected items.
+        /// Ignore connected items. 
         /// </summary>
-        /// <remarks>Note that they may still be read from the database (e.g. when exporting views), just ignored in the output.
+        /// <remarks>Note that connected data will still be read if defined, just ignored in the output.
         /// <para>Not all exports respect this setting.</para>
-        /// <para>The recommended way to ignore connected items is simply to create a custom cursor or view that does not include them.</para></remarks>
+        /// <para>For best performance create a custom cursor or view that does not include connected columns.</para></remarks>
         bool SkipConnectedItems { get; set; }
         /// <summary>
-        /// External CSS file to be associated with an HTML export. It will not be in-lined.
+        /// External CSS file to be linked with an HTML export. Location is the output path.
         /// Only applies to HTML exports. Default is empty (no CSSFile).
         /// </summary>
         string CSSFile { get; set; }
         /// <summary>
-        /// Text-delimiter used in a Text export. Only applies to Text and HTML exports. Default is tab character.
+        /// Text-delimiter used in a Text export. Only applies to <see cref="ExportFormat.Text"/> and <see cref="ExportFormat.Html"/> exports.
+        /// Default is tab character.
         /// </summary>
         string TextDelimiter { get; set; }
         /// <summary>
-        /// Text-delimiter used for connected values. Only applies to Text and HTML exports. Default is new-line character (same as Commence uses).
+        /// Text-delimiter used for connected values. Only applies to <see cref="ExportFormat.Text"/> and <see cref="ExportFormat.Html"/> exports. 
+        /// Default is newline character (same as Commence uses).
         /// </summary>
         string TextDelimiterConnections { get; set; }
         /// <summary>
-        /// Text-qualifier used in a Text export. Only applies to Text and HTML exports. Default is " (double-quote).
+        /// Text-qualifier. Only applies to <see cref="ExportFormat.Text"/> and <see cref="ExportFormat.Html"/> exports.
+        /// Default is " (double-quote).
         /// </summary>
         string TextQualifier { get; set; } // we really want a char, but COM Interop will complain
         /// <summary>
-        /// Use headers on the first row in table-like exports (like Text, HTML, Excel). Default is <c>true</c>.
+        /// Use headers on the first row in table-like exports (like <see cref="ExportFormat.Text"/>, <see cref="ExportFormat.Html"/>, <see cref="ExportFormat.Excel"/>). 
+        /// Default is <c>true</c>.
         /// </summary>
         bool HeadersOnFirstRow { get; set; }
         /// <summary>
@@ -107,27 +112,31 @@ namespace Vovin.CmcLibNet.Export
         bool UseDDE { get; set; }
         /// <summary>
         /// Include all connected items.
-        /// Supported formats are <see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>, <see cref="ExportFormat.Excel"/>
+        /// Supported only for <see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>, <see cref="ExportFormat.Excel"/>
         /// Overrides <see cref="Canonical"/>, <see cref="ISO8601Format"/>, <see cref="SkipConnectedItems"/>,
         /// <see cref="SplitConnectedItems"/>, <see cref="ExcelUpdateOptions"/>.
         /// </summary>
-        /// <remarks>Use this if connected items are truncated. Will be significantly slower due to multiple data reads.
-        /// <para>Alternatively, you can adjust the <see cref="MaxFieldSize"/> parameter. 
-        /// Which setting is faster depends on the data. A high <see cref="MaxFieldSize"/> much degrades Commence performance.
-        /// <see cref="PreserveAllConnections"/> uses the optimal sizes when it comes to performance.</para>
+        /// <remarks>The Commence API returns connected field values as a string, subject to <see cref="ExportSettings.MaxFieldSize"/> . 
+        /// This means that if there are a large number of connected items, not all data may be retrieved.
+        /// <see cref="PreserveAllConnections"/> will ensure all connected data are read. 
+        /// There is a performance penalty involved because it will perform multiple reads.
+        /// <para>Alternatively, you can try adjust the <see cref="MaxFieldSize"/> parameter. 
+        /// Which setting is faster depends on the data. A high <see cref="MaxFieldSize"/> also significantly degrades Commence performance.
+        /// </para>
+        /// <para>There is no golden rule to this, but for production environment exports you probably want to set this to <c>true</c> just to be safe.</para>
         /// </remarks>
         bool PreserveAllConnections { get; set; }
         /// <summary>
         /// Get serialized XML with a XmlSchema (XSD).
-        /// Only applies with <see cref="PreserveAllConnections"/> in combination with <see cref="ExportFormat.Xml"/>. 
+        /// Only applies to <see cref="PreserveAllConnections"/> in combination with <see cref="ExportFormat.Xml"/>. 
         /// Default is <c>false</c>.
         /// </summary>
-        /// <remarks>Uses ADO.NET built-in serialization. Allows for importing into SQL Server and performing your own query logic.</remarks>
+        /// <remarks>Uses ADO.NET built-in serialization. 
+        /// Allows for importing into SQL Server as well as performing your own query logic on the result.</remarks>
         bool WriteSchema { get; set; }
         /// <summary>
         /// Include additional connection information. Only applies to <see cref="ExportFormat.Json"/>. Default is <c>true</c>.
         /// </summary>
-        // TODO: should we also incorporate this in XML exports? As attributes perhaps?
         bool IncludeConnectionInfo { get; set; }
         /// <summary>
         /// Split connected values into separate nodes/elements. Only applies to <see cref="ExportFormat.Json"/> and <see cref="ExportFormat.Xml"/>.
@@ -142,7 +151,7 @@ namespace Vovin.CmcLibNet.Export
         /// or <see cref="Database.CursorColumns.AddRelatedColumn(string, string, string)"/>.</description></item>
         /// <item><term><see cref="Database.CmcCursorType.View"/></term><description>Always</description></item>
         /// </list>
-        /// <para>On a regular cursor, i.e. with the connections defined as 'direct columns' (the default behaviour),
+        /// <para>On a cursor with the connections defined as 'direct columns',
         /// connected items are returned by Commence as comma-delimited strings without a text-qualifier,
         /// making it impossible to split them meaningfully.</para>
         /// </remarks>
@@ -154,7 +163,7 @@ namespace Vovin.CmcLibNet.Export
         int NumRows { get; set; }
         /// <summary>
         /// Maximum number of characters to retrieve from fields. This includes connected fields.
-        /// The default when exporting from the export engine is ~500.000, which is about five times the Commence default.
+        /// The default is ~500.000, skabout five times the Commence default.
         /// </summary>
         /// <remarks>Severely impacts memory usage. When set to >2^20, <see cref="NumRows"/> may be overridden to prevent your system from exploding.</remarks>
         int MaxFieldSize { get; set; }
@@ -168,9 +177,9 @@ namespace Vovin.CmcLibNet.Export
         /// </summary>
         ExcelUpdateOptions XlUpdateOptions { get; set; }
         /// <summary>
-        /// Custom root node for Xml, Json, Excel.
+        /// Custom root node for <see cref="ExportFormat.Xml"/>, <see cref="ExportFormat.Json"/>, <see cref="ExportFormat.Excel"/>.
         /// </summary>
-        /// <remarks>For Text, Html and Event writers this property is ignored
+        /// <remarks>For <see cref="ExportFormat.Text"/>, <see cref="ExportFormat.Html"/> and <see cref="ExportFormat.Event"/> writers this property is ignored
         /// <list type="table">
         /// <listheader><term>Export format</term><description>Notes</description></listheader>
         /// <item><term><see cref="ExportFormat.Excel"/></term><description>Custom sheetname</description></item>
@@ -178,8 +187,8 @@ namespace Vovin.CmcLibNet.Export
         /// <item><term><see cref="ExportFormat.Xml"/></term><description>Custom root element name</description></item>
         /// </list>
         /// <para>Defaults to the datasource name.
-        /// For a view, this is the viewname,
-        /// for a category or cursor this is the category name.</para>
+        /// For a view that is the viewname,
+        /// for a category or custom cursor that is the category name.</para>
         /// </remarks>
         string CustomRootNode { get; set; }
         /// <summary>
