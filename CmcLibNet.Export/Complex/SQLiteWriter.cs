@@ -213,7 +213,8 @@ namespace Vovin.CmcLibNet.Export.Complex
                 e.RowsTotal,
                 _iteration,
                 _totalIterations);
-            base.OnExportProgressChanged(args);
+            //base.OnWriterProgressChanged(args); // cannot use use BubbleUp method in base
+            BubbleUpProgressEvent(args);
         }
 
         private int cursorsProcessed = 0;

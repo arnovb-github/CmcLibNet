@@ -16,8 +16,8 @@ namespace Vovin.CmcLibNet.Export
     /// </summary>
     internal abstract class BaseWriter : IDisposable
     {
-        internal event ExportProgressChangedHandler ExportProgressChanged; // we want to bubble up this event
-        internal event ExportCompletedHandler ExportCompleted; // we want to bubble up this event
+        internal event ExportProgressChangedHandler WriterProgressChanged; // we want to bubble up this event
+        internal event ExportCompletedHandler WriterCompleted; // we want to bubble up this event
 
         #region Fields
         ///// <summary>
@@ -408,7 +408,7 @@ namespace Vovin.CmcLibNet.Export
                     _cursor.Close();
                 }
                 //is this overkill?
-                this.ExportProgressChanged = null;
+                this.WriterProgressChanged = null;
             }
 
             // Free any unmanaged objects here.
@@ -422,9 +422,9 @@ namespace Vovin.CmcLibNet.Export
         /// Handler used to bubble up the ExportProgressChanged event
         /// </summary>
         /// <param name="e">ExportProgressAsJsonChangedArgs.</param>
-        protected virtual void OnExportProgressChanged(ExportProgressChangedArgs e)
+        protected virtual void OnWriterProgressChanged(ExportProgressChangedArgs e)
         {
-            ExportProgressChangedHandler handler = ExportProgressChanged;
+            ExportProgressChangedHandler handler = WriterProgressChanged;
             if (handler == null) { return; } // no subscriptions
             Delegate[] eventHandlers = handler.GetInvocationList();
             foreach (Delegate currentHandler in eventHandlers)
@@ -444,7 +444,7 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e">ExportCompleteArgs</param>
         protected virtual void OnExportCompleted(ExportCompleteArgs e)
         {
-            ExportCompletedHandler handler = ExportCompleted;
+            ExportCompletedHandler handler = WriterCompleted;
             if (handler == null) { return; } // no subscriptions
             Delegate[] eventHandlers = handler.GetInvocationList();
             foreach (Delegate currentHandler in eventHandlers)
@@ -464,7 +464,13 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e">ExportProgressChangedArgs</param>
         protected void BubbleUpProgressEvent(CursorDataReadProgressChangedArgs e)
         {
-            OnExportProgressChanged(new ExportProgressChangedArgs(e.RowsProcessed, e.RowsTotal));
+            OnWriterProgressChanged(new ExportProgressChangedArgs(e.RowsProcessed, e.RowsTotal));
+        }
+
+        // overload that allows derivers to supply their own ExportProgressChangedArgs 
+        protected void BubbleUpProgressEvent(ExportProgressChangedArgs e)
+        {
+            OnWriterProgressChanged(e);
         }
 
         protected void BubbleUpCompletedEvent(ExportCompleteArgs e)

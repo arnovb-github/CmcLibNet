@@ -39,7 +39,7 @@ namespace Vovin.CmcLibNet.Export
                 e.RowsProcessed,
                 e.RowsTotal,
                 jsonString);
-            base.OnExportProgressChanged(args);
+            base.OnWriterProgressChanged(args);
         }
 
         protected internal override void HandleDataReadComplete(object sender, ExportCompleteArgs e)

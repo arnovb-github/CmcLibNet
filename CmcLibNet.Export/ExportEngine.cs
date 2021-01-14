@@ -206,8 +206,8 @@ namespace Vovin.CmcLibNet.Export
         {
             if (w != null)
             {
-                w.ExportProgressChanged += (s, e) => HandleExportProgressChanged(s, e);
-                w.ExportCompleted += (s, e) => HandleExportCompleted(s, e);
+                w.WriterProgressChanged += (s, e) => HandleExportProgressChanged(s, e);
+                w.WriterCompleted += (s, e) => HandleExportCompleted(s, e);
             }
         }
 
@@ -215,8 +215,8 @@ namespace Vovin.CmcLibNet.Export
         {
             if (w != null)
             {
-                w.ExportProgressChanged -= (s, e) => HandleExportProgressChanged(s, e);
-                w.ExportCompleted -= (s, e) => HandleExportCompleted(s, e);
+                w.WriterProgressChanged -= (s, e) => HandleExportProgressChanged(s, e);
+                w.WriterCompleted -= (s, e) => HandleExportCompleted(s, e);
             }
         }
 
