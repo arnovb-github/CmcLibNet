@@ -1195,7 +1195,7 @@ namespace Vovin.CmcLibNet.Database
                 return sb.ToString();
             }
             IEnumerable<string> arguments = args.Skip(1); // note the skip of the first argument
-            if (EncodeDDEArguments) { arguments = EncodeDdeArguments(arguments); }
+            arguments = EncodeDdeArguments(arguments);
             sb.Append("(");
             sb.Append(string.Join(",", arguments));
             sb.Append(")]"); 
@@ -1213,10 +1213,16 @@ namespace Vovin.CmcLibNet.Database
             {
                 //string retval = EncodeDdeArgument(arg);
                 //yield return retval;
-
-                // enclose the entire argument in double quotes
-                // and escape embedded double quotes
-                yield return $"\"{arg.Replace("\"", "\"\"")}\"";
+                if (!EncodeDDEArguments)
+                {
+                    // enclose the entire argument in double quotes
+                    // and escape embedded double quotes
+                    yield return $"\"{arg.Replace("\"", "\"\"")}\"";
+                }
+                else
+                {
+                    yield return arg;
+                }
             }
         }
 
