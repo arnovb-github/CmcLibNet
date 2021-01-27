@@ -51,23 +51,23 @@ namespace Vovin.CmcLibNet.Extensions
             }
         }
 
-        internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(this CommenceFieldType fieldType)
-        {
-            switch (fieldType)
-            {
-                case CommenceFieldType.Number:
-                case CommenceFieldType.Calculation:
-                case CommenceFieldType.Sequence:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number;
-                case CommenceFieldType.Date:
-                case CommenceFieldType.Time:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
-                case CommenceFieldType.Checkbox:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
-                default:
-                    return DocumentFormat.OpenXml.Spreadsheet.CellValues.String; // should ideally be SharedString for filesize
-            }
-        }
+        //internal static DocumentFormat.OpenXml.Spreadsheet.CellValues GetTypeForOpenXml(this CommenceFieldType fieldType)
+        //{
+        //    switch (fieldType)
+        //    {
+        //        case CommenceFieldType.Number:
+        //        case CommenceFieldType.Calculation:
+        //        case CommenceFieldType.Sequence:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Number;
+        //        case CommenceFieldType.Date:
+        //        case CommenceFieldType.Time:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Date;
+        //        case CommenceFieldType.Checkbox:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.Boolean;
+        //        default:
+        //            return DocumentFormat.OpenXml.Spreadsheet.CellValues.String; // should ideally be SharedString for filesize
+        //    }
+        //}
 
         internal static string GetOleDbTypeStringForCommenceField(this CommenceFieldType fieldType)
         {

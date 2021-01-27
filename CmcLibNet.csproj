@@ -52,9 +52,6 @@
     <AssemblyOriginatorKeyFile>CmcLibNet45.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml, Version=2.9.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
-      <HintPath>..\packages\DocumentFormat.OpenXml.2.9.0\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
-    </Reference>
     <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
     </Reference>
@@ -135,8 +132,6 @@
     <Compile Include="CmcLibNet.Export\DataSetSerializer.cs" />
     <Compile Include="CmcLibNet.Export\ExcelUpdateOptions.cs" />
     <Compile Include="CmcLibNet.Export\ExcelWriterUsingEPPlus.cs" />
-    <Compile Include="CmcLibNet.Export\ExcelWriterUsingOleDb.cs" />
-    <Compile Include="CmcLibNet.Export\ExcelWriterUsingOpenXml.cs" />
     <Compile Include="CmcLibNet.Export\ExportCompleteArgs.cs" />
     <Compile Include="CmcLibNet.Export\ExportFormat.cs" />
     <Compile Include="CmcLibNet.Export\ExportProgressChangedArgs.cs" />
