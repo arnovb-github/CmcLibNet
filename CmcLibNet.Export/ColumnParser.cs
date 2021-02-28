@@ -229,14 +229,17 @@ namespace Vovin.CmcLibNet.Export
                         // cursor.Columns.AddRelatedColumn("Relates to", "Contact", "contactKey") // related field
                         // this would end us up with two 'contactKey' nodes
                         // so in that case, do not use the actual fieldname
-                        if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
-                        {
-                            retval = new RelatedColumn(c.Name, c.ToCategory, ColumnDefinition.ThidIdentifier, RelatedColumnType.Connection, delim);
-                        }
-                        else
-                        {
-                            retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
-                        }
+                        // HANG ON! THAT SCREWS UP THE SQLITE EXPORT!
+                        //if (((CommenceCursor)_cursor).Flags.HasFlag(CmcOptionFlags.UseThids))
+                        //{
+                        //    retval = new RelatedColumn(c.Name, c.ToCategory, ColumnDefinition.ThidIdentifier, RelatedColumnType.Connection, delim);
+                        //}
+                        //else
+                        //{
+                        //    retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
+                        //}
+                        // put back original implementation
+                        retval = new RelatedColumn(c.Name, c.ToCategory, this._connectedNameFields[c.ToCategory], RelatedColumnType.Connection, delim);
                     }
                 }
             return retval;

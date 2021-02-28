@@ -397,7 +397,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     OverrideDefaultThidDataType(dc);
                     // store the Commence fieldtype so we can distinguish between Date end Time later on.
                     dc.ExtendedProperties.Add(DataSetHelper.CommenceFieldTypeDescriptionExtProp, cd.CommenceFieldDefinition.Type);
-                    dt.Columns.Add(dc);
+                    dt.Columns.Add(dc); // throws error on duplicate THID column
                 }
                 retval.Tables.Add(dt);
                 PopulateCursorDescriptors(dt, cat, false);
