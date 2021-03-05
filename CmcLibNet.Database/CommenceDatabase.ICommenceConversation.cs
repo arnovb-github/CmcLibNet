@@ -1211,15 +1211,15 @@ namespace Vovin.CmcLibNet.Database
         {
             foreach (string arg in args)
             {
-                if (!EncodeDDEArguments)
+                if (EncodeDDEArguments)
                 {
                     // enclose the entire argument in double quotes
                     // and escape embedded double quotes
                     yield return $"\"{arg.Replace("\"", "\"\"")}\"";
                 }
-                else
+                else // return args as is
                 {
-                    yield return arg;
+                    yield return arg; 
                 }
             }
         }
