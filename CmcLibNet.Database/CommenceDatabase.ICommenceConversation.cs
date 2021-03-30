@@ -493,16 +493,7 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public string GetPreference(string preferenceSetting)
         {
-            Preferences pref = new Preferences();
-            string dde = BuildDDERequestCommand(new string[] { "GetPreference", "Me", this.Delim });
-            string[] me = DDERequest(dde).Split(this.Splitter, StringSplitOptions.None);
-            if (me != null)
-            {
-                pref.MeCategory = me[0];
-                pref.Me = me[1];
-            }
-            pref.LetterLogDir = GetDDEValues(new string[] { "GetPreference", "LetterlogDir" });
-            pref.ExternalDir = GetDDEValues(new string[] { "GetPreference", "ExternalDir" });
+            Preferences pref = this.GetPreferences();
 
             switch (preferenceSetting.ToLower())
             {
@@ -517,6 +508,27 @@ namespace Vovin.CmcLibNet.Database
                 default:
                     return "Unrecognized preferences setting.";
             }
+        }
+
+        /// <summary>
+        /// Returns populated Prefereces object
+        /// </summary>
+        /// <returns>Preferences</returns>
+        [ComVisible(false)]
+        public Preferences GetPreferences()
+        {
+            Preferences pref = new Preferences();
+            string dde = BuildDDERequestCommand(new string[] { "GetPreference", "Me", this.Delim });
+            var result = DDERequest(dde); // null when no Me-category was defined
+            if (result != null)
+            {
+                string[] me = result.Split(this.Splitter, StringSplitOptions.None);
+                pref.MeCategory = me[0];
+                pref.Me = me[1];
+            }
+            pref.LetterLogDir = GetDDEValues(new string[] { "GetPreference", "LetterlogDir" });
+            pref.ExternalDir = GetDDEValues(new string[] { "GetPreference", "ExternalDir" });
+            return pref;
         }
 
         /// <inheritdoc />
@@ -1139,7 +1151,7 @@ namespace Vovin.CmcLibNet.Database
         {
             string values = DDERequest(BuildDDERequestCommand(args));
             // TODO code-smell, we should probably just return an empty list
-            // for example, there is an edge-case scenario in which a cateory can have no views
+            // for example, there is an edge-case scenario in which a category can have no views
             // in that case, there is also no last error and I think we end up with an unwanted empty element
             if (values == null) // an error occurred, return error value
             {
