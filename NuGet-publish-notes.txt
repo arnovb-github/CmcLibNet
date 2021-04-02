@@ -1,7 +1,7 @@
 Building the package:
 nuget spec
 
-Include the dependencies in the nuspec file or they will nog be picked up
+Include the dependencies in the nuspec file manually or they will not be inclided in the nupkg file.
 
 create the nupkg, note the inclusion of the packages directory (because they are 1 path below working directory)
 nuget pack .\CmcLibNet.csproj -PackagesDirectory ..\packages\
