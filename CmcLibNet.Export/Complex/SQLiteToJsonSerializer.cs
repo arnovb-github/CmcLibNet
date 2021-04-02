@@ -115,7 +115,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 }
                 wr.WritePropertyName(reader.GetName(col));
                 wr.WriteValue(value);
-            } // for
+            }
         }
 
         private void WriteConnectedObjects(ChildTableQuery ctq, SQLiteDataReader sdr, Newtonsoft.Json.JsonWriter wr, bool includeThids)
@@ -141,6 +141,8 @@ namespace Vovin.CmcLibNet.Export.Complex
 
         private string GetShortDateOrTime(string value)
         {
+            if (string.IsNullOrEmpty(value)) { return value; }
+
             return value.ToString().Contains(':')
                 ? Convert.ToDateTime(value).ToShortTimeString()
                 : Convert.ToDateTime(value).ToShortDateString();
