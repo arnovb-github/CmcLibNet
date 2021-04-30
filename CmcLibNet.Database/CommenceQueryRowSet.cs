@@ -82,8 +82,9 @@ namespace Vovin.CmcLibNet.Database
                     _qrs = cur.GetQueryRowSetByID(pRowID, (int)flags);
                     break;
                 case RowSetIdentifier.Thid:
-                    _qrs = cur.GetQueryRowSetByThid(pRowID, (int)flags);
-                    break;
+                    // _qrs = cur.GetQueryRowSetByThid(pRowID, (int)flags);
+                    throw new NotSupportedException("GetQueryRowSetByThid no longer supported by Commence API");
+                    //break;
             }
             if (_qrs == null)
             {
