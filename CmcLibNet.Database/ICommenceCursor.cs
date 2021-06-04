@@ -9,7 +9,7 @@ namespace Vovin.CmcLibNet.Database
     /// </summary>
     [ComVisible(true)]
     [Guid("4C35C430-3EB7-4c6d-851A-315B0FAEFBF5")]
-    public interface ICommenceCursor : IDisposable
+    public interface ICommenceCursor : ICursorEvents, IDisposable
     {
         /// <summary>
         /// Name of the category this cursor is based on.

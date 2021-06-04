@@ -16,9 +16,10 @@ namespace Vovin.CmcLibNet.Database
     [ComDefaultInterface(typeof(ICommenceCursor))]
     public class CommenceCursor : ICommenceCursor
     {
+
         /* TODO rethink the setcolumns stuff, those methods are a mess */
 
-        private FormOA.ICommenceCursor _cur = null; // 'raw' ICommenceCursor object; a COM object
+        private FormOA.ICommenceCursor _cur = null; // the 'raw' ICommenceCursor COM object exposed by Commence
         private IRcwReleasePublisher _rcwReleasePublisher = null;
         private CursorFilters _filters = null;
         internal bool _directColumnsWereSet = false;
@@ -27,6 +28,8 @@ namespace Vovin.CmcLibNet.Database
         internal string _viewName = string.Empty;
         internal CommenceViewType _viewType;
         bool disposed = false;
+
+        public event EventHandler<CursorRowsReadArgs> RowsRead;
 
         #region Constructors
         /// <summary>
@@ -615,8 +618,8 @@ namespace Vovin.CmcLibNet.Database
             {
                 using (ICommenceQueryRowSet qrs = this.GetQueryRowSet(100))
                 {
-                    if (colindex == -1) { colindex = qrs.GetColumnIndex(columnName); }
-                    if (colindex == -1)
+                    colindex = qrs.GetColumnIndex(columnName);
+                    if (colindex == -1) // still -1?
                     {
                         throw new CommenceCOMException("Column '" + columnName + "' is not included in cursor."); 
                     }
@@ -677,32 +680,31 @@ namespace Vovin.CmcLibNet.Database
         /// <inheritdoc />
         public List<List<string>> ReadAllRows(int batchRows = 1000)
         {
-            List<List<string>> retval = null;
+            var retval = new List<List<string>>(); ;
             // capture current rowpointer
             int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0);
             // move rowpointer to start
             this.SeekRow(CmcCursorBookmark.Beginning, 0);
-
-            if (this.RowCount > 0) // do we need this?
+            int rowCount = this.RowCount;
+            for (int i = 0; i < rowCount; i += batchRows)
             {
-                retval = new List<List<string>>();
-                for (int i = 0; i < this.RowCount; i += batchRows)
+                string[][] buffer = this.GetRawData(batchRows);
+                // from this jagged array, we want to create lists of rowvalues and add them to the output list
+                for (int j = 0; j < buffer.GetLength(0); j++)
                 {
-                    string[][] buffer = this.GetRawData(batchRows);
-                    // from this jagged array, we want to create lists of rowvalues and add them to the output list
-                    for (int j = 0; j < buffer.GetLength(0); j++)
+                    List<string> newlist = buffer[j].ToList<string>();
+                    // if cursor has no thids flag, the first element of newlist will always be null
+                    // remove it to avoid confusion
+                    if (!this.Flags.HasFlag(CmcOptionFlags.UseThids))
                     {
-                        List<string> newlist = buffer[j].ToList<string>();
-                        // if cursor has no thids flag, the first element of newlist will always be null
-                        // remove it to avoid confusion
-                        if (!this.Flags.HasFlag(CmcOptionFlags.UseThids))
-                        {
-                            newlist.RemoveAt(0);
-                        }
-                        retval.Add(newlist);
+                        newlist.RemoveAt(0);
                     }
+                    retval.Add(newlist);
                 }
+                // raise progress event
+                RowsRead?.Invoke(this, new CursorRowsReadArgs(i, rowCount));
             }
+            
             // put back the pointer back to where it was
             this.SeekRow(CmcCursorBookmark.Beginning, rowpointer);
             return retval;
