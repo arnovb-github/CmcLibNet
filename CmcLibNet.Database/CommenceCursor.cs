@@ -800,7 +800,10 @@ namespace Vovin.CmcLibNet.Database
                 string[][] rowvalues = new string[qrs.RowCount][];
                 string[] buffer = null;
                 int numColumns = qrs.ColumnCount; // store number of columns so we only need 1 COM call; makes method much faster
-                int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // determine the rowpointer we are currently at
+                // I don't think this adds anything
+                // Not calling this may result in a performance gain for small nRows,
+                // because it saves a COM call.
+                // int rowpointer = this.SeekRow(CmcCursorBookmark.Current, 0); // determine the rowpointer we are currently at
                 int numRows = qrs.RowCount; // store number of rows to be read so we need only 1 COM call
                 for (int i = 0; i < numRows; i++)
                 {
@@ -817,7 +820,13 @@ namespace Vovin.CmcLibNet.Database
                     if (buffer == null)
                     {
                         qrs.Close();
-                        throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
+                        // This will throw an error containing the row the error occurred at,
+                        // but I do not think it adds anything. To an end user, it means nothing.
+                        // Within the assembly, I have no idea how it would be helpful;
+                        // you could possibly derive it from within the method calling this anyway
+                        //throw new CommenceCOMException("An error occurred while reading row" + (rowpointer + i).ToString());
+                        // just throw an error with info on the QueryRowSet, which may still be overkill.
+                        throw new CommenceCOMException("An error occurred while reading QueryRowSet row" + i);
                     }
                     for (int j = 0; j < numColumns; j++)
                     {
