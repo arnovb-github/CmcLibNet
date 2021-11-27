@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vovin.CmcLibNet.Database
 {
+    /// <summary>
+    /// Interface for cursor events not exposed to COM.
+    /// </summary>
     public interface ICursorEvents
     {
         /* 
@@ -17,6 +16,6 @@ namespace Vovin.CmcLibNet.Database
         /// <summary>
         /// Event for keeping track of the cursor read.
         /// </summary>
-        public event EventHandler<CursorRowsReadArgs> RowsRead;
+        event EventHandler<CursorRowsReadArgs> RowsRead;
     }
 }

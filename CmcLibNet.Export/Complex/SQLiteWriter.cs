@@ -318,7 +318,7 @@ namespace Vovin.CmcLibNet.Export.Complex
         /// A pretty complex method. It translates the Commence cursor to a ADO.NET DataSet
         /// </summary>
         /// <returns>DataSet.</returns>
-        private DataSet CreateDataSetFromCursor()
+        private DataSet CreateDataSetFromCursor() // for the love of god refactor me!
         {
             string dataSource = string.IsNullOrEmpty(_cursor.View) ? _cursor.Category : _cursor.View;
             DataSet retval = new DataSet(dataSource);

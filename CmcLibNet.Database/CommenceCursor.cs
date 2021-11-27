@@ -29,6 +29,9 @@ namespace Vovin.CmcLibNet.Database
         internal CommenceViewType _viewType;
         bool disposed = false;
 
+        /// <summary>
+        /// Progress event.
+        /// </summary>
         public event EventHandler<CursorRowsReadArgs> RowsRead;
 
         #region Constructors
