@@ -938,7 +938,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                         .Where(w => w.ColumnName != ColumnDefinition.ThidIdentifier)
                         .Select(c => c.ColumnName)
                         .ToList(),
-                    MaxFieldSize = (int)Math.Pow(2, 15), // 32.768‬
+                    MaxFieldSize = (int)Math.Pow(2, 15), // 32.768
                     CursorType = CmcCursorType.Category,
                     Filters = filters
                 };
