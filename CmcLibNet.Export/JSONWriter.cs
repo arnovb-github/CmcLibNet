@@ -44,6 +44,7 @@ namespace Vovin.CmcLibNet.Export
             base.ReadCommenceData();
         }
 
+        private bool firstRun = true;
         /// <summary>
         /// Writes json to a temporary file
         /// </summary>
@@ -54,7 +55,12 @@ namespace Vovin.CmcLibNet.Export
             StringBuilder sb = new StringBuilder();
             List<JObject> list = _jc.SerializeRowValues(e.RowValues);
             var jsonString = string.Join(",", list.Select(o => o.ToString()));
+            if (!firstRun && !string.IsNullOrEmpty(jsonString))
+            {
+                 _sw.Write(','); // add record delimiter on any data except first batch
+            }
             _sw.Write(jsonString);
+            firstRun = false;
             BubbleUpProgressEvent(e);
         }
 
