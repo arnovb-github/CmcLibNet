@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Vovin.CmcLibNet.Export
 {
@@ -13,7 +12,7 @@ namespace Vovin.CmcLibNet.Export
     internal class JsonWriter : BaseWriter
     {
         private bool disposed = false;
-        private StreamWriter _sw = null;
+        private StreamWriter _sw;
         private string _fileName;
         private readonly string _tempFile;
         private readonly JsonCreator _jc;
@@ -37,7 +36,7 @@ namespace Vovin.CmcLibNet.Export
         {
             if (base.IsFileLocked(new FileInfo(fileName)))
             {
-                throw new IOException("File '" + fileName + "' in use.");
+                throw new IOException($"File '{fileName}' in use.");
             }
             _sw = new StreamWriter(_tempFile); //change to fileName to use 'old' way
             _fileName = fileName;
@@ -52,7 +51,6 @@ namespace Vovin.CmcLibNet.Export
         /// <param name="e"></param>
         protected internal override void HandleProcessedDataRows(object sender, CursorDataReadProgressChangedArgs e)
         {
-            StringBuilder sb = new StringBuilder();
             List<JObject> list = _jc.SerializeRowValues(e.RowValues);
             var jsonString = string.Join(",", list.Select(o => o.ToString()));
             if (!firstRun && !string.IsNullOrEmpty(jsonString))
