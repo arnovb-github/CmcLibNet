@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CmcLibNet")]
-[assembly: AssemblyDescription("A .NET library for using the Commence RM API")]
+[assembly: AssemblyDescription("A .NET library for using the Commence RM API.")]
 [assembly: AssemblyConfiguration("Beta release")]
 [assembly: AssemblyCompany("Vovin IT Services")]
 [assembly: AssemblyProduct("Vovin.CmcLibNet")]
-[assembly: AssemblyCopyright("© 2015-2021 - Vovin IT Services")]
+[assembly: AssemblyCopyright("© 2015-2022 - Vovin IT Services")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
