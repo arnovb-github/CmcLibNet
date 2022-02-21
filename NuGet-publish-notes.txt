@@ -11,7 +11,9 @@ nuget pack .\CmcLibNet.csproj -PackagesDirectory ..\packages\
 
 or simply
 
-nuget pack -Properties Configuration=Release -packagesdirectory ..\packages
+nuget pack -packagesdirectory ..\packages -Properties Configuration=Release
+
+Note that the -Properties part must come last!
 
 Pushing to NuGet:
 
