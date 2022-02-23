@@ -302,12 +302,12 @@ namespace Vovin.CmcLibNet.Export.Complex
                     // check if there are values to process
                     if (rowValues[row][pairedColumnIndex].ConnectedFieldValues is null) { continue; } // fields linktable all must contain a value, skip row
                     // cache thid of primary table
-                    uint pkVal = SequenceFromThid(rowValues[row][0].DirectFieldValue, _cursorShared);
+                    long pkVal = SequenceFromThid(rowValues[row][0].DirectFieldValue, _cursorShared);
                     // add parameters
                     for (int i = 0; i < rowValues[row][pairedColumnIndex].ConnectedFieldValues.Length; i++)
                     {
                         string s = rowValues[row][pairedColumnIndex].ConnectedFieldValues[i];
-                        uint fkVal = SequenceFromThid(s, _cursorShared);
+                        long fkVal = SequenceFromThid(s, _cursorShared);
                         cmd.Parameters.AddWithValue(_pkParamName, pkVal);
                         cmd.Parameters.AddWithValue(_fkParamName, fkVal);
                         cmd.ExecuteNonQuery();
@@ -847,7 +847,6 @@ namespace Vovin.CmcLibNet.Export.Complex
             // if the cursor is shared, we will get a thid even if the item itself is local
             return FromHex(thid.Split(_thidDelimiter).Last());
         }
-
         private uint FromHex(string value)
         {
             //// strip the leading 0x (not needed here)
@@ -901,7 +900,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                     for (int i = 0; i < distinctConnections.Count(); i++)
                     {
                         conFields.Add(distinctConnections[i].Connection + ' ' + distinctConnections[i].Category);
-                        // we screate a custom SqlMap object here
+                        // we create a custom SqlMap object here
                         // because there is no corresponding table in the dataset
                         dict.Add(i, new SqlMap(_cursor.Category + distinctConnections[i].Connection + distinctConnections[i].Category,
                             distinctConnections[i].Category + DataSetHelper.PostFixId,
