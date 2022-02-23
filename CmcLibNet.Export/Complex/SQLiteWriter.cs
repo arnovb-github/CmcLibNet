@@ -266,7 +266,10 @@ namespace Vovin.CmcLibNet.Export.Complex
                 {
                     string value = rowValues[i][j].DirectFieldValue;
                     // first column is special case
-                    if (j == 0) { value = SequenceFromThid(value, _cursorShared).ToString(); }
+                    if (j == 0) 
+                    { 
+                        value = SequenceFromThid(value, _cursorShared).ToString(); 
+                    }
                     cmd.Parameters.AddWithValue($"@p{j}", value);
                 }
                 cmd.ExecuteNonQuery();
@@ -299,12 +302,12 @@ namespace Vovin.CmcLibNet.Export.Complex
                     // check if there are values to process
                     if (rowValues[row][pairedColumnIndex].ConnectedFieldValues is null) { continue; } // fields linktable all must contain a value, skip row
                     // cache thid of primary table
-                    int pkVal = SequenceFromThid(rowValues[row][0].DirectFieldValue, _cursorShared);
+                    uint pkVal = SequenceFromThid(rowValues[row][0].DirectFieldValue, _cursorShared);
                     // add parameters
                     for (int i = 0; i < rowValues[row][pairedColumnIndex].ConnectedFieldValues.Length; i++)
                     {
                         string s = rowValues[row][pairedColumnIndex].ConnectedFieldValues[i];
-                        int fkVal = SequenceFromThid(s, _cursorShared);
+                        uint fkVal = SequenceFromThid(s, _cursorShared);
                         cmd.Parameters.AddWithValue(_pkParamName, pkVal);
                         cmd.Parameters.AddWithValue(_fkParamName, fkVal);
                         cmd.ExecuteNonQuery();
@@ -649,15 +652,15 @@ namespace Vovin.CmcLibNet.Export.Complex
                 && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
                 && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Date))
             {
-                return colName = $"date({prefix}{colName}) AS {alias}"; // returns YYYY-MM-DD
+                return $"date({prefix}{colName}) AS {alias}"; // returns YYYY-MM-DD
             }
             else if (dc.DataType == typeof(DateTime)
                 && dc.ExtendedProperties.ContainsKey(DataSetHelper.CommenceFieldTypeDescriptionExtProp)
                 && dc.ExtendedProperties[DataSetHelper.CommenceFieldTypeDescriptionExtProp].Equals(CommenceFieldType.Time))
             {
-                return colName = $"time({prefix}{colName}) AS {alias}"; // returns HH:MM:SS
+                return $"time({prefix}{colName}) AS {alias}"; // returns HH:MM:SS
             }
-            return colName = $"{prefix}{colName} AS {alias}";
+            return $"{prefix}{colName} AS {alias}";
         }
 
         private string GetInsertQueryForDirectTable()
@@ -829,7 +832,8 @@ namespace Vovin.CmcLibNet.Export.Complex
         }
 
         // a thid comes in the form of a:b:c (shared item) or a:b:c:d (local item, technically this is a rowid)
-        private int SequenceFromThid(string thid, bool shared)
+        // TODO this is not going to work; THIDs can have identical sequence numbers but different WG ids
+        private uint SequenceFromThid(string thid, bool shared)
         {
             if (!shared)
             {
@@ -844,14 +848,14 @@ namespace Vovin.CmcLibNet.Export.Complex
             return FromHex(thid.Split(_thidDelimiter).Last());
         }
 
-        private int FromHex(string value)
+        private uint FromHex(string value)
         {
             //// strip the leading 0x (not needed here)
             //if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
             //{
             //    value = value.Substring(2);
             //}
-            return int.Parse(value, System.Globalization.NumberStyles.HexNumber);
+            return uint.Parse(value, System.Globalization.NumberStyles.HexNumber);
         }
 
         internal void PopulateCursorDescriptors(DataTable dt, string categoryName, bool isPrimary)
