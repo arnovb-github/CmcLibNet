@@ -107,33 +107,6 @@ namespace Vovin.CmcLibNet
             return Regex.Replace(str, pattern, replacement);
         }
 
-        /// <summary>
-        /// Removes all control characters (ascii &lt; 32) except TAB, CR and LF from a string.
-        /// </summary>
-        /// <param name="str">Input string.</param>
-        /// <returns>String without control characters.</returns>
-        internal static string RemoveControlCharacters(string str)
-        {
-            //// Linq implementation is more elegant but slightly slower
-            //return new string(
-            //    str.Select(c => (int)c)
-            //    .Where(i => i >= 32 || i == 9 || i == 10 || i == 13)
-            //    .Select(i => (char)i)
-            //    .ToArray());
-
-            // char arrays are fast
-            char[] c = str.ToCharArray();
-            StringBuilder sb = new StringBuilder();
-            foreach (char x in c)
-            {
-                if (x > 31 || x == 9 || x == 10 || x == 13)
-                {
-                    sb.Append(x);
-                }
-            }
-            return sb.ToString();
-        }
-
         internal static IEnumerable<string> RenameDuplicates(IList<string> list)
         {
             var q = list.GroupBy(x => x)
