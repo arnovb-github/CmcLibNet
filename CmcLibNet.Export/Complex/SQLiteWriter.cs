@@ -283,8 +283,6 @@ namespace Vovin.CmcLibNet.Export.Complex
             // and a CommenceValue with the connected THIDS
             // think of it as a Commence view that only contains connected values
 
-            // this method requires that we get/set the CommandText on the command
-            //IList<string> commandTexts = GetInsertCommandTextsForLinkTables().ToArray();
             var parentTable = _ds.Tables[CurrentCursorDescriptor.CategoryOrView];
             int pairedColumnIndex = 0;
             // notice that we do this column-first, it is faster.
@@ -423,7 +421,7 @@ namespace Vovin.CmcLibNet.Export.Complex
                 string name = DataSetHelper.TableName(_cursor.Category, lt.Name, lt.ToCategory);
                 dt = new DataTable(name);
                 string fkp = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
-                var dc = new DataColumn(fkp, typeof(int))
+                var dc = new DataColumn(fkp, typeof(long))
                 {
                     AllowDBNull = false
                 };
@@ -680,33 +678,6 @@ namespace Vovin.CmcLibNet.Export.Complex
             sb.Append(')');
             return sb.ToString();
         }
-        
-        //private IEnumerable<string> GetInsertQueriesForLinkTables()
-        //{
-        //    var linkTables = ColumnDefinitions.Where(w => w.IsConnection)
-        //        .Select(s => new { s.Connection, s.Category })
-        //        .Distinct()
-        //        .ToList();
-        //    foreach (var lt in linkTables)
-        //    {
-        //        // a link table always contains just 2 columns
-        //        StringBuilder sb = new StringBuilder("INSERT INTO ");
-        //        string s = DataSetHelper.TableName(_cursor.Category, lt.Connection, lt.Category);
-        //        sb.Append(SanitizeSqlIdentifier(s)); // expects name of link table
-        //        sb.Append('(');
-        //        s = DataSetHelper.ForeignKeyOfPrimaryTable(_cursor.Category, DataSetHelper.PostFixId);
-        //        sb.Append(SanitizeSqlIdentifier(s)); // primary key of primary category.
-        //        sb.Append(',');
-        //        s = DataSetHelper.ForeignKeyOfConnectedTable(lt.Connection, lt.Category, DataSetHelper.PostFixId);
-        //        sb.Append(SanitizeSqlIdentifier(s)); // the foreign key.
-        //        sb.Append(") VALUES (");
-        //        sb.Append(_pkParamName);
-        //        sb.Append(',');
-        //        sb.Append(_fkParamName);
-        //        sb.Append(')');
-        //        yield return sb.ToString();
-        //    }
-        //}
 
         private string GetInsertQueryForLinkTable(
                 string tableName,
@@ -732,7 +703,7 @@ namespace Vovin.CmcLibNet.Export.Complex
         {
             if (dc.ColumnName.Equals(ColumnDefinition.ThidIdentifier))
             {
-                dc.DataType = typeof(int);
+                dc.DataType = typeof(long);
                 dc.AllowDBNull = false;
             } // we will use int as datatype even tho a thid is a string
         }
@@ -832,29 +803,33 @@ namespace Vovin.CmcLibNet.Export.Complex
         }
 
         // a thid comes in the form of a:b:c (shared item) or a:b:c:d (local item, technically this is a rowid)
-        // TODO this is not going to work; THIDs can have identical sequence numbers but different WG ids
-        private uint SequenceFromThid(string thid, bool shared)
+        private long SequenceFromThid(string thid, bool shared)
         {
+            string[] strArray = thid.Split(_thidDelimiter);
             if (!shared)
             {
                 // when requesting a thid for a local category,
                 // you get the rowid instead (q:x:y:z)
-                // in a rowid for a shared field the sequence is in the second element of four
-                // Commence documentation states: is valid across cursor sessions
-                return FromHex(thid.Split(_thidDelimiter)[1]);
+                // Commence documentation states: is valid across cursor sessions,
+                // measning that we could probably rely on rowid's for the whole export, not sure tho
+                // I do not know what the individual portions stand for.
+                return FromHex(string.Concat(strArray));
             }
-            // a thid consists of 3 elements (x:y:z), the sequence number is the last
+            // a thid consists of 3 elements (x:y:z), where y and z are always 8 chars long.
             // if the cursor is shared, we will get a thid even if the item itself is local
-            return FromHex(thid.Split(_thidDelimiter).Last());
+            // the x element is the category number, we can omit that
+            // the y element always starts with '8000', it is not know what it stabnds for. We omit it.
+            // the z element is a sequence number
+            return FromHex(string.Concat(strArray[1].TakeLast(4).Concat(strArray[2])));
         }
-        private uint FromHex(string value)
+        private long FromHex(string value)
         {
             //// strip the leading 0x (not needed here)
             //if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
             //{
             //    value = value.Substring(2);
             //}
-            return uint.Parse(value, System.Globalization.NumberStyles.HexNumber);
+            return long.Parse(value, System.Globalization.NumberStyles.HexNumber);
         }
 
         internal void PopulateCursorDescriptors(DataTable dt, string categoryName, bool isPrimary)
