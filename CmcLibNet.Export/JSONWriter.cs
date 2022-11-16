@@ -38,6 +38,8 @@ namespace Vovin.CmcLibNet.Export
             {
                 throw new IOException($"File '{fileName}' in use.");
             }
+            // we write the output to a temp file first,
+            // allowing for easier data manipulation when export is done.
             _sw = new StreamWriter(_tempFile); //change to fileName to use 'old' way
             _fileName = fileName;
             base.ReadCommenceData();
@@ -83,6 +85,7 @@ namespace Vovin.CmcLibNet.Export
                     }
                     jtw.WritePropertyName("Items");
                     jtw.WriteStartArray();
+                    // pull in data written to temp file
                     using (StreamReader tr = new StreamReader(_tempFile))
                     {
                         jtw.WriteRaw(tr.ReadToEnd());

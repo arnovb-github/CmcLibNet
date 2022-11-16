@@ -192,17 +192,16 @@ namespace Vovin.CmcLibNet.Database
         CmcLibNet.Database.ICommenceEditRowSet GetEditRowSet(int nRows, CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
-        /// Create a rowset of all existing items for editing. Be careful when handling very large rowsets.
+        /// Create a rowset of items in cursor for editing. Be careful when handling very large rowsets.
         /// </summary>
         /// <param name="flags">Unused at present, must be 0.</param>
-        /// <remarks>This method is only available for .Net consumers.</remarks>
         /// <returns><see cref="ICommenceEditRowSet"/> object on success.</returns>
         /// <remarks>This method is only available to .NET applications.</remarks>
         [ComVisible(false)] // overload, only available for .Net
         CmcLibNet.Database.ICommenceEditRowSet GetEditRowSet(CmcOptionFlags flags = CmcOptionFlags.Default);
 
         /// <summary>
-        /// Create a rowset for editing a particular row.
+        /// Create a rowset for editing a specified cursor row (i.e. item).
         /// </summary>
         /// <param name="pRowID">Unique ID string obtained from GetRowID().</param>
         /// <param name="flags">Unused at present, must be 0.</param>
