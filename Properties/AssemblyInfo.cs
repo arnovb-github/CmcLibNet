@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -9,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("Beta release")]
 [assembly: AssemblyCompany("Vovin IT Services")]
 [assembly: AssemblyProduct("Vovin.CmcLibNet")]
-[assembly: AssemblyCopyright("© 2015-2022 - Vovin IT Services")]
+[assembly: AssemblyCopyright("© 2015-2024 - Vovin IT Services")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
