@@ -247,8 +247,8 @@ namespace Vovin.CmcLibNet.Export
 
         private string GetActiveViewName(ICommenceDatabase db)
         {
-            string retval = string.Empty;
             IActiveViewInfo av = db.GetActiveViewInfo();
+            string retval;
             if (av != null && string.IsNullOrEmpty(av.Field)) // view is active and it is not an item detail form
             {
                 retval = av.Name;

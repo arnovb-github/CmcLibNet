@@ -44,10 +44,7 @@ namespace Vovin.CmcLibNet.Export
             }
             this.columnDefinitions = columndefinitions;
             regex = new Regex(pattern);
-            if (this.cursor.Flags.HasFlag(CmcOptionFlags.UseThids))
-            {
-                useThids = true;
-            }
+            this.useThids = this.cursor.Flags.HasFlag(CmcOptionFlags.UseThids);
         }
         #endregion
 
@@ -68,7 +65,7 @@ namespace Vovin.CmcLibNet.Export
         internal void GetDataByAPI()
         {
             int rowsProcessed = 0;
-            string[][] rawdata =  null;
+            string[][] rawdata;
             for (int rows = 0; rows < totalRows; rows += numRows)
             {
                 try
@@ -82,16 +79,16 @@ namespace Vovin.CmcLibNet.Export
                 rowsProcessed += numRows;
                 var data = ProcessDataBatch(rawdata);
                 // raise 'progress' event
-                CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, rowsProcessed > totalRows ? totalRows : rowsProcessed, totalRows);
+                var args = new CursorDataReadProgressChangedArgs(data, rowsProcessed > totalRows ? totalRows : rowsProcessed, totalRows);
                 OnDataProgressChanged(args); // raise event after each batch of rows
             }
             // raise 'done' event
-            ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
+            var e = new ExportCompleteArgs(totalRows);
             OnDataReadCompleted(e); // done with reading data
         }
 
         /// <summary>
-        /// Reads data using DDE. This is extremely show and should only ever be used as a last resort.
+        /// Reads data using DDE. This is extremely slow and should only ever be used as a last resort.
         /// </summary>
         /// <param name="mocktables"></param>
         internal void GetDataByDDE(List<TableDef> mocktables) // needs fixing
@@ -267,7 +264,7 @@ namespace Vovin.CmcLibNet.Export
                     if (CTS.Token.IsCancellationRequested) { break; }
 
                     var data = ProcessDataBatch(value.Data);
-                    CursorDataReadProgressChangedArgs args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
+                    var args = new CursorDataReadProgressChangedArgs(data, value.RowsProcessed, totalRows);
                     OnDataProgressChanged(args); // raise event after each batch of rows
                 }
             }, TaskCreationOptions.LongRunning); 
@@ -275,7 +272,7 @@ namespace Vovin.CmcLibNet.Export
             Task.WaitAll(readTask, processTask); // we need to wait all before we give the 'done' signal.
             values.Dispose();
             // raise 'done' event
-            ExportCompleteArgs e = new ExportCompleteArgs(totalRows);
+            var e = new ExportCompleteArgs(totalRows);
             OnDataReadCompleted(e); // done with reading data
         }
         #endregion
@@ -288,7 +285,7 @@ namespace Vovin.CmcLibNet.Export
         /// <returns>A list of CommenceValue lists</returns>
         private List<List<CommenceValue>> ProcessDataBatch(string[][] rawdata)
         {
-            List<List<CommenceValue>> retval = new List<List<CommenceValue>>();
+            var retval = new List<List<CommenceValue>>();
             CommenceValue cv;
             ColumnDefinition cd;
 
@@ -411,14 +408,5 @@ namespace Vovin.CmcLibNet.Export
             return i;
         }
         #endregion
-
-        /// <summary>
-        /// Helper class to capture the row(s).
-        /// </summary>
-        private class CmcData
-        {
-            internal string[][] Data { get; set; }
-            internal int RowsProcessed { get; set; }
-        }
     }
 }
